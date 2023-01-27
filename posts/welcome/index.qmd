@@ -1,0 +1,8 @@
+---
+title: "All Your Bayes 2.0"
+author: ""
+date: "2023-01-23"
+categories: [news]
+---
+
+I've recreated this site in [quarto](https://quarto.org), and plan on writing more jargon-free articles on risk, uncertainty, decisions, statistics, and football.

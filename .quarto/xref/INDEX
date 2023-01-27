@@ -1,0 +1,35 @@
+{
+  "index.qmd": {
+    "index.html": "47c4f86d"
+  },
+  "posts/post-with-code/index.qmd": {
+    "index.html": "2cbbdac6"
+  },
+  "posts/welcome/index.qmd": {
+    "index.html": "0e7e55c6"
+  },
+  "about.qmd": {
+    "about.html": "9ca10458"
+  },
+  "posts/xg_pt1/index.qmd": {
+    "index.html": "c14edbc4"
+  },
+  "posts/Bayes@Lund/Bayes-Lund2023_presentation.qmd": {
+    "Bayes-Lund2023_presentation.html": "05b6f5da"
+  },
+  "posts/Bayes@Lund/Figures/mermaid_diagrams.qmd": {
+    "mermaid_diagrams.html": "0784265f"
+  },
+  "posts/xg_pt2/index.qmd": {
+    "index.html": "34421fa0"
+  },
+  "posts/Bayes@Lund/index.qmd": {
+    "index.html": "638e624e"
+  },
+  "posts/player_form/index.qmd": {
+    "index.html": "1fb113fa"
+  },
+  "posts/Why_Bayes/index.qmd": {
+    "index.html": "d9d3702b"
+  }
+}

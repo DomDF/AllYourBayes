@@ -1,0 +1,11 @@
+Anomaly ID,Pr(fail),Cost,"Action, a*"
+1,0,0,No action
+2,0,0,No action
+3,1,10000,Repair
+4,0.042,4200,No action
+5,1,10000,Repair
+6,0,0,No action
+7,0,0,No action
+8,0.056,5600,No action
+9,0.001,100,No action
+10,0.034,3400,No action

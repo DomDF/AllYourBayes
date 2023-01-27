@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.119">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="">
+<meta name="dcterms.date" content="2021-01-07">
+
+<title>All Your Bayes - Uncertainty in xG. Part 2: Partial Pooling</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">All Your Bayes</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml" rel="" target=""><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Uncertainty in xG. Part 2: Partial Pooling</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">football</div>
+                <div class="quarto-category">analysis</div>
+                <div class="quarto-category">xg</div>
+                <div class="quarto-category">Stan</div>
+                <div class="quarto-category">uncertainty</div>
+                <div class="quarto-category">Bayes</div>
+                <div class="quarto-category">multi-level modelling</div>
+                <div class="quarto-category">partial pooling</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">January 7, 2021</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>This is part 2 of an article on fitting a Bayesian partial pooling model to predict expected goals. It has the benefits of (a) quantifying <em>aleatory and epistemic</em> uncertainty, and (b) making both group-level (player-specific) and population-level (team-specific) probabilistic predictions. If you are interested in these ideas but not in statistical language, then you can also check out <a href="https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/">part 1</a>.</p>
+<hr>
+</section>
+<section id="expected-goals" class="level3">
+<h3 class="anchored" data-anchor-id="expected-goals">Expected Goals</h3>
+<p>Expected Goals (or <em>xG</em>) is a metric that was developed to predict the probability of a football (soccer) player scoring a goal, conditional on some mathematical characterisation of the shooting opportunity. Since we have a binary outcome (he or she will either score or not score) we can use everyone’s favourite GLM - logistic regression.</p>
+<p>Unfortunately this causes some overlap with a <a href="https://www.allyourbayes.com/post/2020-02-14-bayesian-logistic-regression-with-stan/">previous blog post - ‘<em>Bayesian Logistic Regression with Stan</em>’</a>, but don’t worry - the focus here is all about <em>Partial Pooling</em>.</p>
+<p>First let’s look at a non-Bayesian base case. <a href="https://statsbomb.com/">StatsBomb</a> have kindly made lots of football data freely available in <a href="https://github.com/statsbomb/StatsBombR">their R package</a>. The below creates a dataframe of the shots taken by Arsenal FC during the <code>2003</code>-<code>04</code> Premier League winning season.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(StatsBombR); <span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Prem_SB_matches <span class="ot">&lt;-</span> <span class="fu">FreeMatches</span>(<span class="at">Competitions =</span> SB_comps <span class="sc">%&gt;%</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                               dplyr<span class="sc">::</span><span class="fu">filter</span>(competition_name <span class="sc">==</span> <span class="st">'Premier League'</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                               dplyr<span class="sc">::</span><span class="fu">filter</span>(competition_gender <span class="sc">==</span> <span class="st">'male'</span>))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>Arsenal_0304_shots <span class="ot">&lt;-</span> <span class="fu">StatsBombFreeEvents</span>(<span class="at">MatchesDF =</span> Prem_SB_matches, </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">Parallel =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">allclean</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(type.name <span class="sc">==</span> <span class="st">'Shot'</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(possession_team.name <span class="sc">==</span> <span class="st">'Arsenal'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Using <code>R</code>’s <code>tidymodels</code> framework - make sure to have a look at <a href="https://www.youtube.com/channel/UCTTBgWyJl2HrrhQOOc710kA">Julia Silge’s tutorials</a> if you are unfamiliar - we can specify and fit a logistic regression. The below compares our results (including confidence intervals) to those from StatsBomb.</p>
+<p>If you are interested in creating something similar yourself, this model has standardised inputs for parameters with relatively large values (such as angles and distances) and one hot encoding of categorical inputs (such as whether or not the shot was taken with a players weaker foot).</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Since we have used StatsBomb data (though their model will no doubt be based on a much larger collection) we would expect our results to be similar to theirs, and they are. Considering just the point estimates, the two models appear to broadly agree, especially when both are predicting a very low or a very high xG.</p>
+<p>However, some of the confidence intervals on our <code>tidymodels</code> predictions are very large. Although we would generally expect these to decrease as we introduced more data, we know that football matches (and especially specific events within football matches) are full of uncertainty. If we want to be able to quantify this uncertainty in a more useful way (we do) - we want a Bayesian model. The below section details the specific type of Bayesian model that I’m proposing for estimating xG.</p>
+</section>
+<section id="multi-level-partial-pooling-models" class="level3">
+<h3 class="anchored" data-anchor-id="multi-level-partial-pooling-models">Multi-Level (Partial Pooling) Models</h3>
+<p>Hierarchical (or ‘nested’) data contains multiple groups within a population, such as players with a football team. Unfortunately, this information is lost (and bias is introduced) when such data is modelled as a single population. At the other extreme we can assume each group is fully independent, and the difficulty here is that there will be less data available and therefore more variance in our predictions.</p>
+<p>Consequently, we want an intermediate solution, acknowledging variation between groups, but allowing for data from one group to inform predictions about others. This is achieved by using a multi-level (or hierarchical) model structure. Such models allow partial sharing (or <em>pooling</em>) of information between groups, to the extent that the data indicate is appropriate. This approach results in reduced variance (when compared to a set of corresponding independent models), a shift towards a population mean (known as <em>shrinkage</em>), and generally an improved predictive performance.</p>
+<p>Sounds great, right? So why would anyone ever not use this kind of model? In his <a href="https://elevanth.org/blog/2017/08/24/multilevel-regression-as-default/">excellent blog</a>, Richard McElreath makes the case that multi-level models should be our default approach. His greatest criticism of them is that they require some experience or training to specify and interpret. <a href="https://xcelab.net/rm/statistical-rethinking/">His book</a> has a dedicated chapter to help with that. Of course, there are many better descriptions of multi-level modelling than you will get from me, but I personally found the examples in <a href="http://www.stat.columbia.edu/~gelman/arm/">Andrew Gelman and Jennifer Hill’s book</a> to be very helpful. Finally, <a href="https://betanalpha.github.io/assets/case_studies/hierarchical_modeling.html">Michael Betancourt has written a much more comprehensive blog post on the topic</a>, which includes a discussion on the underlying assumption of <em>exchangeability</em>.</p>
+<p>We can create a partial pooling model by re-writing the below:</p>
+<p>[ xG = Inverse ; Logit(+ X) ]</p>
+<p>To look like this:</p>
+<p>[ xG = Inverse ; Logit(<em>{[Player]} + </em>{[Player]} X) ]</p>
+<p>In this new structure, each parameter will now be a vector of length <span class="math inline">\(N\)</span> (where <span class="math inline">\(N\)</span> players are being considered). This means there will be a different co-efficient describing how <span class="math inline">\(xG\)</span> varies with distance from goal for each player. This makes sense as we would expect variation between players and we want our model to be able to describe it.</p>
+<p>If each of these parameters had their own priors, we would essentially have specified <span class="math inline">\(N\)</span> independent models - one for each player. But there is a twist here: each of the vectors of co-efficients share a single prior.</p>
+<p>[ N(<em>{}, ; </em>{}) ]</p>
+<p>This will pull each of the individual co-efficients towards a shared mean, <span class="math inline">\(\mu_{\beta}\)</span>. The variation between the players (for a given parameter) is characterised by <span class="math inline">\(\sigma_{\beta}\)</span>. Rather than specify these ourselves, we will also estimate these as part of the model. This means that the extent of the pooling is conditional on the data, which is an extremely useful feature. However, we then need to include priors on these parameters, which are known as <em>hyperpriors</em>.</p>
+<p>Note that this process has introduced an extra layer (or level) to the model structure. This is why they are known as <em>multi-level</em> or <em>hierarchical</em> models. The term <em>partial pooling</em> is more a description of what they do.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/nXvirfLCf99rG/giphy.gif" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">In the Absence of Multi-Level Models</figcaption><p></p>
+</figure>
+</div>
+<p>We see the greatest benefit of this approach when only limited data is available for one or more groups. If one player took very few shots during a period of data collection, then there will be a lot of uncertainty in their xG predictions ….<em>unless</em> we can make use of the data we have for the rest of the team.</p>
+</section>
+<section id="what-does-this-look-like-in-stan" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-this-look-like-in-stan">What does this look like in <code>Stan</code>?</h3>
+<p>The below is a reduced <code>Stan</code> model, with just one co-efficient (concerning the distance from goal of the shot). This is not me being secretive, its just that the full model is quite large. You can simply add more parameters like a multi-variate linear regression on the log-odds scale, but remember that they will each require priors, hyperpriors, and data.</p>
+<div class="cell" data-output.var="xG_model_reduced">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode stan code-with-copy"><code class="sourceCode stan"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> &lt;<span class="kw">lower</span> = <span class="dv">1</span>&gt; n_shots;</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> &lt;<span class="kw">lower</span> = <span class="dv">0</span>, <span class="kw">upper</span> = <span class="dv">1</span>&gt; goal [n_shots];</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> &lt;<span class="kw">lower</span> = <span class="dv">1</span>&gt; n_players;</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> &lt;<span class="kw">lower</span> = <span class="dv">1</span>&gt; player_id [n_shots];</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">vector</span> [n_shots] dist_goal;</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> mu_mu_alpha;</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> &lt;<span class="kw">lower</span> = <span class="dv">0</span>&gt; sigma_mu_alpha;</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span>&lt;<span class="kw">lower</span> = <span class="dv">0</span>&gt; rate_sigma_alpha;</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> mu_mu_beta_dist_goal;</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> &lt;<span class="kw">lower</span> = <span class="dv">0</span>&gt; sigma_mu_beta_dist_goal;</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span>&lt;<span class="kw">lower</span> = <span class="dv">0</span>&gt; rate_sigma_beta_dist_goal;</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="kw">parameters</span> {</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">vector</span> [n_players] alpha;</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="dt">vector</span> [n_players] beta_dist_goal;</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> mu_alpha;</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> &lt;<span class="kw">lower</span> = <span class="dv">0</span>&gt; sigma_alpha;</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> mu_beta_dist_goal;</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> &lt;<span class="kw">lower</span> = <span class="dv">0</span>&gt; sigma_beta_dist_goal;</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="kw">model</span> {</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Logistic model </span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  goal ~ bernoulli_logit(alpha[player_id] + beta_dist_goal[player_id] .* dist_goal); </span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Priors </span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  alpha ~ normal(mu_alpha, sigma_alpha);</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  beta_dist_goal ~ normal(mu_beta_dist_goal, sigma_beta_dist_goal);</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Hyperpriors</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  mu_alpha ~ normal(mu_mu_alpha, sigma_mu_alpha);</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  sigma_alpha ~ exponential(rate_sigma_alpha);</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  mu_beta_dist_goal ~ normal(mu_mu_beta_dist_goal, sigma_mu_beta_dist_goal);</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  sigma_beta_dist_goal ~ exponential(rate_sigma_beta_dist_goal);</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="kw">generated quantities</span> {</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> alpha_pp = normal_rng(mu_alpha, sigma_alpha);</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> beta_dist_goal_pp = normal_rng(mu_beta_dist_goal, sigma_beta_dist_goal);</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>A few things that I’d like to note:</p>
+<ul>
+<li>My input data is of length <code>n_shots</code> and my parameters are vectors of length <code>n_players</code>.</li>
+<li>I’ve included my hyperpriors (the <code>mu_mu_...</code>, <code>sigma_mu...</code>, and <code>rate_sigma...</code> terms) as data, rather than <em>hard code</em> values into the file. This is so I can re-run the model with new hyperpriors without <code>Stan</code> needing to recompile.</li>
+<li>Even though I have included the <code>mu...</code> and <code>sigma..</code> terms as priors in my comment, this is just to help describe the model structure. They are all included in the Parameters block of the model. As discussed above, they are inferred as part of the joint posterior distribution, meaning that we are estimating the extent of the pooling from the data.</li>
+<li>I’m using the generated quantities to produce my population-level parameters, so that I have everything I need to put together probabilistic predictions in either <code>R</code> or <code>Python</code>.</li>
+</ul>
+<p>#### Model Parameters</p>
+<p>The posterior distribution (which <code>Stan</code> has sampled from) is a joint probabilistic model of all parameters. Let’s have a look at a few, specifically those corresponding to the effect of distance between the shot taker and goalkeeper. Shown below is the co-efficient for <span class="math inline">\(6\)</span> players (indexed <span class="math inline">\(1 \rightarrow 6\)</span>). We can see that the distance to the keeper is predicted to influence each player differently.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Some of the players will have taken fewer shots and therefore we will have less data to fit their player-specific parameters. The <code>mu_beta_dist_keeper</code> and <code>sigma_beta_dist_keeper</code> parameters in the above plot are the shared ‘<em>priors</em>’ that control how the data from each of the players can be used to inform one another. The <code>beta_dist_keeper_pp</code> parameter is specified in the generated quantities block of my <code>Stan</code> model. It is correlated samples from the distribution characterised by the shared priors. This becomes the population (team) level co-efficient in my predictions.</p>
+<p>I’ve included some predictions for some actual shots taken that season in <a href="https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/">part 1</a> of this article, but since this is the purpose of the model let’s look at one more.</p>
+<p>Here is Robert Pirès goal from just outside the box at home to Bolton Wanderers in 2004. It was on his stronger (right) foot and he was not under pressure from any defenders.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>As labelled on the above plot, the StatsBomb model only gave Pirès a 5% chance of scoring this chance. The below xG predictions are from the Bayesian partial pooling model, both for Robert Pirès (upper) and for the case where any Arsenal player could be shooting (lower). Also shown is the StatsBomb prediction. We see an improvement (since we know this chance was scored) when we make a player-specific prediction.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Our probabilistic predictions contain more information than point estimates, but for the purposes of a simpler comparison we can consider the mean value. The mean value of our team-level prediction is 20%, but conditional on the knowledge that Pirès was shooting, this becomes 33%.</p>
+<p>If Arsène Wenger could’ve chosen which of his players was presented with this opportunity, Robert Pirès would’ve been one of his top choices (though possible behind Thierry Henry). We have an intuitive understanding that such players have the necessary attributes to score from relatively difficult opportunities such as this, and this is accounted for in our model. We have tackled the challenge of greatly reduced (player-specific) datasets, by allowing them to share information on the basis of how similar they are.</p>
+</section>
+<section id="challenges" class="level3">
+<h3 class="anchored" data-anchor-id="challenges">Challenges</h3>
+<p>Multi-level models capture the multi-level structure of hierarchical (nested) datasets, accounting for both variability and commonality between different groups (in this example: between different players in a team). However, as we can see from the previous plot, by introducing a set of parameters for each group and relating them all in this way, the posterior distribution now has many more dimensions and is more challenging to sample from. If you are using <code>Stan</code> you may now see more warning messages regarding <em>divergent transitions</em> - a concept that José Mourinho is acting out, below. If you do run into these problems, I would recommend reviewing the <a href="https://mc-stan.org/docs/2_25/stan-users-guide/reparameterization-section.html">guidance in the Stan manual on reparameterisation</a> (writing your same model on a new scale, such that it is easier for the software to work with).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/140EFtM0NCyjHq/giphy.gif" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Mou’s Divergent Transitions</figcaption><p></p>
+</figure>
+</div>
+<p>Finally, I have published a paper demonstrating this modelling approach in an engineering context, which includes additional details for anyone who is interested: <a href="https://www.sciencedirect.com/science/article/abs/pii/S0951832020306189?via=ihub">‘Consistent and coherent treatment of uncertainties and dependencies in fatigue crack growth calculations using multi-level Bayesian models’</a>.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

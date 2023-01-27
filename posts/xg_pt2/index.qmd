@@ -1,0 +1,366 @@
+---
+title: "Uncertainty in xG. Part 2: Partial Pooling"
+author: ""
+date: "2021-01-07"
+categories: [football, analysis, xg, Stan, uncertainty, Bayes, multi-level modelling, partial pooling]
+image: "image.jpg"
+---
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(extrafont); library(tidyverse); library(DomDF)
+
+library(magick)
+SB_logo <- magick::image_read(path = "SB_logo.png")
+
+library(StatsBombR)
+
+get_player_xG <- function(i, mcmc_df, model_data_df){
+
+  log_odds <- (mcmc_df$alpha + 
+                 mcmc_df$beta_dist_goal * model_data_df$DistToGoal[i] +
+                 mcmc_df$beta_dist_keeper * model_data_df$DistToKeeper[i] +
+                 mcmc_df$beta_angle_dev * model_data_df$AngleDeviation[i] +
+                 mcmc_df$beta_angle_goal * model_data_df$AngleToGoal[i] +
+                 mcmc_df$beta_cone_def * model_data_df$DefendersInCone[i] +
+                 mcmc_df$beta_pressure * model_data_df$under_pressure[i] +
+                 mcmc_df$beta_with_head * model_data_df$shot.body_part.name_processed_Head[i] +
+                 mcmc_df$beta_with_weak_foot * model_data_df$shot.body_part.name_processed_Weaker.Foot[i])
+  
+  player <- model_data_df$player.name[i]; pred_player <- mcmc_df$player[i]
+
+  results_df <- data.frame(xG = (exp(x = log_odds) / (1 + exp(x = log_odds))), 
+                           player = player,
+                           pred_player = pred_player) %>% 
+    as_tibble()
+  
+  return(results_df)
+  
+}
+
+get_team_xG <- function(i, mcmc_df, model_data_df, n_prob = 1e3){
+  
+  log_odds <- (mcmc_df$alpha_pp + 
+                 mcmc_df$beta_dist_goal_pp * model_data_df$DistToGoal[i] +
+                 mcmc_df$beta_dist_keeper_pp * model_data_df$DistToKeeper[i] +
+                 mcmc_df$beta_angle_dev_pp * model_data_df$AngleDeviation[i] +
+                 mcmc_df$beta_angle_goal_pp * model_data_df$AngleToGoal[i] +
+                 mcmc_df$beta_cone_def_pp * model_data_df$DefendersInCone[i] +
+                 mcmc_df$beta_pressure_pp * model_data_df$under_pressure[i] +
+                 mcmc_df$beta_with_head_pp * model_data_df$shot.body_part.name_processed_Head[i] +
+                 mcmc_df$beta_with_weak_foot_pp * model_data_df$shot.body_part.name_processed_Weaker.Foot[i])
+  
+  player <- model_data_df$player.name[i]
+  
+  results_df <- data.frame(xG = (exp(x = log_odds) / (1 + exp(x = log_odds))), 
+                           player = player,
+                           pred_player = 'Unknown Player') %>% 
+    as_tibble()
+  
+  return(results_df)
+  
+}
+
+AFC_goals_df <- read_csv(file = 'AFC_goals_df.csv', col_names = T, col_select = -c(...1))
+
+AFC_df <- read_csv(file = 'xG_model_data.csv', col_names = T, col_select = -c(...1))
+
+xG_mcmc_samples <- read_csv(file = 'xG_mcmc_samples.csv') |> select(c(Iteration, Chain, Parameter, value))
+
+xG_model_data_processed <- read_csv(file = 'model_data_processed.csv', col_names = T, col_select = -c(...1))
+
+any_player_df <- xG_mcmc_samples %>% 
+  dplyr::filter(grepl(pattern = '_pp', x = Parameter)) %>% 
+  tidyr::pivot_wider(names_from = Parameter, values_from = value)
+
+RP_df <- xG_mcmc_samples %>% 
+  dplyr::filter(grepl(pattern = '[5]', x = Parameter)) %>% 
+  mutate(Parameter = str_remove(string = Parameter, pattern = '.5]')) %>% 
+  tidyr::pivot_wider(names_from = Parameter, values_from = value) %>% 
+  mutate(player = unique(xG_model_data_processed$player.name)[5])
+
+```
+
+### TLDR
+
+This is part 2 of an article on fitting a Bayesian partial pooling model to predict expected goals. It has the benefits of (a) quantifying *aleatory and epistemic* uncertainty, and (b) making both group-level (player-specific) and population-level (team-specific) probabilistic predictions. If you are interested in these ideas but not in statistical language, then you can also check out [part 1](https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/).
+
+---
+
+### Expected Goals
+
+Expected Goals (or *xG*) is a metric that was developed to predict the probability of a football (soccer) player scoring a goal, conditional on some mathematical characterisation of the shooting opportunity. Since we have a binary outcome (he or she will either score or not score) we can use everyone's favourite GLM - logistic regression.
+
+Unfortunately this causes some overlap with a [previous blog post - '*Bayesian Logistic Regression with Stan*'](https://www.allyourbayes.com/post/2020-02-14-bayesian-logistic-regression-with-stan/), but don't worry - the focus here is all about *Partial Pooling*.
+
+First let's look at a non-Bayesian base case. [StatsBomb](https://statsbomb.com/) have kindly made lots of football data freely available in [their R package](https://github.com/statsbomb/StatsBombR). The below creates a dataframe of the shots taken by Arsenal FC during the `2003`-`04` Premier League winning season.
+
+```{r}
+#| echo: true
+#| eval: false
+#| warning: false
+library(StatsBombR); library(tidyverse)
+
+Prem_SB_matches <- FreeMatches(Competitions = SB_comps %>% 
+                               dplyr::filter(competition_name == 'Premier League') %>% 
+                               dplyr::filter(competition_gender == 'male'))
+
+Arsenal_0304_shots <- StatsBombFreeEvents(MatchesDF = Prem_SB_matches, 
+                                          Parallel = TRUE) %>% 
+  allclean() %>% 
+  dplyr::filter(type.name == 'Shot') %>% 
+  dplyr::filter(possession_team.name == 'Arsenal')
+
+```
+
+Using `R`'s `tidymodels` framework - make sure to have a look at [Julia Silge's tutorials](https://www.youtube.com/channel/UCTTBgWyJl2HrrhQOOc710kA) if you are unfamiliar - we can specify and fit a logistic regression. The below compares our results (including confidence intervals) to those from StatsBomb. 
+
+If you are interested in creating something similar yourself, this model has standardised inputs for parameters with relatively large values (such as angles and distances) and one hot encoding of categorical inputs (such as whether or not the shot was taken with a players weaker foot).
+
+```{r}
+#| echo: false
+#| warning: false
+
+pred_df <- read_csv('pred_df.csv', col_names = T, col_select = -c(...1)) %>%
+  mutate(goal_desc = case_when(
+    goal == 0 ~ 'Shot Missed',
+    goal == 1 ~ 'Shot Scored'
+  ))
+
+ggplot(data = pred_df)+
+  geom_point(mapping = aes(x = .pred_1, y = shot.statsbomb_xg),
+             size = 3, alpha = 0.4)+
+  geom_errorbar(mapping = aes(y = shot.statsbomb_xg,
+                              xmin = .pred_lower_1, xmax = .pred_upper_1),
+                width = 0.01, alpha = 0.2)+
+  facet_wrap(facets = ~ goal_desc)+
+  labs(y = 'StatsBomb xG', x = 'tidymodels xG')+
+  geom_vline(xintercept = 0.5, col = 'firebrick', alpha = 0.4, lty = 2)+
+  geom_hline(yintercept = 0.5, col = 'firebrick', alpha = 0.4, lty = 2)+
+  DomDF::theme_ddf_light(base_family = "Atkinson Hyperlegible")
+
+```
+
+Since we have used StatsBomb data (though their model will no doubt be based on a much larger collection) we would expect our results to be similar to theirs, and they are. Considering just the point estimates, the two models appear to broadly agree, especially when both are predicting a very low or a very high xG.
+
+However, some of the confidence intervals on our `tidymodels` predictions are very large. Although we would generally expect these to decrease as we introduced more data, we know that football matches (and especially specific events within football matches) are full of uncertainty. If we want to be able to quantify this uncertainty in a more useful way (we do) - we want a Bayesian model. The below section details the specific type of Bayesian model that I'm proposing for estimating xG.
+
+### Multi-Level (Partial Pooling) Models
+
+Hierarchical (or 'nested') data contains multiple groups within a population, such as players with a football team. Unfortunately, this information is lost (and bias is introduced) when such data is modelled as a single population. At the other extreme we can assume each group is fully independent, and the difficulty here is that there will be less data available and therefore more variance in our predictions.
+
+Consequently, we want an intermediate solution, acknowledging variation between groups, but allowing for data from one group to inform predictions about others. This is achieved by using a multi-level (or hierarchical) model structure. Such models allow partial sharing (or *pooling*) of information between groups, to the extent that the data indicate is appropriate. This approach results in reduced variance (when compared to a set of corresponding independent models), a shift towards a population mean (known as *shrinkage*), and generally an improved predictive performance.
+
+Sounds great, right? So why would anyone ever not use this kind of model? In his [excellent blog](https://elevanth.org/blog/2017/08/24/multilevel-regression-as-default/), Richard McElreath makes the case that multi-level models should be our default approach. His greatest criticism of them is that they require some experience or training to specify and interpret. [His book](https://xcelab.net/rm/statistical-rethinking/) has a dedicated chapter to help with that. Of course, there are many better descriptions of multi-level modelling than you will get from me, but I personally found the examples in [Andrew Gelman and Jennifer Hill's book](http://www.stat.columbia.edu/~gelman/arm/) to be very helpful. Finally, [Michael Betancourt has written a much more comprehensive blog post on the topic](https://betanalpha.github.io/assets/case_studies/hierarchical_modeling.html), which includes a discussion on the underlying assumption of *exchangeability*.
+
+We can create a partial pooling model by re-writing the below:
+
+\[
+xG = Inverse \; Logit(\alpha + \beta \cdot X)
+\]
+
+To look like this:
+
+\[
+xG = Inverse \; Logit(\alpha_{[Player]} + \beta_{[Player]} \cdot X)
+\]
+
+In this new structure, each parameter will now be a vector of length $N$ (where $N$ players are being considered). This means there will be a different co-efficient describing how $xG$ varies with distance from goal for each player. This makes sense as we would expect variation between players and we want our model to be able to describe it.
+
+If each of these parameters had their own priors, we would essentially have specified $N$ independent models - one for each player. But there is a twist here: each of the vectors of co-efficients share a single prior.
+
+\[
+\beta \sim N(\mu_{\beta}, \; \sigma_{\beta})
+\]
+
+This will pull each of the individual co-efficients towards a shared mean, $\mu_{\beta}$. The variation between the players (for a given parameter) is characterised by $\sigma_{\beta}$. Rather than specify these ourselves, we will also estimate these as part of the model. This means that the extent of the pooling is conditional on the data, which is an extremely useful feature. However, we then need to include priors on these parameters, which are known as *hyperpriors*.
+
+Note that this process has introduced an extra layer (or level) to the model structure. This is why they are known as *multi-level* or *hierarchical* models. The term *partial pooling* is more a description of what they do.
+
+![In the Absence of Multi-Level Models](https://media.giphy.com/media/nXvirfLCf99rG/giphy.gif)
+
+We see the greatest benefit of this approach when only limited data is available for one or more groups. If one player took very few shots during a period of data collection, then there will be a lot of uncertainty in their xG predictions ....*unless* we can make use of the data we have for the rest of the team.
+
+### What does this look like in `Stan`?
+
+The below is a reduced `Stan` model, with just one co-efficient (concerning the distance from goal of the shot). This is not me being secretive, its just that the full model is quite large. You can simply add more parameters like a multi-variate linear regression on the log-odds scale, but remember that they will each require priors, hyperpriors, and data.
+
+```{stan, output.var = "xG_model_reduced", eval = FALSE}
+data {
+
+  int <lower = 1> n_shots;
+  int <lower = 0, upper = 1> goal [n_shots];
+  
+  int <lower = 1> n_players;
+  int <lower = 1> player_id [n_shots];
+  
+  vector [n_shots] dist_goal;
+
+  real mu_mu_alpha;
+  real <lower = 0> sigma_mu_alpha;
+  real<lower = 0> rate_sigma_alpha;
+  
+  real mu_mu_beta_dist_goal;
+  real <lower = 0> sigma_mu_beta_dist_goal;
+  real<lower = 0> rate_sigma_beta_dist_goal;
+  
+}
+
+parameters {
+  
+  vector [n_players] alpha;
+  
+  vector [n_players] beta_dist_goal;
+
+  real mu_alpha;
+  real <lower = 0> sigma_alpha;
+  
+  real mu_beta_dist_goal;
+  real <lower = 0> sigma_beta_dist_goal;
+  
+}
+
+model {
+
+  // Logistic model 
+  
+  goal ~ bernoulli_logit(alpha[player_id] + beta_dist_goal[player_id] .* dist_goal); 
+
+  // Priors 
+  
+  alpha ~ normal(mu_alpha, sigma_alpha);
+  beta_dist_goal ~ normal(mu_beta_dist_goal, sigma_beta_dist_goal);
+
+  // Hyperpriors
+  
+  mu_alpha ~ normal(mu_mu_alpha, sigma_mu_alpha);
+  sigma_alpha ~ exponential(rate_sigma_alpha);
+  
+  mu_beta_dist_goal ~ normal(mu_mu_beta_dist_goal, sigma_mu_beta_dist_goal);
+  sigma_beta_dist_goal ~ exponential(rate_sigma_beta_dist_goal);
+  
+}
+
+generated quantities {
+  
+  real alpha_pp = normal_rng(mu_alpha, sigma_alpha);
+  real beta_dist_goal_pp = normal_rng(mu_beta_dist_goal, sigma_beta_dist_goal);
+
+}
+```
+
+A few things that I'd like to note:
+
+ - My input data is of length `n_shots` and my parameters are vectors of length `n_players`.
+ - I've included my hyperpriors (the `mu_mu_...`, `sigma_mu...`, and `rate_sigma...` terms) as data, rather than *hard code* values into the file. This is so I can re-run the model with new hyperpriors without `Stan` needing to recompile.
+ - Even though I have included the `mu...` and `sigma..` terms as priors in my comment, this is just to help describe the model structure. They are all included in the Parameters block of the model. As discussed above, they are inferred as part of the joint posterior distribution, meaning that we are estimating the extent of the pooling from the data.
+ - I'm using the generated quantities to produce my population-level parameters, so that I have everything I need to put together probabilistic predictions in either `R` or `Python`.
+
+ #### Model Parameters
+
+The posterior distribution (which `Stan` has sampled from) is a joint probabilistic model of all parameters. Let's have a look at a few, specifically those corresponding to the effect of distance between the shot taker and goalkeeper. Shown below is the co-efficient for $6$ players (indexed $1 \rightarrow 6$). We can see that the distance to the keeper is predicted to influence each player differently.
+
+```{r}
+#| echo: false
+#| warning: false
+
+ggplot(data = xG_mcmc_samples %>% 
+         dplyr::filter(grepl(pattern = 'keeper', x = Parameter)))+
+  geom_density(mapping = aes(x = value, y = ..density.., fill = as.factor(Chain)),
+                             alpha = 1/5)+
+  scale_linetype_manual(values = 2)+
+  scale_fill_viridis_d()+
+  facet_wrap(facets = ~ Parameter, ncol = 3, labeller = label_parsed)+
+  geom_vline(xintercept = 0, lty = 2, alpha = 0.2)+
+  xlim(-5/2, 5/2) + 
+  labs(x = 'Value', y = 'Posterior Likelihood')+
+  DomDF::theme_ddf_light(base_family = "Atkinson Hyperlegible")
+
+```
+
+Some of the players will have taken fewer shots and therefore we will have less data to fit their player-specific parameters. The `mu_beta_dist_keeper` and `sigma_beta_dist_keeper` parameters in the above plot are the shared '*priors*' that control how the data from each of the players can be used to inform one another. The `beta_dist_keeper_pp` parameter is specified in the generated quantities block of my `Stan` model. It is correlated samples from the distribution characterised by the shared priors. This becomes the population (team) level co-efficient in my predictions.
+
+I've included some predictions for some actual shots taken that season in [part 1](https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/) of this article, but since this is the purpose of the model let's look at one more. 
+
+Here is Robert Pirès goal from just outside the box at home to Bolton Wanderers in 2004. It was on his stronger (right) foot and he was not under pressure from any defenders. 
+
+```{r}
+#| echo: false
+#| warning: false
+
+goal_id <- 'e4e871b0-1521-4fa8-bc69-a8cbe223b1a5'
+
+label_df_Ars <- AFC_goals_df %>% 
+  dplyr::filter(id == goal_id) %>% 
+  mutate(label =  paste0(player.name, ', \nxG = ', round(x = shot.statsbomb_xg, digits = 3))) %>% 
+  select(id, location.x, location.y, label)
+
+Arsenal_goals_plot <- SBpitch::create_Pitch(goaltype = 'box', JdeP = TRUE, BasicFeatures = FALSE)+
+  geom_point(data = AFC_goals_df %>% 
+               dplyr::filter(id == goal_id),
+             mapping = aes(x = location.x, y = location.y),
+             shape = 21, alpha = 2/3, col = 'black', size = 4)+
+  ggrepel::geom_text_repel(data = label_df_Ars,
+                           mapping = aes(x = location.x, y = location.y, label = label),
+                           size = 3, family = 'Atkinson Hyperlegible', segment.alpha = 1/2)+
+  geom_segment(data = AFC_goals_df %>% 
+               dplyr::filter(id == goal_id), 
+              mapping = aes(x = location.x, y = location.y, xend = shot.end_location.x, yend = shot.end_location.y),
+              col = 'forestgreen', alpha = 2/3, size = 1, arrow = arrow(length = unit(0.2, 'cm')))+
+  coord_flip(xlim = c(70, 120))+
+  labs(title = "   Pires goal vs. Bolton (March 2004)",
+       caption = 'Data from StatsBomb |  @Domenic_DF   ')+
+  theme_void(base_size = 11, base_family = 'Atkinson Hyperlegible')+
+  theme(legend.position = 'top', legend.box = 'vertical')
+
+Arsenal_goals_plot
+grid::grid.raster(image = SB_logo, x = 1/8, y = 1/50, just = c('left', 'bottom'), width = unit(1, 'inches'))
+
+```
+
+As labelled on the above plot, the StatsBomb model only gave Pirès a `r scales::percent((AFC_goals_df %>% dplyr::filter(id == goal_id))$shot.statsbomb_xg)` chance of scoring this chance. The below xG predictions are from the Bayesian partial pooling model, both for Robert Pirès (upper) and for the case where any Arsenal player could be shooting (lower). Also shown is the StatsBomb prediction. We see an improvement (since we know this chance was scored) when we make a player-specific prediction. 
+
+```{r}
+#| echo: false
+#| warning: false
+
+RP_plot_df <- get_player_xG(i = 248, mcmc_df = RP_df, model_data_df = xG_model_data_processed)
+
+team_plot_df <- get_team_xG(i = 248, mcmc_df = any_player_df, model_data_df = xG_model_data_processed)
+
+plot_df <- rbind(RP_plot_df, team_plot_df)
+
+ggplot(data = plot_df)+
+  geom_density(mapping = aes(x = xG, y = ..density..),
+               fill = 'grey80', alpha = 0.8)+
+  geom_vline(mapping = aes(xintercept = xG_model_data_processed$shot.statsbomb_xg[248],
+                           linetype = 'StatsBomb xG'))+
+  scale_linetype_manual(values = c(2))+
+  facet_wrap(facets = ~ pred_player, ncol = 1)+
+  labs(y = 'Likelihood', x = 'AllYourBayes xG')+
+  DomDF::theme_ddf_light(base_family = "Atkinson Hyperlegible")
+
+```
+
+Our probabilistic predictions contain more information than point estimates, but for the purposes of a simpler comparison we can consider the mean value. The mean value of our team-level prediction is `r scales::percent(mean((team_plot_df)$xG))`, but conditional on the knowledge that Pirès was shooting, this becomes `r scales::percent(mean((RP_plot_df)$xG))`.
+
+If Arsène Wenger could've chosen which of his players was presented with this opportunity, Robert Pirès would've been one of his top choices (though possible behind Thierry Henry). We have an intuitive understanding that such players have the necessary attributes to score from relatively difficult opportunities such as this, and this is accounted for in our model. We have tackled the challenge of greatly reduced (player-specific) datasets, by allowing them to share information on the basis of how similar they are. 
+
+### Challenges
+
+Multi-level models capture the multi-level structure of hierarchical (nested) datasets, accounting for both variability and commonality between different groups (in this example: between different players in a team). However, as we can see from the previous plot, by introducing a set of parameters for each group and relating them all in this way, the posterior distribution now has many more dimensions and is more challenging to sample from. If you are using `Stan` you may now see more warning messages regarding *divergent transitions* - a concept that José Mourinho is acting out, below. If you do run into these problems, I would recommend reviewing the [guidance in the Stan manual on reparameterisation](https://mc-stan.org/docs/2_25/stan-users-guide/reparameterization-section.html) (writing your same model on a new scale, such that it is easier for the software to work with).
+
+![Mou's Divergent Transitions](https://media.giphy.com/media/140EFtM0NCyjHq/giphy.gif)
+
+Finally, I have published a paper demonstrating this modelling approach in an engineering context, which includes additional details for anyone who is interested: ['Consistent and coherent treatment of uncertainties and dependencies in fatigue crack growth calculations using multi-level Bayesian models'](https://www.sciencedirect.com/science/article/abs/pii/S0951832020306189?via=ihub).

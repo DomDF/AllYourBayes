@@ -1,0 +1,27 @@
+---
+title: "About"
+subtitle: "Photo: Me (left), Ada pup (right)" 
+image: DomDF.jpg
+about:
+  template: jolla
+  links:
+    - icon: twitter
+      text: Domenic_DF
+      href: https://twitter.com/Domenic_DF
+    - icon: linkedin
+      text: Domenic Di Francesco, PhD, CEng
+      href: https://www.linkedin.com/in/domenic-di-francesco-phd-ceng-821792a2/
+    - icon: github
+      text: DomDF
+      href: https://github.com/DomDF
+    - icon: orcid
+      text: orcid: 0000-0002-3779-2043
+      href: https://orcid.org/my-orcid?orcid=0000-0002-3779-2043
+
+---
+
+I'm Dom Di Francesco, a researcher in digital twins and data-centric engineering at the Alan Turing Institute and a member of the CSML group at Cambridge University (Civil Engineering). 
+
+My research interests include Bayesian statistics and it’s applications to decision support, such as quantification of the expected value of data collection. 
+
+I also work in football (soccer) analytics.
