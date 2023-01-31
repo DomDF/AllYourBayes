@@ -2,7 +2,7 @@ data {
   
   int <lower = 1> n_matches;         // Number of matches
   real season_days_fit [n_matches];      // Lr values used to fit model
-  vector [n_matches] delta_xG_fit;   // Kr values used to fit model
+  vector [n_matches] delta_xg_fit;   // Kr values used to fit model
   
   int <lower = 1> n_pred;           // number of posterior predictive distributions to sample from
   real season_days_pred [n_pred];   // Lr values at posterior predictive distributions
@@ -63,19 +63,19 @@ model {
 
   // Each Kr is normally distributed with a mean equal to the parameter at the corresponding Lr, 
   // and standard deviation equal to sigma
-  delta_xG_fit ~ normal(f[1:n_matches], sigma);
+  delta_xg_fit ~ normal(f[1:n_matches], sigma);
 
 }
 
 generated quantities {
 
   // The posterior predictive distribution is evaluated at each Lr_pred
-  vector [n_pred] delta_xG_pred;
+  vector [n_pred] delta_xg_pred;
   // vector [N2] loglik;
   
   for(i in 1:n_pred) {
     
-    delta_xG_pred[i] = normal_rng(f[n_matches + i], sigma);
+    delta_xg_pred[i] = normal_rng(f[n_matches + i], sigma);
     
     // loglik[n2] = normal_lpdf(y2[n2] | f[N1 + n2], sigma);
     

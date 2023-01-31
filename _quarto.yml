@@ -3,21 +3,35 @@ project:
 
 website:
   title: "All Your Bayes"
-  site-url: https://www.allyourbayes.com/
+  site-url: "https://www.allyourbayes.com/"
   description: "thoughts on risk and uncertainty in decision support"
+  page-navigation: true
+  # reader-mode: true
   navbar:
     right:
       - about.qmd
       - icon: github
-        href: https://github.com/
+        href: https://www.github.com/DomDF
       - icon: twitter
-        href: https://twitter.com
+        href: https://www.twitter.com/Domenic_DF
       - icon: rss
         href: index.xml
+  google-analytics: "G-HP3SQSW9PW"
+  cookie-consent: true
+  twitter-card: 
+      image: DomDF.jpg
+      card-style: summary_large_image
+      creator: "@Domenic_DF"
 format:
   html:
-    theme: simplex
+    theme: 
+      light: flatly
+      dark: darkly
     css: styles.css
+  
+  
+
+
 
 
 

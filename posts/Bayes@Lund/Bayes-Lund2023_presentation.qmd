@@ -1,6 +1,7 @@
 ---
 title: "Identifying Data Requirements using Bayesian Decision Analysis"
 subtitle: "Bayes@Lund2023"
+citation: true
 execute: 
   echo: true
   message: false

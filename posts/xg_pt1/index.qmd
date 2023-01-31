@@ -3,7 +3,8 @@ title: "Uncertainty in xG. Part 1: Overview"
 author: ""
 date: "2020-12-10"
 categories: [football, analysis, xg, Stan, uncertainty, Bayes, multi-level modelling, partial pooling]
-image: "image.jpg"
+image: "xg1.png"
+citation: true
 ---
 
 ```{r}
@@ -80,7 +81,7 @@ AFC_df <- read_csv(file = 'xG_model_data.csv', col_names = T, col_select = -c(..
 
 ### TLDR
 
-The Expected Goals (xG) metric is now widely recognised as numerical measure of the *quality* of a goal scoring opportunity in a football (soccer) match. In this article we consider how to deal with uncertainty in predicting xG, and how each players individual abilities can be accounted for. This is part 1 of the article, which is intended to be free of stats jargon, maths and code. If you are interested in those details, you can also check out [part 2](https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-2/).
+The Expected Goals (xG) metric is now widely recognised as numerical measure of the *quality* of a goal scoring opportunity in a football (soccer) match. In this article we consider how to deal with uncertainty in predicting xG, and how each players individual abilities can be accounted for. This is part 1 of the article, which is intended to be free of stats jargon, maths and code. If you are interested in those details, you can also check out [part 2](https://allyourbayes.com/posts/xg_pt2/).
 
 ---
 
@@ -428,4 +429,4 @@ ggplot(data = plot_df)+
 
 ![Thoughtful Pirlo](https://media.giphy.com/media/e78UID432cQGA/giphy.gif)
 
-What should we make of the above predictions? The single values (*point estimates*) provided by analytics companies may be a bit easier to read, but I'm suggesting that they are not as useful. We should want our models to tell us when they are not sure. There is more information in a probabilistic prediction than a point estimate, which means you can go from the former to the latter, but not vice-versa. The type of model we have discussed in this article has the added benefit of sharing information between different players in a mathematically coherent way (see [part 2](https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-2/)) for the technical details).
+What should we make of the above predictions? The single values (*point estimates*) provided by analytics companies may be a bit easier to read, but I'm suggesting that they are not as useful. We should want our models to tell us when they are not sure. There is more information in a probabilistic prediction than a point estimate, which means you can go from the former to the latter, but not vice-versa. The type of model we have discussed in this article has the added benefit of sharing information between different players in a mathematically coherent way (see [part 2](https://allyourbayes.com/posts/xg_pt2/)) for the technical details).

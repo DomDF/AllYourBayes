@@ -1,5 +1,5 @@
 ---
-title: "Dom Di Francesco, PhD, CEng"
+title: "[Dom Di Francesco, PhD, CEng](https://www.allyourbayes.com/about.html)"
 subtitle: "thoughts on risk, uncertainty, statistics and decisions"
 listing:
   contents: posts

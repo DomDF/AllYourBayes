@@ -31,5 +31,11 @@
   },
   "posts/Why_Bayes/index.qmd": {
     "index.html": "d9d3702b"
+  },
+  "404.qmd": {
+    "404.html": "7df83fc2"
+  },
+  "posts/Logistic_Bayes/index.qmd": {
+    "index.html": "274b2d6d"
   }
 }

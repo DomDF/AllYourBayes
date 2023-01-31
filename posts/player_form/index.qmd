@@ -3,7 +3,8 @@ title: "Player form. Part 1: Overview"
 author: ""
 date: "2022-01-19"
 categories: [football, analysis, Stan, uncertainty, Bayes, gaussian process]
-image: "image.jpg"
+image: "plot.png"
+citation: true
 ---
 
 ```{r}
@@ -36,7 +37,7 @@ delta_xG_plot <- function(matchday_df, label_delta = 1/5,
     geom_point(mapping = aes(shape = location), size = 2, alpha = 3/4)+
     scale_shape_manual(values = c(1, 2))+
     ggrepel::geom_text_repel(mapping = aes(label = opponent),
-                             family = 'Atkinson Hyperlegible', size = 5)+
+                             family = 'Atkinson Hyperlegible', size = 3)+
     geom_hline(yintercept = 0, lty = 2, alpha = 1/2)+
     geom_segment(mapping = aes(x = lubridate::ymd(date_lab_overp), y = 0, 
                                xend = lubridate::ymd(date_lab_overp), yend = y_lab_overp), 
@@ -44,16 +45,16 @@ delta_xG_plot <- function(matchday_df, label_delta = 1/5,
                  arrow = arrow(length = unit(0.25, 'cm')))+
     geom_text(mapping = aes(x = lubridate::ymd(date_lab_overp), y = y_lab_overp + label_delta, 
                             label = 'Over-performing vs. xG'), 
-              col = 'forestgreen', family = 'Atkinson Hyperlegible', size = 5)+
+              col = 'forestgreen', family = 'Atkinson Hyperlegible', size = 4)+
     geom_segment(mapping = aes(x = lubridate::ymd(date_lab_underp), y = 0, 
                                xend = lubridate::ymd(date_lab_underp), yend = y_lab_underp), 
                  col = 'firebrick',
                  arrow = arrow(length = unit(0.25, 'cm')))+
     geom_text(mapping = aes(x = lubridate::ymd(date_lab_underp), y = y_lab_underp - label_delta, 
                             label = 'Under-performing vs. xG'), 
-              col = 'firebrick', family = 'Atkinson Hyperlegible', size = 5)+
+              col = 'firebrick', family = 'Atkinson Hyperlegible', size = 4)+
     scale_x_date(breaks = scales::date_breaks(width = 'month'))+
-    DomDF::theme_ddf_light(base_family = 'Atkinson Hyperlegible', base_size = 24)+
+    DomDF::theme_ddf_light(base_family = 'Atkinson Hyperlegible', base_size = 12)+
     labs(subtitle = 'Vivianne Miedema (Arsenal), 2019-20 WSL Season', 
          x = 'Date', 
          y = 'Goals scored minus cumulative matchday xG',
@@ -69,7 +70,7 @@ When is a player **in form** (over performing, or enjoying a hot streak) and how
 
 Ellen White's data from the 2019-20 WSL season (courtesy of StatsBomb) is used as an example.
 
-Similarly to the [posts on multi-level models](https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/), this will also be split into 2 parts. Part 1 (here) will focus on the features of a Gaussian process that are well suited to approximating player form. Part 2 (in preparation) will include more technical details and more code.
+Similarly to the [posts on multi-level models](https://allyourbayes.com/posts/xg_pt2/), this will also be split into 2 parts. Part 1 (here) will focus on the features of a Gaussian process that are well suited to approximating player form. Part 2 (in preparation) will include more technical details and more code.
 
 ---
 
@@ -83,9 +84,9 @@ I will not propose a detailed causal model here, just a statistical proxy. But, 
 
 For the purposes of this post, goalscoring form on a given match day, $i$, is defined as the difference between the number of goals that were scored on that match day, minus the expected number of goals, $xG$ associated with the opportunities in that game.
 
-\[
+$$
 Form_{[i]} = Goals_{[i]} - xG_{[i]}
-\]
+$$
 
 A nice feature of this is that, in principle, it is invariant to the quality of opposition. A striker may have a higher xG when performing against a weaker team, but will therefore need to score more goals in such a game to be considered in the same form. By the same token, it should also account for the fact that a player will generally get fewer scoring opportunities as a substitute. 
 
@@ -200,7 +201,7 @@ EW_formplot <- delta_xG_plot(matchday_df = EW_1920_matchday_df, label_delta = 1/
   labs(subtitle = 'Ellen White (Man City), 2019-20 WSL Season')
 
 EW_formplot
-# grid::grid.raster(image = SB_logo, x = 1/8, y = 1/50, just = c('left', 'bottom'), width = unit(1, 'inches'))
+grid::grid.raster(image = SB_logo, x = 1/10, y = 1/50, just = c('left', 'bottom'), width = unit(1/4, 'inches'))
 
 ```
 
@@ -232,50 +233,49 @@ There are multiple functions that are consistent with Ellen White's form in the 
 #| warning: false
 #| output: false
 
-n_pp <- 1e2; days_forecast <- 10
+days_forecast <- 10; n_pp <- max(EW_1920_matchday_df$days) + days_forecast + 1
 
-alpha_params <- DomDF::lnorm_params(norm_mean = 3, norm_sd = 1)
-rho_params <- DomDF::lnorm_params(norm_mean = 8, norm_sd = 2)
-
+alpha_params <- DomDF::lnorm_params(norm_mean = 3, norm_sd = 1) # 3, 1
+rho_params <- DomDF::lnorm_params(norm_mean = 10, norm_sd = 2) # 8, 2
 
 form_model_data <- list(n_matches = nrow(EW_1920_matchday_df), 
                         season_days_fit = EW_1920_matchday_df$days,
-                        delta_xG_fit = EW_1920_matchday_df$delta_xg,
+                        delta_xg_fit = EW_1920_matchday_df$delta_xg,
                         n_pred = n_pp,
                         season_days_pred = seq(from = 0,
                                                to = max(EW_1920_matchday_df$days) + days_forecast,
                                                length.out = n_pp),
                         mu_rho = rho_params$meanlog, sigma_rho = rho_params$sdlog, 
                         mu_alpha = alpha_params$meanlog, sigma_alpha = alpha_params$sdlog, 
-                        sigma_rate = 1)
+                        sigma_rate = 3)
 
 n_chains <- 4; n_warmup <- 4e3; n_draws <- 1e3; thinning <- 1
 
-gp_form_model <- cmdstanr::cmdstan_model(stan_file = 'player_form.stan')
+gp_form_model <- cmdstanr::cmdstan_model(stan_file = 'player_form_cf.stan')
 
-gp_form_fit <- gp_form_model$sample(data = form_model_data, seed = 1008,
+gp_form_fit <- gp_form_model$sample(data = form_model_data, seed = 2408,
                                     chains = n_chains, parallel_chains = parallel::detectCores(),
                                     iter_warmup = n_warmup, iter_sampling = n_draws, thin = thinning,
-                                    adapt_delta = 0.9)
+                                    adapt_delta = 0.99, max_treedepth = 30)
 
 form_params <- gp_form_fit$metadata()$model_params
-params_to_extract <- form_params[!grepl(x = form_params, pattern = 'K.|lp__|eta')]
-gp_form_samples <- DomDF::tidy_mcmc_draws(cmdstan_fit = gp_form_fit, params = 'rho')
+# params_to_extract <- form_params[!grepl(x = form_params, pattern = 'K.|lp__|eta')]
+# gp_form_samples <- DomDF::tidy_mcmc_draws(cmdstan_fit = gp_form_fit, params = 'rho')
 
 id <- c(seq(from = 1, to = form_model_data$n_pred, by = 1))
-f_pp_params <- purrr::map_chr(.x = id, .f = function(x) paste0('delta_xG_pred[', x, ']'))
+f_pp_params <- purrr::map_chr(.x = id, .f = function(x) paste0('f_pred[', x, ']'))
 
 f_draws <- DomDF::tidy_mcmc_draws(cmdstan_fit = gp_form_fit, 
                                   params = f_pp_params) |> 
   mutate(days = rep(x = seq(from = 0, 
                             to = max(form_model_data$season_days_pred), 
                             length.out = n_pp), 
-                  each = n_draws * n_chains))
+                    each = n_draws * n_chains))
 
-post_pred_GP_df <- DomDF::tidy_mcmc_draws(cmdstan_fit = gp_form_fit, params = 'delta_xG_pred') |> 
-  dplyr::filter(grepl(pattern = 'delta_xG_pred', x = Parameter)) |> 
+post_pred_GP_df <- DomDF::tidy_mcmc_draws(cmdstan_fit = gp_form_fit, params = 'delta_xg_pred') |> 
+  dplyr::filter(grepl(pattern = 'delta_xg_pred', x = Parameter)) |> 
   mutate(days = rep(x = seq(from = 0, to = max(form_model_data$season_days_pred), length.out = form_model_data$n_pred), 
-                     each = n_chains * n_draws))
+                    each = n_chains * n_draws))
 
 ```
 
@@ -285,7 +285,7 @@ post_pred_GP_df <- DomDF::tidy_mcmc_draws(cmdstan_fit = gp_form_fit, params = 'd
 #| warning: false
 
 EW_GP_sample <- ggplot(data = f_draws |>
-         dplyr::filter(Iteration %% 504 == 0, Chain == 2))+
+                         dplyr::filter(Iteration %% 504 == 0, Chain == 3))+
   geom_line(alpha = 1/4,
             mapping = aes(x = days, y = value, group = Iteration,
                           linetype = 'One sample from Gaussian process'))+
@@ -298,7 +298,7 @@ EW_GP_sample <- ggplot(data = f_draws |>
   labs(subtitle = 'Ellen White (Manchester City), 2019-20 WSL Season', 
        caption = '@Domenic_DF  |  Data from StatsBomb', 
        shape = 'Matchdays')+
-  DomDF::theme_ddf_light(base_family = 'Atkinson Hyperlegible', base_size = 24)
+  DomDF::theme_ddf_light(base_family = 'Atkinson Hyperlegible', base_size = 12)
 
 EW_GP_sample
 # grid::grid.raster(image = SB_logo, x = 1/8, y = 1/50, just = c('left', 'bottom'), width = unit(1, 'inches'))
@@ -312,21 +312,21 @@ Where there is a large gap between successive games (such as the 3 weeks between
 #| warning: false
 
 EW_full_GP <- ggplot(data = post_pred_GP_df)+
-  stat_density_2d(geom = 'raster', contour = FALSE,
-                  mapping = aes(x = days, y = value, fill = after_stat(density)))+
+  stat_density_2d(geom = 'raster', contour = FALSE, n = 200,
+                  mapping = aes(x = days, y = value, fill = after_stat(x = density)))+
   scale_fill_viridis_c()+
   geom_hline(yintercept = 0, lty = 2, alpha = 1/2)+
   geom_point(data = EW_1920_matchday_df, 
              mapping = aes(x = days, y = delta_xg, shape = 'Match days'), fill = 'white', size = 5/2)+
   scale_shape_manual(values = c(21))+
   geom_line(data = f_draws |>
-              dplyr::filter(Iteration %% 150 == 0, Chain == 2),
+              dplyr::filter(Iteration %% 200 == 0, Chain == 3),
             alpha = 1/4, col = 'white',
             mapping = aes(x = days, y = value, group = Iteration))+
   scale_x_continuous(name = 'Time through season (days)', breaks = seq(from = 0, to = 120, by = 20))+
   scale_y_continuous(name = 'Goals scored minus total matchday xG', limits = c(-2, 2), 
                      breaks = seq(from = -2, to  = 2, by = 1))+
-  DomDF::theme_ddf_light(base_family = 'Atkinson Hyperlegible', base_size = 24)+
+  DomDF::theme_ddf_light(base_family = 'Atkinson Hyperlegible', base_size = 12)+
   theme(legend.position = 'top', legend.title = element_text())+
   labs(fill = 'Likelihood', shape ='')+
   labs(subtitle = 'Ellen White (Manchester City), 2019-20 WSL Season', 
@@ -363,7 +363,7 @@ EW_forecast <- ggplot(data = post_pred_GP_df |>
   geom_vline(xintercept = 0, lty = 2, alpha = 1/2)+
   scale_x_continuous(name = 'Goals scored minus total matchday xG', limits = c(-5/2, 5/2))+
   scale_y_continuous(name = 'Likelihood')+
-  DomDF::theme_ddf_light(base_family = 'Atkinson Hyperlegible', base_size = 24)+
+  DomDF::theme_ddf_light(base_family = 'Atkinson Hyperlegible', base_size = 12)+
   labs(subtitle = 'Forecast Form of Ellen White', 
        caption = '@Domenic_DF  |  Data from StatsBomb')
 
@@ -386,6 +386,6 @@ Alternatively, we acknowledge that our system of parameters are not perfectly pr
 
 What can we do about long periods in time where no competitive games are taking place?
 
-There may be other sources of information that could help, such as performances in other competitions or even in training. Given we are not sure of the extent that these should inform the model, there is an argument to use a multi-level (partial pooling) structure, as was used to improve [player-specifc xG estimates](https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/).
+There may be other sources of information that could help, such as performances in other competitions or even in training. Given we are not sure of the extent that these should inform the model, there is an argument to use a multi-level (partial pooling) structure, as was used to improve [player-specifc xG estimates](https://allyourbayes.com/posts/xg_pt2/).
 
 Finally, the other source of information is that contained in the priors, which I have not included here. But don't panic, some prior predictive sampling is on the way in part 2 (in preparation).

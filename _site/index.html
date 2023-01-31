@@ -32,15 +32,19 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="./">
 <script src="site_libs/quarto-listing/list.min.js"></script>
 <script src="site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -89,11 +93,41 @@ ul.task-list li input[type="checkbox"] {
     }
   })
   </script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-HP3SQSW9PW"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-HP3SQSW9PW', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  });
+});
+</script> 
+  
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="All Your Bayes" href="index.xml"></head>
+<link rel="alternate" type="application/rss+xml" title="All Your Bayes" href="index.xml"><meta name="twitter:title" content="All Your Bayes - Dom Di Francesco, PhD, CEng">
+<meta name="twitter:description" content="thoughts on risk, uncertainty, statistics and decisions">
+<meta name="twitter:image" content="https://allyourbayes.com/DomDF.jpg">
+<meta name="twitter:creator" content="@Domenic_DF">
+<meta name="twitter:card" content="summary_large_image">
+</head>
 
 <body class="nav-fixed">
 
@@ -116,12 +150,12 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://www.github.com/DomDF" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://www.twitter.com/Domenic_DF" rel="" target=""><i class="bi bi-twitter" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
@@ -131,6 +165,9 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text"></span></a>
   </li>  
 </ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
               <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
@@ -140,7 +177,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-page-left">
-      <h1 class="title">Dom Di Francesco, PhD, CEng</h1>
+      <h1 class="title"><a href="https://www.allyourbayes.com/about.html">Dom Di Francesco, PhD, CEng</a></h1>
             <p class="subtitle lead">thoughts on risk, uncertainty, statistics and decisions</p>
                       </div>
   </div>
@@ -159,7 +196,7 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(6)</span></div><div class="category" data-category="Bayes">Bayes <span class="quarto-category-count">(4)</span></div><div class="category" data-category="Stan">Stan <span class="quarto-category-count">(3)</span></div><div class="category" data-category="analysis">analysis <span class="quarto-category-count">(3)</span></div><div class="category" data-category="decisions">decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="football">football <span class="quarto-category-count">(3)</span></div><div class="category" data-category="gaussian process">gaussian process <span class="quarto-category-count">(1)</span></div><div class="category" data-category="multi-level modelling">multi-level modelling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(1)</span></div><div class="category" data-category="partial pooling">partial pooling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="uncertainty">uncertainty <span class="quarto-category-count">(4)</span></div><div class="category" data-category="xg">xg <span class="quarto-category-count">(2)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(7)</span></div><div class="category" data-category="Bayes">Bayes <span class="quarto-category-count">(5)</span></div><div class="category" data-category="Logistic Regression">Logistic Regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="MCMC">MCMC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R">R <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Stan">Stan <span class="quarto-category-count">(4)</span></div><div class="category" data-category="analysis">analysis <span class="quarto-category-count">(3)</span></div><div class="category" data-category="decisions">decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="football">football <span class="quarto-category-count">(3)</span></div><div class="category" data-category="gaussian process">gaussian process <span class="quarto-category-count">(1)</span></div><div class="category" data-category="multi-level modelling">multi-level modelling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(1)</span></div><div class="category" data-category="partial pooling">partial pooling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="uncertainty">uncertainty <span class="quarto-category-count">(4)</span></div><div class="category" data-category="xg">xg <span class="quarto-category-count">(2)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -172,7 +209,7 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-listing-file-modified-sort="1674814834294" data-listing-reading-time-sort="15.755">
+<div class="quarto-post image-right" data-index="0" data-listing-file-modified-sort="1675120671031" data-listing-reading-time-sort="15.755">
 <div class="thumbnail">
 <p><a href="./posts/Bayes@Lund/Bayes-Lund2023_presentation.html"> <img src="./posts/Bayes@Lund/Figures/decision_tree.png" class="thumnail-image"> </a></p>
 </div>
@@ -229,9 +266,9 @@ Jan 23, 2023
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="football,analysis,Stan,uncertainty,Bayes,gaussian process" data-listing-date-sort="1642550400000" data-listing-file-modified-sort="1674812682240" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="24.02">
+<div class="quarto-post image-right" data-index="2" data-categories="football,analysis,Stan,uncertainty,Bayes,gaussian process" data-listing-date-sort="1642550400000" data-listing-file-modified-sort="1675120702445" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="24.2">
 <div class="thumbnail">
-<p><a href="./posts/player_form/index.html"> <img src="./posts/player_form/image.jpg" class="thumnail-image"> </a></p>
+<p><a href="./posts/player_form/index.html"> <img src="./posts/player_form/plot.png" class="thumnail-image"> </a></p>
 </div>
 <div class="body">
 <a href="./posts/player_form/index.html">
@@ -276,9 +313,9 @@ Jan 19, 2022
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1609977600000" data-listing-file-modified-sort="1674779048807" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17.485">
+<div class="quarto-post image-right" data-index="3" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1609977600000" data-listing-file-modified-sort="1675120870172" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17.485">
 <div class="thumbnail">
-<p><a href="./posts/xg_pt2/index.html"> <img src="./posts/xg_pt2/image.jpg" class="thumnail-image"> </a></p>
+<p><a href="./posts/xg_pt2/index.html"> <img src="./posts/xg_pt2/xg2.png" class="thumnail-image"> </a></p>
 </div>
 <div class="body">
 <a href="./posts/xg_pt2/index.html">
@@ -329,9 +366,9 @@ Jan 7, 2021
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1607558400000" data-listing-file-modified-sort="1674779828837" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="21.46">
+<div class="quarto-post image-right" data-index="4" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1607558400000" data-listing-file-modified-sort="1675120856591" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="21.46">
 <div class="thumbnail">
-<p><a href="./posts/xg_pt1/index.html"> <img src="./posts/xg_pt1/image.jpg" class="thumnail-image"> </a></p>
+<p><a href="./posts/xg_pt1/index.html"> <img src="./posts/xg_pt1/xg1.png" class="thumnail-image"> </a></p>
 </div>
 <div class="body">
 <a href="./posts/xg_pt1/index.html">
@@ -382,9 +419,9 @@ Dec 10, 2020
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="Bayes,uncertainty,decisions" data-listing-date-sort="1585008000000" data-listing-file-modified-sort="1674814234806" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6.43">
+<div class="quarto-post image-right" data-index="5" data-categories="Bayes,uncertainty,decisions" data-listing-date-sort="1585008000000" data-listing-file-modified-sort="1675120829325" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6.43">
 <div class="thumbnail">
-<p><a href="./posts/Why_Bayes/index.html"> <img src="./posts/Why_Bayes/image.jpg" class="thumnail-image"> </a></p>
+<p><a href="./posts/Why_Bayes/index.html"> <img src="./posts/Why_Bayes/gp.png" class="thumnail-image"> </a></p>
 </div>
 <div class="body">
 <a href="./posts/Why_Bayes/index.html">
@@ -420,6 +457,50 @@ Mar 24, 2020
 </a>
 </div>
 </div>
+<div class="quarto-post image-right" data-index="6" data-categories="Bayes,Logistic Regression,MCMC,Stan,R" data-listing-date-sort="1581724800000" data-listing-file-modified-sort="1675125201556" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18.555">
+<div class="thumbnail">
+<p><a href="./posts/Logistic_Bayes/index.html"> <img src="./posts/Logistic_Bayes/logistic_priors.png" class="thumnail-image"> </a></p>
+</div>
+<div class="body">
+<a href="./posts/Logistic_Bayes/index.html">
+<h3 class="no-anchor listing-title">
+Bayesian Logistic Regression with Stan
+</h3>
+<div class="listing-subtitle">
+
+</div>
+</a>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Bayes'); return false;">
+Bayes
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Logistic Regression'); return false;">
+Logistic Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('MCMC'); return false;">
+MCMC
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Stan'); return false;">
+Stan
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('R'); return false;">
+R
+</div>
+</div>
+<a href="./posts/Logistic_Bayes/index.html">
+<div class="listing-description">
+Logistic regression is a popular machine learning model. One application of it in an engineering context is quantifying the effectiveness of inspection…<code></code>
+</div>
+</a>
+</div>
+<div class="metadata">
+<a href="./posts/Logistic_Bayes/index.html">
+<div class="listing-date">
+Feb 15, 2020
+</div>
+</a>
+</div>
+</div>
 </div>
 <div class="listing-no-matching d-none">
 No matching items
@@ -445,6 +526,121 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
   const icon = "";
   const anchorJS = new window.AnchorJS();
   anchorJS.options = {
@@ -645,6 +841,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+  </div>
+</footer>
 
 
 

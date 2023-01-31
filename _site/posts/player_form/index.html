@@ -32,15 +32,19 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../../site_libs/quarto-html/quarto.js"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -60,10 +64,40 @@ ul.task-list li input[type="checkbox"] {
     "search-submit-button-title": "Submit"
   }
 }</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-HP3SQSW9PW"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-HP3SQSW9PW', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  });
+});
+</script> 
+  
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
+<meta name="twitter:title" content="All Your Bayes - Player form. Part 1: Overview">
+<meta name="twitter:description" content="">
+<meta name="twitter:image" content="https://allyourbayes.com/posts/player_form/DomDF.jpg">
+<meta name="twitter:creator" content="@Domenic_DF">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-fixed fullcontent">
@@ -87,12 +121,12 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://www.github.com/DomDF" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://www.twitter.com/Domenic_DF" rel="" target=""><i class="bi bi-twitter" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
@@ -102,6 +136,9 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text"></span></a>
   </li>  
 </ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
               <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
@@ -158,7 +195,7 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
 <p>When is a player <strong>in form</strong> (over performing, or enjoying a hot streak) and how long does this last? If there is such an effect, I suspect it will be a result of some complicated system of personal circumstances. In this post I suggest a popular statistical model (Gaussian process) for approximating the dependencies (how many games back should we look?) and non-linearities (rise and fall of form) that we need. Again, I am suggesting that we should care about uncertainty when trying to model just about anything in football, and using probability is a helpful way of doing so.</p>
 <p>Ellen White’s data from the 2019-20 WSL season (courtesy of StatsBomb) is used as an example.</p>
-<p>Similarly to the <a href="https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/">posts on multi-level models</a>, this will also be split into 2 parts. Part 1 (here) will focus on the features of a Gaussian process that are well suited to approximating player form. Part 2 (in preparation) will include more technical details and more code.</p>
+<p>Similarly to the <a href="https://allyourbayes.com/posts/xg_pt2/">posts on multi-level models</a>, this will also be split into 2 parts. Part 1 (here) will focus on the features of a Gaussian process that are well suited to approximating player form. Part 2 (in preparation) will include more technical details and more code.</p>
 <hr>
 </section>
 <section id="a-questionable-measure-of-player-form" class="level3">
@@ -172,7 +209,9 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <p>I will not propose a detailed causal model here, just a statistical proxy. But, I will be assuming that form can rise and decay over time. For some players even a single good or bad performance may be enough to drastically impact their next game, and for others this process may be smoother and less volatile. More on this later.</p>
 <p>For the purposes of this post, goalscoring form on a given match day, <span class="math inline">\(i\)</span>, is defined as the difference between the number of goals that were scored on that match day, minus the expected number of goals, <span class="math inline">\(xG\)</span> associated with the opportunities in that game.</p>
-<p>[ Form_{[i]} = Goals_{[i]} - xG_{[i]} ]</p>
+<p><span class="math display">\[
+Form_{[i]} = Goals_{[i]} - xG_{[i]}
+\]</span></p>
 <p>A nice feature of this is that, in principle, it is invariant to the quality of opposition. A striker may have a higher xG when performing against a weaker team, but will therefore need to score more goals in such a game to be considered in the same form. By the same token, it should also account for the fact that a player will generally get fewer scoring opportunities as a substitute.</p>
 <p>…As for the not so nice features, there are plenty! For instance, what good is a measure of form that only considers goals scored? Is xG not also conditional on how well a striker is paying? Would it be more useful to standardise the result?</p>
 <p>These are all fair questions, and with a little thought could all be integrated into a more comprehensive characterisation. However, the type of model that I will introduce will be equally compatible with alternative definitions, so let’s imagine we just care about whether a striker is scoring as many goals as they should be, and whether this will continue.</p>
@@ -254,14 +293,23 @@ ul.task-list li input[type="checkbox"] {
 <section id="sources-of-information" class="level4">
 <h4 class="anchored" data-anchor-id="sources-of-information">Sources of Information</h4>
 <p>What can we do about long periods in time where no competitive games are taking place?</p>
-<p>There may be other sources of information that could help, such as performances in other competitions or even in training. Given we are not sure of the extent that these should inform the model, there is an argument to use a multi-level (partial pooling) structure, as was used to improve <a href="https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/">player-specifc xG estimates</a>.</p>
+<p>There may be other sources of information that could help, such as performances in other competitions or even in training. Given we are not sure of the extent that these should inform the model, there is an argument to use a multi-level (partial pooling) structure, as was used to improve <a href="https://allyourbayes.com/posts/xg_pt2/">player-specifc xG estimates</a>.</p>
 <p>Finally, the other source of information is that contained in the priors, which I have not included here. But don’t panic, some prior predictive sampling is on the way in part 2 (in preparation).</p>
 
 
 </section>
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{2022,
+  author = {},
+  title = {Player Form. {Part} 1: {Overview}},
+  date = {22-01-19},
+  url = {https://allyourbayes.com/posts/player_form},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-2022" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
+<span>“Player Form. Part 1: Overview.”</span> 22AD. January 19, 22AD. <a href="https://allyourbayes.com/posts/player_form">https://allyourbayes.com/posts/player_form</a>.
+</div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -282,6 +330,121 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
   const icon = "";
   const anchorJS = new window.AnchorJS();
   anchorJS.options = {
@@ -482,6 +645,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+  </div>
+</footer>
 
 
 

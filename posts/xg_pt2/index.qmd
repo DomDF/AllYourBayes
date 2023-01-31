@@ -3,7 +3,8 @@ title: "Uncertainty in xG. Part 2: Partial Pooling"
 author: ""
 date: "2021-01-07"
 categories: [football, analysis, xg, Stan, uncertainty, Bayes, multi-level modelling, partial pooling]
-image: "image.jpg"
+image: "xg2.png"
+citation: true
 ---
 
 ```{r}
@@ -94,7 +95,7 @@ RP_df <- xG_mcmc_samples %>%
 
 ### TLDR
 
-This is part 2 of an article on fitting a Bayesian partial pooling model to predict expected goals. It has the benefits of (a) quantifying *aleatory and epistemic* uncertainty, and (b) making both group-level (player-specific) and population-level (team-specific) probabilistic predictions. If you are interested in these ideas but not in statistical language, then you can also check out [part 1](https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/).
+This is part 2 of an article on fitting a Bayesian partial pooling model to predict expected goals. It has the benefits of (a) quantifying *aleatory and epistemic* uncertainty, and (b) making both group-level (player-specific) and population-level (team-specific) probabilistic predictions. If you are interested in these ideas but not in statistical language, then you can also check out [part 1](https://allyourbayes.com/posts/xg_pt1/).
 
 ---
 
@@ -166,23 +167,23 @@ Sounds great, right? So why would anyone ever not use this kind of model? In his
 
 We can create a partial pooling model by re-writing the below:
 
-\[
+$$
 xG = Inverse \; Logit(\alpha + \beta \cdot X)
-\]
+$$
 
 To look like this:
 
-\[
+$$
 xG = Inverse \; Logit(\alpha_{[Player]} + \beta_{[Player]} \cdot X)
-\]
+$$
 
 In this new structure, each parameter will now be a vector of length $N$ (where $N$ players are being considered). This means there will be a different co-efficient describing how $xG$ varies with distance from goal for each player. This makes sense as we would expect variation between players and we want our model to be able to describe it.
 
 If each of these parameters had their own priors, we would essentially have specified $N$ independent models - one for each player. But there is a twist here: each of the vectors of co-efficients share a single prior.
 
-\[
+$$
 \beta \sim N(\mu_{\beta}, \; \sigma_{\beta})
-\]
+$$
 
 This will pull each of the individual co-efficients towards a shared mean, $\mu_{\beta}$. The variation between the players (for a given parameter) is characterised by $\sigma_{\beta}$. Rather than specify these ourselves, we will also estimate these as part of the model. This means that the extent of the pooling is conditional on the data, which is an extremely useful feature. However, we then need to include priors on these parameters, which are known as *hyperpriors*.
 
@@ -291,7 +292,7 @@ ggplot(data = xG_mcmc_samples %>%
 
 Some of the players will have taken fewer shots and therefore we will have less data to fit their player-specific parameters. The `mu_beta_dist_keeper` and `sigma_beta_dist_keeper` parameters in the above plot are the shared '*priors*' that control how the data from each of the players can be used to inform one another. The `beta_dist_keeper_pp` parameter is specified in the generated quantities block of my `Stan` model. It is correlated samples from the distribution characterised by the shared priors. This becomes the population (team) level co-efficient in my predictions.
 
-I've included some predictions for some actual shots taken that season in [part 1](https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-1/) of this article, but since this is the purpose of the model let's look at one more. 
+I've included some predictions for some actual shots taken that season in [part 1](https://allyourbayes.com/posts/xg_pt1/) of this article, but since this is the purpose of the model let's look at one more. 
 
 Here is Robert Pirès goal from just outside the box at home to Bolton Wanderers in 2004. It was on his stronger (right) foot and he was not under pressure from any defenders. 
 
@@ -325,7 +326,7 @@ Arsenal_goals_plot <- SBpitch::create_Pitch(goaltype = 'box', JdeP = TRUE, Basic
   theme(legend.position = 'top', legend.box = 'vertical')
 
 Arsenal_goals_plot
-grid::grid.raster(image = SB_logo, x = 1/8, y = 1/50, just = c('left', 'bottom'), width = unit(1, 'inches'))
+grid::grid.raster(image = SB_logo, x = 1/10, y = 1/50, just = c('left', 'bottom'), width = unit(1/4, 'inches'))
 
 ```
 

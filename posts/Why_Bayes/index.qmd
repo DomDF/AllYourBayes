@@ -3,7 +3,8 @@ title: "Why be Bayesian?"
 author: ""
 date: "2020-03-24"
 categories: [Bayes, uncertainty, decisions]
-image: "image.jpg"
+image: "gp.png"
+citation: true
 ---
 
 ### TLDR

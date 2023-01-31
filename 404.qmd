@@ -1,0 +1,15 @@
+---
+title: Page Not Found
+---
+
+The page you requested cannot be found (the url has likely changed since I recreated the site in quarto).
+
+Here is a link back to the hompage: [Home](https://allyourbayes.com).
+
+Here is a link to the *about me* page: [About me](https://allyourbayes.com/about.html)
+
+Here is a picture of my dog:
+![Prepared Ada](Ada_1.jpg)
+
+...and, finally, here is another picture of my dog:
+![Tired Ada](Ada_2.jpg)

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.119">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="">
+<meta name="dcterms.date" content="2020-02-15">
+
+<title>All Your Bayes - Bayesian Logistic Regression with Stan</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-HP3SQSW9PW"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-HP3SQSW9PW', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  });
+});
+</script> 
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+<meta name="twitter:title" content="All Your Bayes - Bayesian Logistic Regression with Stan">
+<meta name="twitter:description" content="">
+<meta name="twitter:image" content="https://allyourbayes.com/posts/Logistic_Bayes/DomDF.jpg">
+<meta name="twitter:creator" content="@Domenic_DF">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">All Your Bayes</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.github.com/DomDF" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.twitter.com/Domenic_DF" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml" rel="" target=""><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Bayesian Logistic Regression with Stan</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">Bayes</div>
+                <div class="quarto-category">Logistic Regression</div>
+                <div class="quarto-category">MCMC</div>
+                <div class="quarto-category">Stan</div>
+                <div class="quarto-category">R</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">February 15, 2020</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<div class="cell">
+
+</div>
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>Logistic regression is a popular machine learning model. One application of it in an engineering context is quantifying the effectiveness of inspection technologies at detecting damage. This post describes the additional information provided by a Bayesian application of logistic regression (and how it can be implemented using the <code>Stan</code> probabilistic programming language). Finally, I’ve also included some recommendations for making sense of priors.</p>
+<hr>
+</section>
+<section id="introductions" class="level3">
+<h3 class="anchored" data-anchor-id="introductions">Introductions</h3>
+<p>So there are a couple of key topics discussed here: Logistic Regression, and Bayesian Statistics. Before jumping straight into the example application, I’ve provided some <strong>very</strong> brief introductions below.</p>
+<section id="bayesian-inference" class="level4">
+<h4 class="anchored" data-anchor-id="bayesian-inference">Bayesian Inference</h4>
+<p>At a very high level, Bayesian models quantify (aleatory and epistemic) uncertainty, so that our predictions and decisions take into account the ways in which our knowledge is limited or imperfect. We specify a statistical model, and identify probabilistic estimates for the parameters using a family of sampling algorithms known as Markov Chain Monte Carlo (MCMC). My preferred software for writing a fitting Bayesian models is <a href="https://mc-stan.org/"><code>Stan</code></a>. If you are not yet familiar with Bayesian statistics, then I imagine you won’t be fully satisfied with that 3 sentence summary, so I will put together a separate post on the merits and challenges of applied Bayesian inference, which will include much more detail.</p>
+</section>
+<section id="logistic-regression" class="level4">
+<h4 class="anchored" data-anchor-id="logistic-regression">Logistic Regression</h4>
+<p>Logistic regression is used to estimate the probability of a binary outcome, such as <em>Pass</em> or <em>Fail</em> (though it can be extended for <code>&gt; 2</code> outcomes). This is achieved by transforming a standard regression using the logit function, shown below. The term in the brackets may be familiar to gamblers as it is how odds are calculated from probabilities. You may see <em>logit</em> and <em>log-odds</em> used exchangeably for this reason.</p>
+<p><span class="math display">\[
+Logit (x) = \log\Bigg({\frac{x}{1 - x}}\Bigg)
+\]</span></p>
+<p>Since the logit function transformed data <em>from</em> a probability scale, the inverse logit function transforms data <em>to</em> a probability scale. Therefore, as shown in the below plot, it’s values range from <code>0</code> to <code>1</code>, and this feature is very useful when we are interested the probability of <em>Pass</em>/<em>Fail</em> type outcomes.</p>
+<p><span class="math display">\[
+Inverse\;Logit (x) = \frac{1}{1 + \exp(-x)}
+\]</span></p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Before moving on, some terminology that you may find when reading about logistic regression elsewhere:</p>
+<ul>
+<li>When a linear regression is combined with a re-scaling function such as this, it is known as a Generalised Linear Model (<strong>GLM</strong>).</li>
+<li>The re-scaling (in this case, the logit) function is known as a <strong>link function</strong> in this context.</li>
+<li>Logistic regression is a <strong>Bernoulli-Logit GLM</strong>.</li>
+</ul>
+<p>You may be familiar with libraries that automate the fitting of logistic regression models, either in <code>Python</code> (via <code>sklearn</code>):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LogisticRegression()</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>model.fit(X <span class="op">=</span> dataset[<span class="st">'input_variables'</span>], y <span class="op">=</span> dataset[<span class="st">'predictions'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>…or in <code>R</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>model_fit <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">formula =</span> preditions <span class="sc">~</span> input_variables,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> dataset, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">'logit'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="example-application-probability-of-detection" class="level3">
+<h3 class="anchored" data-anchor-id="example-application-probability-of-detection">Example Application: Probability of Detection</h3>
+<p>To demonstrate how a Bayesian logistic regression model can be fit (and utilised), I’ve included an example from one of my papers. Engineers make use of data from inspections to understand the condition of structures. Modern inspection methods, whether remote, autonomous or manual application of sensor technologies, are very good. They are generally evaluated in terms of the accuracy and reliability with which they size damage. Engineers never receive perfect information from an inspection, such as:</p>
+<ul>
+<li>There is a crack of <strong>exact</strong> length <code>30 mm</code> and <strong>exact</strong> depth <code>5 mm</code> at this <strong>exact</strong> location, or</li>
+<li>There is <strong>definitely</strong> no damage at this location.</li>
+</ul>
+<p>For various reasons, the information we receive from inspections is imperfect and this is something that engineers need to deal with. As a result, providers of inspection services are requested to provide some measure of how good their product is. This typically includes some measure of how accurately damage is sized and how reliable an outcome (detection or no detection) is.</p>
+<p>This example will consider trials of an inspection tool looking for damage of varying size, to fit a model that will predict the probability of detection for any size of damage. Since various forms of damage can initiate in structures, each requiring inspection methods that are suitable, let’s avoid ambiguity and imagine we are only looking for cracks.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/42wQXwITfQbDGKqUP7/giphy.gif" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Detecting Damage: Never 100% Reliable</figcaption><p></p>
+</figure>
+</div>
+<section id="test-data" class="level4">
+<h4 class="anchored" data-anchor-id="test-data">Test Data</h4>
+<p>For the purposes of this example we will simulate some data. Let’s imagine we have introduced some cracks (of known size) into some test specimens and then arranged for some blind trials to test whether an inspection technology is able to detect them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1008</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">30</span>; lower <span class="ot">&lt;-</span> <span class="dv">0</span>; upper <span class="ot">&lt;-</span> <span class="dv">10</span>; alpha_true <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span>; beta_true <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>depth <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="at">n =</span> N, <span class="at">min =</span> lower, <span class="at">max =</span> upper)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>PoD_1D <span class="ot">&lt;-</span> <span class="cf">function</span>(depth, alpha_1D, beta_1D){</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  PoD <span class="ot">&lt;-</span> <span class="fu">exp</span>(alpha_1D <span class="sc">+</span> beta_1D <span class="sc">*</span> <span class="fu">log</span>(depth)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(alpha_1D <span class="sc">+</span> beta_1D <span class="sc">*</span> <span class="fu">log</span>(depth)))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (PoD)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>pod_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">depth =</span> depth, <span class="at">det =</span> <span class="fu">double</span>(<span class="at">length =</span> N))</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">1</span>, <span class="at">to =</span> <span class="fu">nrow</span>(pod_df), <span class="at">by =</span> <span class="dv">1</span>)) {</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  pod_df<span class="sc">$</span>det[i] <span class="ot">=</span> <span class="fu">rbernoulli</span>(<span class="at">n =</span> <span class="dv">1</span>, </span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>                             <span class="at">p =</span> <span class="fu">PoD_1D</span>(<span class="at">depth =</span> pod_df<span class="sc">$</span>depth[i], </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">alpha_1D =</span> alpha_true, </span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">beta_1D =</span> beta_true))</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The above code is used to create 30 crack sizes (depths) between 0 and 10 mm. We then use a log-odds model to back calculate a probability of detection for each. This is based on some fixed values for <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>. In a real trial, these would not be known, but since we are inventing the data we can see how successful our model ends up being in estimating these values.</p>
+<p>The below plot shows the size of each crack, and whether or not it was detected (in our simulation). The smallest crack that was detected was 2.22 mm deep, and the largest undetected crack was 5.69 mm deep. Even so, it’s already clear that larger cracks are more likely to be detected than smaller cracks, though that’s just about all we can say at this stage.</p>
+<p>After fitting our model, we will be able to predict the probability of detection for a crack of any size.</p>
+<div class="cell" data-ouput="false">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><code>Stan</code> is a <a href="https://en.wikipedia.org/wiki/Probabilistic_programming">probabilistic programming language</a>. In a future post I will explain why it has been my preferred software for statistical inference throughout my PhD.</p>
+<p>The below is a simple <code>Stan</code> program to fit a Bayesian Probability of Detection (PoD) model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cmdstanr)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>PoD_model <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="at">stan_file =</span> <span class="st">"PoD_model.stan"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>PoD_model<span class="sc">$</span><span class="fu">format</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>data {
+  int&lt;lower=0&gt; N; // Defining the number of defects in the test dataset
+  array[N] int&lt;lower=0, upper=1&gt; det; // A variable that describes whether each defect was detected [1]or not [0]
+  vector&lt;lower=0&gt;[N] depth; // A variable that describes the corresponding depth of each defect
+  
+  int&lt;lower=0&gt; K; // Defining the number of probabilistic predictions required from the model
+  vector&lt;lower=0&gt;[K] depth_pred;
+}
+parameters {
+  // The (unobserved) model parameters that we want to recover
+  real alpha;
+  real beta;
+}
+model {
+  // A logistic regression model relating the defect depth to whether it will be detected
+  det ~ bernoulli_logit(alpha + beta * log(depth));
+  
+  // Prior models for the unobserved parameters
+  alpha ~ normal(0, 1);
+  beta ~ normal(1, 1);
+}
+generated quantities {
+  // Using the fitted model for probabilistic prediction.
+  // K posterior predictive distributions will be estimated for a corresponding crack depth
+  vector[K] postpred_pr;
+  
+  for (k in 1 : K) {
+    postpred_pr[k] = inv_logit(alpha + beta * log(depth_pred[k]));
+  }
+}</code></pre>
+</div>
+</div>
+<p>The <code>generated quantities</code> block will be used to make predictions for the <code>K</code> values of <code>depth_pred</code> that we provide.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">50</span>; depth_pred <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> lower, <span class="at">to =</span> upper, <span class="at">length.out =</span> K)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The above code generates 50 evenly spaced values, which we will eventually combine in a plot. In some instances we may have specific values that we want to generate probabilistic predictions for, and this can be achieved in the same way.</p>
+</section>
+<section id="fitting-the-model" class="level4">
+<h4 class="anchored" data-anchor-id="fitting-the-model">Fitting the model</h4>
+<p>Data can be pre-processed in any language for which a <code>Stan</code> interface has been developed. This includes, <code>R</code>, <code>Python</code>, and <code>Julia</code>. In this example we will use <code>R</code> and the accompanying package, <code>cmdstanr</code>.</p>
+<p>Our <code>Stan</code> model is expecting data for three variables: <strong>N</strong>, <strong>det</strong>, <strong>depth</strong>, <strong>K</strong> and <strong>depth_pred</strong> and <code>cmdstanr</code> requires this in the form of a list.</p>
+</section>
+<section id="results" class="level4">
+<h4 class="anchored" data-anchor-id="results">Results</h4>
+<p>Once we have our data, and are happy with our model, we can set off the Markov chains. There are plenty of opportunities to control the way that the <code>Stan</code> algorithm will run, but I won’t include that here, rather we will mostly stick with the default arguments in <code>cmdstanr</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>PoD_fit <span class="ot">&lt;-</span> PoD_model<span class="sc">$</span><span class="fu">sample</span>(<span class="at">data =</span> <span class="fu">list</span>(<span class="at">N =</span> N, <span class="at">det =</span> pod_df<span class="sc">$</span>det, <span class="at">depth =</span> pod_df<span class="sc">$</span>depth,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">K =</span> K, <span class="at">depth_pred =</span> depth_pred), <span class="at">seed =</span> <span class="dv">2408</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Note</strong>:I’ve not included any detail here on the checks we need to do on our samples. There are some common challenges associated with MCMC methods, each with plenty of associated guidance on how to diagnose and resolve them. For now, let’s assume everything has gone to plan.</p>
+<p>Now, there are a few options for extracting samples from a stanfit object such as <code>PoD_samples</code>, including <code>cmdstanr::as_draws()</code>. However, these usually require a little post-processing to get them into a tidy format. There is a function in my <a href="https://github.com/DomDF/DomDF">DomDF R package</a> for this, which we can use to create a tidy output that specifies the iteration, parameter value and chain associated with each data point:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DomDF)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>PoD_samples <span class="ot">&lt;-</span> PoD_fit <span class="sc">|&gt;</span> DomDF<span class="sc">::</span><span class="fu">tidy_mcmc_draws</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="at">x =</span> PoD_samples, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 4
+  Parameter Chain Iteration value
+  &lt;chr&gt;     &lt;int&gt;     &lt;int&gt; &lt;dbl&gt;
+1 lp__          1         1 -15.5
+2 lp__          1         2 -15.2
+3 lp__          1         3 -15.8
+4 lp__          1         4 -16.6
+5 lp__          1         5 -16.1</code></pre>
+</div>
+</div>
+<div class="cell">
+
+</div>
+<p>We have sampled from a 2-dimensional posterior distribution of the unobserved parameters in the model: <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>. Below is a density plot of their corresponding marginal distributions based on the <code>1000</code> samples collected from each of the <code>4</code> Markov chains that have been run.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>So our estimates are beginning to converge on the values that were used to generate the data, but this plot also shows that there is still plenty of uncertainty in the results. Unlike many alternative approaches, Bayesian models account for the statistical uncertainty associated with our limited dataset - remember that we are estimating these values from 30 trials. These results describe the possible values of <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> in our model that are consistent with the limited available evidence. If more data was available, we could expect the uncertainty in our results to decrease. I think there are some great reasons to keep track of this statistical (sometimes called <em>epistemic</em>) uncertainty - a primary example being that we should be interested in how confident our predictive models are in their own results! …but I’ll leave it at that for now, and try to stay on topic.</p>
+<p>How do we know what do these estimates of <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> mean for the PoD (what we are ultimately interested in)? We can check this using the posterior predictive distributions that we have (thanks to the <code>generated quantities</code> block of the <code>Stan</code> program).</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>One thing to note from these results is that the model is able to make much more confident predictions for larger crack sizes. The increased uncertainty associated with shallow cracks reflects the lack of data available in this region - this could be useful information for a decision maker!</p>
+<p>There are only 3 trials in our dataset considering cracks shallower than 3 mm (and only 1 for crack depths <code>&lt; 2</code> mm). If we needed to make predictions for shallow cracks, this analysis could be extended to quantify the value of future tests in this region.</p>
+</section>
+<section id="final-thought-where-did-those-priors-come-from-and-are-they-any-good" class="level4">
+<h4 class="anchored" data-anchor-id="final-thought-where-did-those-priors-come-from-and-are-they-any-good">Final Thought: Where Did Those Priors Come From and Are They Any Good?</h4>
+<p>There are many approaches for specifying prior models in Bayesian statistics. <em>Weakly informative</em> and <em>MaxEnt</em> priors are advocated by various authors. Unfortunately, <em>Flat Priors</em> are sometimes proposed too, particularly (but not exclusively) in older books. A flat prior is a wide distribution - in the extreme this would be a uniform distribution across all real numbers, but in practice distribution functions with very large variance parameters are sometimes used. In either case, a very large range prior of credible outcomes for our parameters is introduced the model. This may sound innocent enough, and in many cases could be harmless.</p>
+<p>Flat priors have the appeal of describing a state of complete uncertainty, which we may believe we are in before seeing any data - but is this really the case?</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/UgM7H8OEmf4mQ/giphy.gif" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Prior Expectations: Can We Do Better?</figcaption><p></p>
+</figure>
+</div>
+<p>Suppose you are using Bayesian methods to model the speed of some athletes. Even before seeing any data, there is some information that we can build into the model. For instance, we can discount negative speeds. We also wouldn’t need to know anything about the athletes to know that they would not be travelling faster than the speed of light. This may sound facetious, but flat priors are implying that we should treat all outcomes as equally likely. In fact, there are some cases where flat priors cause models to require large amounts of data to make good predictions (meaning we are failing to take advantage of Bayesian statistics ability to work with limited data).</p>
+<p>In this example, we would probably just want to constrain outcomes to the range of metres per second, but the amount of information we choose to include is ultimately a modelling choice. Another helpful feature of Bayesian models is that the priors are part of the model, and so must be made explicit - fully visible and ready to be scrutinised.</p>
+<p>A common challenge, which was evident in the above PoD example, is lacking an intuitive understanding of the meaning of our model parameters. Here <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> required prior models, but I don’t think there is an obvious way to relate their values to the result we were interested in. They are linear regression parameters on a log-odds scale, but this is then transformed into a probability scale using the logit function.</p>
+<p>This problem can be addressed using a process known as <strong>Prior Predictive Simulation</strong>, which I was first introduced to in <a href="https://www.crcpress.com/Statistical-Rethinking-A-Bayesian-Course-with-Examples-in-R-and-STAN/McElreath/p/book/9780367139919">Richard McElreath’s fantastic book</a>. This involves evaluating the predictions that our model would make, based only on the information in our priors. Relating our predictions to our parameters provides a clearer understanding of the implications of our priors.</p>
+<p>Back to our PoD parameters - both <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> can take positive or negative values, but I could not immediately tell you a sensible range for them. Based on our lack of intuition it may be tempting to use a variance for both, right? Well, before making that decision, we can always simulate some predictions from these priors. The below code is creating a data frame of prior predictions for the PoD (<code>PoD_pr</code>) for many possible crack sizes.</p>
+<p><em>(Thank you to Jiun for your kind message that helped me tidy up the below)</em></p>
+<p><span class="math display">\[
+\alpha \sim N(\mu_{\alpha}, \sigma_{\alpha})
+\]</span></p>
+<p><span class="math display">\[
+\beta \sim N(\mu_{\beta}, \sigma_{\beta})
+\]</span></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 2
+   depth     PoD_pr
+   &lt;dbl&gt;      &lt;dbl&gt;
+1 0      0         
+2 0.0100 0.00000780
+3 0.0200 0.00366   
+4 0.0300 0.0452    
+5 0.0400 0.0413    
+6 0.0501 0.00619   </code></pre>
+</div>
+</div>
+<p>And we can visualise the information contained within our priors for a couple of different cases.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Our wide, supposedly <em>non</em>-informative priors result in some pretty useless predictions. I’ve suggested some more sensible priors that suggest that larger cracks are more likely to be detected than small cracks, without overly constraining our outcome (see that there is still prior credible that very small cracks are detected reliably and that very large cracks are often missed).</p>
+<p>Why did our predictions end up looking like this?</p>
+<p>Borrowing from McElreath’s explanation, it’s because <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are linear regression parameters on a log-odds (logit) scale. Since we are estimating a PoD we end up transforming out predictions onto a probability scale. Flat priors for our parameters imply that extreme values of log-odds are credible. All that prior credibility of values <code>&lt; - 3</code> and <code>&gt; 3</code> ends up getting concentrated at probabilities near <code>0</code> and <code>1</code>. I think this is a really good example of flat priors containing a lot more information than they appear to.</p>
+<p>I’ll end by directing you towards some additional (generally non-technical) discussion of choosing priors, written by the <code>Stan</code> development team <a href="https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations">(link)</a>. It provides a definition of <em>weakly informative priors</em>, some words of warning against <em>flat priors</em> and more general detail than this humble footnote.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{2020,
+  author = {},
+  title = {Bayesian {Logistic} {Regression} with {Stan}},
+  date = {20-02-15},
+  url = {https://allyourbayes.com/posts/Logistic_Bayes},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-2020" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
+<span>“Bayesian Logistic Regression with Stan.”</span> 20AD. February
+15, 20AD. <a href="https://allyourbayes.com/posts/Logistic_Bayes">https://allyourbayes.com/posts/Logistic_Bayes</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+  </div>
+</footer>
+
+
+
+</body></html>
