@@ -1,6 +1,6 @@
 ---
 title: "Uncertainty in xG. Part 1: Overview"
-author: ""
+author: "Domenic Di Francesco"
 date: "2020-12-10"
 categories: [football, analysis, xg, Stan, uncertainty, Bayes, multi-level modelling, partial pooling]
 image: "xg1.png"

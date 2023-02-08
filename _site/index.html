@@ -74,9 +74,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-subtitle','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-date","listing-title","listing-author","listing-subtitle","listing-image","listing-description","listing-categories"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -196,7 +196,7 @@ cookieconsent.run({
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(7)</span></div><div class="category" data-category="Bayes">Bayes <span class="quarto-category-count">(5)</span></div><div class="category" data-category="Logistic Regression">Logistic Regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="MCMC">MCMC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R">R <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Stan">Stan <span class="quarto-category-count">(4)</span></div><div class="category" data-category="analysis">analysis <span class="quarto-category-count">(3)</span></div><div class="category" data-category="decisions">decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="football">football <span class="quarto-category-count">(3)</span></div><div class="category" data-category="gaussian process">gaussian process <span class="quarto-category-count">(1)</span></div><div class="category" data-category="multi-level modelling">multi-level modelling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(1)</span></div><div class="category" data-category="partial pooling">partial pooling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="uncertainty">uncertainty <span class="quarto-category-count">(4)</span></div><div class="category" data-category="xg">xg <span class="quarto-category-count">(2)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(7)</span></div><div class="category" data-category="Bayes">Bayes <span class="quarto-category-count">(6)</span></div><div class="category" data-category="Decisions">Decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Julia">Julia <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Logistic Regression">Logistic Regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="MCMC">MCMC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R">R <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Stan">Stan <span class="quarto-category-count">(5)</span></div><div class="category" data-category="Value of Information">Value of Information <span class="quarto-category-count">(1)</span></div><div class="category" data-category="analysis">analysis <span class="quarto-category-count">(3)</span></div><div class="category" data-category="decisions">decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="football">football <span class="quarto-category-count">(3)</span></div><div class="category" data-category="gaussian process">gaussian process <span class="quarto-category-count">(1)</span></div><div class="category" data-category="multi-level modelling">multi-level modelling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(1)</span></div><div class="category" data-category="partial pooling">partial pooling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="uncertainty">uncertainty <span class="quarto-category-count">(4)</span></div><div class="category" data-category="xg">xg <span class="quarto-category-count">(2)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -209,25 +209,51 @@ cookieconsent.run({
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-listing-file-modified-sort="1675120671031" data-listing-reading-time-sort="15.755">
+<div class="quarto-post image-right" data-index="0" data-categories="Bayes,Stan,Julia,Decisions,Value of Information" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1675874356432" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="0.845">
 <div class="thumbnail">
-<p><a href="./posts/Bayes@Lund/Bayes-Lund2023_presentation.html"> <img src="./posts/Bayes@Lund/Figures/decision_tree.png" class="thumnail-image"> </a></p>
+<p><a href="./posts/Bayes@Lund/Bayes@Lund.html"> <img src="./posts/Bayes@Lund/VoPI.png" class="thumnail-image"> </a></p>
 </div>
 <div class="body">
-<a href="./posts/Bayes@Lund/Bayes-Lund2023_presentation.html">
+<a href="./posts/Bayes@Lund/Bayes@Lund.html">
 <h3 class="no-anchor listing-title">
-Identifying Data Requirements using Bayesian Decision Analysis
+Bayes@Lund2023
 </h3>
 <div class="listing-subtitle">
-Bayes@Lund2023
-</div>
-<div class="listing-description">
 
+</div>
+</a>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Bayes'); return false;">
+Bayes
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Stan'); return false;">
+Stan
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Julia'); return false;">
+Julia
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Decisions'); return false;">
+Decisions
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Value of Information'); return false;">
+Value of Information
+</div>
+</div>
+<a href="./posts/Bayes@Lund/Bayes@Lund.html">
+<div class="listing-description">
+A recording of my presentation on value of information analysis at the Bayes@Lund2023 conference.
 </div>
 </a>
 </div>
 <div class="metadata">
-<a href="./posts/Bayes@Lund/Bayes-Lund2023_presentation.html"> </a>
+<a href="./posts/Bayes@Lund/Bayes@Lund.html">
+<div class="listing-date">
+Jan 23, 2023
+</div>
+<div class="listing-author">
+Domenic Di Francesco
+</div>
+</a>
 </div>
 </div>
 <div class="quarto-post image-right" data-index="1" data-categories="news" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1674814990393" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="0.1">
@@ -266,7 +292,7 @@ Jan 23, 2023
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="football,analysis,Stan,uncertainty,Bayes,gaussian process" data-listing-date-sort="1642550400000" data-listing-file-modified-sort="1675120702445" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="24.2">
+<div class="quarto-post image-right" data-index="2" data-categories="football,analysis,Stan,uncertainty,Bayes,gaussian process" data-listing-date-sort="1642550400000" data-listing-file-modified-sort="1675163069265" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="24.2">
 <div class="thumbnail">
 <p><a href="./posts/player_form/index.html"> <img src="./posts/player_form/plot.png" class="thumnail-image"> </a></p>
 </div>
@@ -310,10 +336,13 @@ When is a player <strong>in form</strong> (over performing, or enjoying a hot st
 <div class="listing-date">
 Jan 19, 2022
 </div>
+<div class="listing-author">
+Domenic Di Francesco
+</div>
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1609977600000" data-listing-file-modified-sort="1675120870172" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17.485">
+<div class="quarto-post image-right" data-index="3" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1609977600000" data-listing-file-modified-sort="1675161743298" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17.485">
 <div class="thumbnail">
 <p><a href="./posts/xg_pt2/index.html"> <img src="./posts/xg_pt2/xg2.png" class="thumnail-image"> </a></p>
 </div>
@@ -363,10 +392,13 @@ This is part 2 of an article on fitting a Bayesian partial pooling model to pred
 <div class="listing-date">
 Jan 7, 2021
 </div>
+<div class="listing-author">
+Domenic Di Francesco
+</div>
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1607558400000" data-listing-file-modified-sort="1675120856591" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="21.46">
+<div class="quarto-post image-right" data-index="4" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1607558400000" data-listing-file-modified-sort="1675163419834" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="21.46">
 <div class="thumbnail">
 <p><a href="./posts/xg_pt1/index.html"> <img src="./posts/xg_pt1/xg1.png" class="thumnail-image"> </a></p>
 </div>
@@ -416,10 +448,13 @@ The Expected Goals (xG) metric is now widely recognised as numerical measure of 
 <div class="listing-date">
 Dec 10, 2020
 </div>
+<div class="listing-author">
+Domenic Di Francesco
+</div>
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="Bayes,uncertainty,decisions" data-listing-date-sort="1585008000000" data-listing-file-modified-sort="1675120829325" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6.43">
+<div class="quarto-post image-right" data-index="5" data-categories="Bayes,uncertainty,decisions" data-listing-date-sort="1585008000000" data-listing-file-modified-sort="1675874304691" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6.43">
 <div class="thumbnail">
 <p><a href="./posts/Why_Bayes/index.html"> <img src="./posts/Why_Bayes/gp.png" class="thumnail-image"> </a></p>
 </div>
@@ -454,10 +489,13 @@ This post is intended to be a high-level discussion of the merits and challenges
 <div class="listing-date">
 Mar 24, 2020
 </div>
+<div class="listing-author">
+Domenic Di Francesco
+</div>
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="Bayes,Logistic Regression,MCMC,Stan,R" data-listing-date-sort="1581724800000" data-listing-file-modified-sort="1675125201556" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18.555">
+<div class="quarto-post image-right" data-index="6" data-categories="Bayes,Logistic Regression,MCMC,Stan,R" data-listing-date-sort="1581724800000" data-listing-file-modified-sort="1675872759157" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18.555">
 <div class="thumbnail">
 <p><a href="./posts/Logistic_Bayes/index.html"> <img src="./posts/Logistic_Bayes/logistic_priors.png" class="thumnail-image"> </a></p>
 </div>
@@ -497,6 +535,9 @@ Logistic regression is a popular machine learning model. One application of it i
 <a href="./posts/Logistic_Bayes/index.html">
 <div class="listing-date">
 Feb 15, 2020
+</div>
+<div class="listing-author">
+Domenic Di Francesco
 </div>
 </a>
 </div>

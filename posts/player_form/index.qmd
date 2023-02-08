@@ -1,6 +1,6 @@
 ---
 title: "Player form. Part 1: Overview"
-author: ""
+author: "Domenic Di Francesco"
 date: "2022-01-19"
 categories: [football, analysis, Stan, uncertainty, Bayes, gaussian process]
 image: "plot.png"

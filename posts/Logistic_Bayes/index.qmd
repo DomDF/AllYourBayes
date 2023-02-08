@@ -1,8 +1,9 @@
 ---
 title: "Bayesian Logistic Regression with Stan"
-author: ""
+author: "Domenic Di Francesco"
 date: "2020-02-15"
 categories: [Bayes, Logistic Regression, MCMC, Stan, R]
+fields: [date, title, reading-time, description]
 citation: true
 image: "logistic_priors.png"
 ---

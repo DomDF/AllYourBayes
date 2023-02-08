@@ -37,5 +37,17 @@
   },
   "posts/Logistic_Bayes/index.qmd": {
     "index.html": "274b2d6d"
+  },
+  "posts/slides/Bayes-Lund2023_presentation.qmd": {
+    "Bayes-Lund2023_presentation.html": "e2ac75d4"
+  },
+  "posts/Bayes@_Lund/slides/Bayes-Lund2023_presentation.qmd": {
+    "Bayes-Lund2023_presentation.html": "9f604e30"
+  },
+  "posts/Bayes@_Lund/Bayes@Lund.qmd": {
+    "Bayes@Lund.html": "1f9607da"
+  },
+  "posts/Bayes@Lund/Bayes@Lund.qmd": {
+    "Bayes@Lund.html": "2947f1c4"
   }
 }

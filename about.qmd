@@ -25,3 +25,5 @@ I'm Dom Di Francesco, a researcher in digital twins and data-centric engineering
 My research interests include Bayesian statistics and it’s applications to decision support, such as quantification of the expected value of data collection. 
 
 I also work in football (soccer) analytics.
+
+Here is a link back to the hompage: [Home](https://allyourbayes.com).

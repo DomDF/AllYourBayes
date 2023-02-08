@@ -12,6 +12,50 @@
 <generator>quarto-1.3.119</generator>
 <lastBuildDate>Mon, 23 Jan 2023 00:00:00 GMT</lastBuildDate>
 <item>
+  <title>Bayes@Lund2023</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
+  <link>https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>A recording of my presentation on value of information analysis at the Bayes@Lund2023 conference.</p>
+<hr>
+<section id="bayeslund2023-conference" class="level4">
+<h4 class="anchored" data-anchor-id="bayeslund2023-conference">Bayes@Lund2023 Conference</h4>
+<p>I have been following the Bayes@Lund conference since I started my PhD, and have often found the work presented to be very useful. This year I was able to attend and I presented on the topic of <em>value of information analysis</em> (how much should we be willing to pay for data).</p>
+<p>Conventional experimental design is used to identify where our next mesaurement(s) should be obtained on the bases of reducing uncertainty. However, this scale (some emasure of information entropy) is not always intuitive, and it won’t tell you the point at which paying for another measurement becomes uneconomical.</p>
+<p>Value of information analysis is used to quantify how much we should be willing to pay for data of a specified quality (precision, bias, reliability, completeness, etc.), in the context of helping us make decisions. Below is the recording of my talk, which breifly introduces the topic and provides a couple of examples.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/zJgUnjJjFrk" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2023,
+  author = {Domenic Di Francesco},
+  title = {Bayes@Lund2023},
+  date = {23-01-23},
+  url = {https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html},
+  langid = {en}
+}
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2023" class="csl-entry quarto-appendix-citeas">
+Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
+23AD. <a href="https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html">https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html</a>.
+</div></div></section></div> ]]></description>
+  <category>Bayes</category>
+  <category>Stan</category>
+  <category>Julia</category>
+  <category>Decisions</category>
+  <category>Value of Information</category>
+  <guid>https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html</guid>
+  <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
+  <media:content url="https://allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
+</item>
+<item>
   <title>All Your Bayes 2.0</title>
   <link>https://allyourbayes.com/posts/welcome/index.html</link>
   <description><![CDATA[ 
@@ -30,6 +74,7 @@
 </item>
 <item>
   <title>Player form. Part 1: Overview</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
   <link>https://allyourbayes.com/posts/player_form/index.html</link>
   <description><![CDATA[ 
 
@@ -149,15 +194,16 @@
 </section>
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{2022,
-  author = {},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2022,
+  author = {Domenic Di Francesco},
   title = {Player Form. {Part} 1: {Overview}},
   date = {22-01-19},
   url = {https://allyourbayes.com/posts/player_form},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-2022" class="csl-entry quarto-appendix-citeas">
-<span>“Player Form. Part 1: Overview.”</span> 22AD. January 19, 22AD. <a href="https://allyourbayes.com/posts/player_form">https://allyourbayes.com/posts/player_form</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2022" class="csl-entry quarto-appendix-citeas">
+Domenic Di Francesco. 22AD. <span>“Player Form. Part 1:
+Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/player_form">https://allyourbayes.com/posts/player_form</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -171,6 +217,7 @@
 </item>
 <item>
   <title>Uncertainty in xG. Part 2: Partial Pooling</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
   <link>https://allyourbayes.com/posts/xg_pt2/index.html</link>
   <description><![CDATA[ 
 
@@ -349,16 +396,16 @@
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{2021,
-  author = {},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2021,
+  author = {Domenic Di Francesco},
   title = {Uncertainty in {xG.} {Part} 2: {Partial} {Pooling}},
   date = {21-01-07},
   url = {https://allyourbayes.com/posts/xg_pt2},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-2021" class="csl-entry quarto-appendix-citeas">
-<span>“Uncertainty in xG. Part 2: Partial Pooling.”</span> 21AD. January
-7, 21AD. <a href="https://allyourbayes.com/posts/xg_pt2">https://allyourbayes.com/posts/xg_pt2</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2021" class="csl-entry quarto-appendix-citeas">
+Domenic Di Francesco. 21AD. <span>“Uncertainty in xG. Part 2: Partial
+Pooling.”</span> January 7, 21AD. <a href="https://allyourbayes.com/posts/xg_pt2">https://allyourbayes.com/posts/xg_pt2</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -374,6 +421,7 @@
 </item>
 <item>
   <title>Uncertainty in xG. Part 1: Overview</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
   <link>https://allyourbayes.com/posts/xg_pt1/index.html</link>
   <description><![CDATA[ 
 
@@ -388,7 +436,7 @@
 </div>
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>The Expected Goals (xG) metric is now widely recognised as numerical measure of the <em>quality</em> of a goal scoring opportunity in a football (soccer) match. In this article we consider how to deal with uncertainty in predicting xG, and how each players individual abilities can be accounted for. This is part 1 of the article, which is intended to be free of stats jargon, maths and code. If you are interested in those details, you can also check out <a href="https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-2/">part 2</a>.</p>
+<p>The Expected Goals (xG) metric is now widely recognised as numerical measure of the <em>quality</em> of a goal scoring opportunity in a football (soccer) match. In this article we consider how to deal with uncertainty in predicting xG, and how each players individual abilities can be accounted for. This is part 1 of the article, which is intended to be free of stats jargon, maths and code. If you are interested in those details, you can also check out <a href="https://allyourbayes.com/posts/xg_pt2/">part 2</a>.</p>
 <hr>
 </section>
 <section id="what-are-expected-goals" class="level3">
@@ -482,21 +530,21 @@
 <p></p><figcaption class="figure-caption">Thoughtful Pirlo</figcaption><p></p>
 </figure>
 </div>
-<p>What should we make of the above predictions? The single values (<em>point estimates</em>) provided by analytics companies may be a bit easier to read, but I’m suggesting that they are not as useful. We should want our models to tell us when they are not sure. There is more information in a probabilistic prediction than a point estimate, which means you can go from the former to the latter, but not vice-versa. The type of model we have discussed in this article has the added benefit of sharing information between different players in a mathematically coherent way (see <a href="https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-2/">part 2</a>) for the technical details).</p>
+<p>What should we make of the above predictions? The single values (<em>point estimates</em>) provided by analytics companies may be a bit easier to read, but I’m suggesting that they are not as useful. We should want our models to tell us when they are not sure. There is more information in a probabilistic prediction than a point estimate, which means you can go from the former to the latter, but not vice-versa. The type of model we have discussed in this article has the added benefit of sharing information between different players in a mathematically coherent way (see <a href="https://allyourbayes.com/posts/xg_pt2/">part 2</a>) for the technical details).</p>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{2020,
-  author = {},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
+  author = {Domenic Di Francesco},
   title = {Uncertainty in {xG.} {Part} 1: {Overview}},
   date = {20-12-10},
   url = {https://allyourbayes.com/posts/xg_pt1},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-2020" class="csl-entry quarto-appendix-citeas">
-<span>“Uncertainty in xG. Part 1: Overview.”</span> 20AD. December 10,
-20AD. <a href="https://allyourbayes.com/posts/xg_pt1">https://allyourbayes.com/posts/xg_pt1</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas">
+Domenic Di Francesco. 20AD. <span>“Uncertainty in xG. Part 1:
+Overview.”</span> December 10, 20AD. <a href="https://allyourbayes.com/posts/xg_pt1">https://allyourbayes.com/posts/xg_pt1</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -512,6 +560,7 @@
 </item>
 <item>
   <title>Why be Bayesian?</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
   <link>https://allyourbayes.com/posts/Why_Bayes/index.html</link>
   <description><![CDATA[ 
 
@@ -605,15 +654,16 @@
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{2020,
-  author = {},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
+  author = {Domenic Di Francesco},
   title = {Why Be {Bayesian?}},
   date = {20-03-24},
   url = {https://allyourbayes.com/posts/Why_Bayes},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-2020" class="csl-entry quarto-appendix-citeas">
-<span>“Why Be Bayesian?”</span> 20AD. March 24, 20AD. <a href="https://allyourbayes.com/posts/Why_Bayes">https://allyourbayes.com/posts/Why_Bayes</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas">
+Domenic Di Francesco. 20AD. <span>“Why Be Bayesian?”</span> March 24,
+20AD. <a href="https://allyourbayes.com/posts/Why_Bayes">https://allyourbayes.com/posts/Why_Bayes</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>uncertainty</category>
@@ -624,6 +674,7 @@
 </item>
 <item>
   <title>Bayesian Logistic Regression with Stan</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
   <link>https://allyourbayes.com/posts/Logistic_Bayes/index.html</link>
   <description><![CDATA[ 
 
@@ -873,16 +924,16 @@ generated quantities {
 </section>
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{2020,
-  author = {},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
+  author = {Domenic Di Francesco},
   title = {Bayesian {Logistic} {Regression} with {Stan}},
   date = {20-02-15},
   url = {https://allyourbayes.com/posts/Logistic_Bayes},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-2020" class="csl-entry quarto-appendix-citeas">
-<span>“Bayesian Logistic Regression with Stan.”</span> 20AD. February
-15, 20AD. <a href="https://allyourbayes.com/posts/Logistic_Bayes">https://allyourbayes.com/posts/Logistic_Bayes</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas">
+Domenic Di Francesco. 20AD. <span>“Bayesian Logistic Regression with
+Stan.”</span> February 15, 20AD. <a href="https://allyourbayes.com/posts/Logistic_Bayes">https://allyourbayes.com/posts/Logistic_Bayes</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>Logistic Regression</category>
@@ -892,14 +943,6 @@ generated quantities {
   <guid>https://allyourbayes.com/posts/Logistic_Bayes/index.html</guid>
   <pubDate>Sat, 15 Feb 2020 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Logistic_Bayes/logistic_priors.png" medium="image" type="image/png" height="108" width="144"/>
-</item>
-<item>
-  <title></title>
-  <link>https://allyourbayes.com/posts/Bayes@Lund/Bayes-Lund2023_presentation.html</link>
-  <description><![CDATA[ undefined ]]></description>
-  <guid>https://allyourbayes.com/posts/Bayes@Lund/Bayes-Lund2023_presentation.html</guid>
-  <pubDate>Tue, 31 Jan 2023 00:35:32 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Bayes@Lund/Figures/decision_tree.png" medium="image" type="image/png" height="80" width="144"/>
 </item>
 </channel>
 </rss>

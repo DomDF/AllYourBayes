@@ -1,6 +1,6 @@
 ---
 title: "Why be Bayesian?"
-author: ""
+author: "Domenic Di Francesco"
 date: "2020-03-24"
 categories: [Bayes, uncertainty, decisions]
 image: "gp.png"

@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="">
+<meta name="author" content="Domenic Di Francesco">
 <meta name="dcterms.date" content="2020-12-10">
 
 <title>All Your Bayes - Uncertainty in xG. Part 1: Overview</title>
@@ -164,6 +164,12 @@ cookieconsent.run({
   
   <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Domenic Di Francesco </p>
+            </div>
+    </div>
       
       <div>
       <div class="quarto-title-meta-heading">Published</div>
@@ -194,7 +200,7 @@ cookieconsent.run({
 </div>
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>The Expected Goals (xG) metric is now widely recognised as numerical measure of the <em>quality</em> of a goal scoring opportunity in a football (soccer) match. In this article we consider how to deal with uncertainty in predicting xG, and how each players individual abilities can be accounted for. This is part 1 of the article, which is intended to be free of stats jargon, maths and code. If you are interested in those details, you can also check out <a href="https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-2/">part 2</a>.</p>
+<p>The Expected Goals (xG) metric is now widely recognised as numerical measure of the <em>quality</em> of a goal scoring opportunity in a football (soccer) match. In this article we consider how to deal with uncertainty in predicting xG, and how each players individual abilities can be accounted for. This is part 1 of the article, which is intended to be free of stats jargon, maths and code. If you are interested in those details, you can also check out <a href="https://allyourbayes.com/posts/xg_pt2/">part 2</a>.</p>
 <hr>
 </section>
 <section id="what-are-expected-goals" class="level3">
@@ -288,21 +294,21 @@ cookieconsent.run({
 <p></p><figcaption class="figure-caption">Thoughtful Pirlo</figcaption><p></p>
 </figure>
 </div>
-<p>What should we make of the above predictions? The single values (<em>point estimates</em>) provided by analytics companies may be a bit easier to read, but I’m suggesting that they are not as useful. We should want our models to tell us when they are not sure. There is more information in a probabilistic prediction than a point estimate, which means you can go from the former to the latter, but not vice-versa. The type of model we have discussed in this article has the added benefit of sharing information between different players in a mathematically coherent way (see <a href="https://www.allyourbayes.com/post/2020-12-10-uncertainty-in-xg-2/">part 2</a>) for the technical details).</p>
+<p>What should we make of the above predictions? The single values (<em>point estimates</em>) provided by analytics companies may be a bit easier to read, but I’m suggesting that they are not as useful. We should want our models to tell us when they are not sure. There is more information in a probabilistic prediction than a point estimate, which means you can go from the former to the latter, but not vice-versa. The type of model we have discussed in this article has the added benefit of sharing information between different players in a mathematically coherent way (see <a href="https://allyourbayes.com/posts/xg_pt2/">part 2</a>) for the technical details).</p>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{2020,
-  author = {},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
+  author = {Domenic Di Francesco},
   title = {Uncertainty in {xG.} {Part} 1: {Overview}},
   date = {20-12-10},
   url = {https://allyourbayes.com/posts/xg_pt1},
   langid = {en}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-2020" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
-<span>“Uncertainty in xG. Part 1: Overview.”</span> 20AD. December 10,
-20AD. <a href="https://allyourbayes.com/posts/xg_pt1">https://allyourbayes.com/posts/xg_pt1</a>.
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
+Domenic Di Francesco. 20AD. <span>“Uncertainty in xG. Part 1:
+Overview.”</span> December 10, 20AD. <a href="https://allyourbayes.com/posts/xg_pt1">https://allyourbayes.com/posts/xg_pt1</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
