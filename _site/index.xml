@@ -14,7 +14,7 @@
 <item>
   <title>Bayes@Lund2023</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html</link>
+  <link>https://allyourbayes.com/posts/Bayes@Lund/index.html</link>
   <description><![CDATA[ 
 
 
@@ -39,19 +39,19 @@
   author = {Domenic Di Francesco},
   title = {Bayes@Lund2023},
   date = {23-01-23},
-  url = {https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html},
+  url = {https://allyourbayes.com/posts/Bayes@Lund},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2023" class="csl-entry quarto-appendix-citeas">
 Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
-23AD. <a href="https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html">https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html</a>.
+23AD. <a href="https://allyourbayes.com/posts/Bayes@Lund">https://allyourbayes.com/posts/Bayes@Lund</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>Stan</category>
   <category>Julia</category>
   <category>Decisions</category>
   <category>Value of Information</category>
-  <guid>https://allyourbayes.com/posts/Bayes@Lund/Bayes@Lund.html</guid>
+  <guid>https://allyourbayes.com/posts/Bayes@Lund/index.html</guid>
   <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
