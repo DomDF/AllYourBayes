@@ -18,8 +18,10 @@ A recording of my presentation on value of information analysis at the Bayes@Lun
 
 I have been following the Bayes@Lund conference since I started my PhD, and have often found the work presented to be very useful. This year I was able to attend and I presented on the topic of *value of information analysis* (how much should we be willing to pay for data). 
 
-Conventional experimental design is used to identify where our next mesaurement(s) should be obtained on the bases of reducing uncertainty. However, this scale (some emasure of information entropy) is not always intuitive, and it won't tell you the point at which paying for another measurement becomes uneconomical.
+Conventional experimental design is used to identify where our next mesaurement(s) should be obtained on the bases of reducing uncertainty. However, this scale (some measure of information entropy) is not always intuitive, and it won't tell you the point at which paying for another measurement becomes uneconomical.
 
-Value of information analysis is used to quantify how much we should be willing to pay for data of a specified quality (precision, bias, reliability, completeness, etc.), in the context of helping us make decisions. Below is the recording of my talk, which breifly introduces the topic and provides a couple of examples.
+Value of information analysis is used to quantify how much we should be willing to pay for data of a specified quality (precision, bias, reliability, completeness, etc.), in the context of helping us make decisions. 
+
+Below is the recording of my talk, which breifly introduces the topic and provides a couple of examples.
 
 {{< video https://www.youtube.com/watch?v=zJgUnjJjFrk&t=37s >}}
