@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.119">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Domenic Di Francesco">
 <meta name="dcterms.date" content="2020-12-10">
 
-<title>All Your Bayes - Uncertainty in xG. Part 1: Overview</title>
+<title>All Your Bayes - Uncertainty in xG. Part 1</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,7 +19,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
@@ -61,7 +61,8 @@ ul.task-list li input[type="checkbox"] {
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-HP3SQSW9PW"></script>
@@ -92,9 +93,9 @@ cookieconsent.run({
 
 
 <link rel="stylesheet" href="../../styles.css">
-<meta name="twitter:title" content="All Your Bayes - Uncertainty in xG. Part 1: Overview">
-<meta name="twitter:description" content="">
-<meta name="twitter:image" content="https://allyourbayes.com/posts/xg_pt1/DomDF.jpg">
+<meta name="twitter:title" content="All Your Bayes - Uncertainty in xG. Part 1">
+<meta name="twitter:description" content="An Overview">
+<meta name="twitter:image" content="https://www.allyourbayes.com/posts/xg_pt1/DomDF.jpg">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -110,6 +111,7 @@ cookieconsent.run({
     <span class="navbar-title">All Your Bayes</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
@@ -135,10 +137,9 @@ cookieconsent.run({
  <span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div class="quarto-toggle-container">
-                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
-              </div>
-              <div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
@@ -148,6 +149,7 @@ cookieconsent.run({
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">Uncertainty in xG. Part 1: Overview</h1>
+            <p class="subtitle lead">An Overview</p>
                                 <div class="quarto-categories">
                 <div class="quarto-category">football</div>
                 <div class="quarto-category">analysis</div>
@@ -192,12 +194,6 @@ cookieconsent.run({
 
 
 
-<div class="cell">
-
-</div>
-<div class="cell">
-
-</div>
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
 <p>The Expected Goals (xG) metric is now widely recognised as numerical measure of the <em>quality</em> of a goal scoring opportunity in a football (soccer) match. In this article we consider how to deal with uncertainty in predicting xG, and how each players individual abilities can be accounted for. This is part 1 of the article, which is intended to be free of stats jargon, maths and code. If you are interested in those details, you can also check out <a href="https://allyourbayes.com/posts/xg_pt2/">part 2</a>.</p>
@@ -216,7 +212,7 @@ cookieconsent.run({
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://media.giphy.com/media/uBxP06JlaB7VCIaYXm/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">The Invincibles</figcaption><p></p>
+<figcaption class="figure-caption">The Invincibles</figcaption>
 </figure>
 </div>
 <p>Here are their league goal scorers:</p>
@@ -245,9 +241,6 @@ cookieconsent.run({
 </section>
 <section id="what-does-the-model-do" class="level3">
 <h3 class="anchored" data-anchor-id="what-does-the-model-do">What does the Model do?</h3>
-<div class="cell">
-
-</div>
 <p>We have a model that describes uncertainty (using probability) and makes both team-level and player-specific predictions. Here are some examples:</p>
 <p>How about <a href="https://en.wikipedia.org/wiki/Dennis_Bergkamp">Dennis Bergkamp’s</a> dinked finish when clear through on goal against Birmingham. Remember it? Me neither - here’s where the shot was taken from:</p>
 <div class="cell">
@@ -291,7 +284,7 @@ cookieconsent.run({
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://media.giphy.com/media/e78UID432cQGA/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Thoughtful Pirlo</figcaption><p></p>
+<figcaption class="figure-caption">Thoughtful Pirlo</figcaption>
 </figure>
 </div>
 <p>What should we make of the above predictions? The single values (<em>point estimates</em>) provided by analytics companies may be a bit easier to read, but I’m suggesting that they are not as useful. We should want our models to tell us when they are not sure. There is more information in a probabilistic prediction than a point estimate, which means you can go from the former to the latter, but not vice-versa. The type of model we have discussed in this article has the added benefit of sharing information between different players in a mathematically coherent way (see <a href="https://allyourbayes.com/posts/xg_pt2/">part 2</a>) for the technical details).</p>
@@ -299,16 +292,16 @@ cookieconsent.run({
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
-  author = {Domenic Di Francesco},
-  title = {Uncertainty in {xG.} {Part} 1: {Overview}},
-  date = {20-12-10},
-  url = {https://allyourbayes.com/posts/xg_pt1},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2020,
+  author = {Di Francesco, Domenic},
+  title = {Uncertainty in {xG.} {Part} 1},
+  date = {2020-12-10},
+  url = {https://www.allyourbayes.com//posts/xg_pt1},
   langid = {en}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
-Domenic Di Francesco. 20AD. <span>“Uncertainty in xG. Part 1:
-Overview.”</span> December 10, 20AD. <a href="https://allyourbayes.com/posts/xg_pt1">https://allyourbayes.com/posts/xg_pt1</a>.
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2020" class="csl-entry quarto-appendix-citeas" role="listitem">
+Di Francesco, Domenic. 2020. <span>“Uncertainty in xG. Part 1.”</span>
+December 10, 2020. <a href="https://www.allyourbayes.com//posts/xg_pt1">https://www.allyourbayes.com//posts/xg_pt1</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -452,9 +445,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -647,7 +654,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
 

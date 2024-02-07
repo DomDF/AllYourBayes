@@ -1,0 +1,21 @@
+---
+title: "Who Am I?"
+subtitle: "A football trivia guessing game"
+author: "Domenic Di Francesco"
+date: "2023-03-21"
+categories: [Football, R, Shiny]
+fields: [date, title, reading-time, description]
+citation: true
+image: "game.png"
+---
+
+### TLDR
+
+At a previous job, my colleagues and I would occasionally create football (soccer) quizzes for each other. The game I used to send them would involve me sequentially sending a list of (increasingly helpful) clues, from which they had to guess which player I was thinking of. I have now turned this into a web app using the [shiny](https://shiny.rstudio.com) and [shinyjs](https://deanattali.com/shinyjs/) `R` libraries, and you can play it here. You can find the code on the GitHub link that I have included in the app. 
+
+I hope you enjoy it!
+
+Edit: I will try and update this regularly with new players & clues, so keep checking back. Suggestions are welcome - you can [message me on Twitter](https://twitter.com/Domenic_DF).
+---
+
+<iframe height="750" width="100%" frameborder="no" src="https://domdf.shinyapps.io/who_am_i/"> </iframe>

@@ -9,7 +9,7 @@ citation: true
 
 ### TLDR
 
-This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: *Is it worth me learning Bayesian statistics?* or *Should I look into using Bayesian statistics in my project?* Maths, code and technical details have all been left out. 
+This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: *Is it worth me learning Bayesian statistics?* or *Should I look into using Bayesian statistics in my project?* No maths or code in this post. 
 
 ---
 
@@ -26,24 +26,24 @@ Firstly, Bayesian...
  * Updating
  * Data Analysis
   
-...can be considered the same thing (certainly for the purposes of this post): **the application of Bayes theorem to quantify uncertainty**. 
+...can boradly be considered the same thing (certainly for the purposes of this post): **the application of Bayes theorem to quantify uncertainty**. 
 
-So Bayesian statistics may be of interest to you if you are dealing with a problem associated with uncertainty - either due to some underlying variability, or due to limitations of your data.
+Depending on your background, you may have preconceptions about Bayesian methods being specialist or complicated. However, analysts and researchers in many domains are increasingly experimenting with the growing catalogue of open source software and resources that is making probabilistic programming more accessible.
 
-### What does a Bayesian Approach Provide?
+### What does a Bayesian approach provide?
 
 Bayesian statistics is not the only way to account for uncertainty in calculations. The below points describe what a Bayesian approach offers, that others don't. Note that I am only really discussing methods involving probability here, though [alternative approaches are available](https://www.springer.com/gp/book/9783540402947). 
 
 #### Intuitive Interpretation of Results
 
-The outcome of a Bayesian model is a posterior distribution. This describes the joint uncertainty in all the parameters you are trying to estimate. This can be used to describe uncertainty in a prediction for some new input data. By comparison, alternative (frequentist) methods typically describes uncertainty in predictions using confidence intervals, which are widely used but easy to misinterpret.
+Bayesian methods give you distributions. Your parameters (and so also your predictions) are all described as distributions. A single, joint distribution in fact, which is aligned with the evidence that you provide your model. This allows you to propagate all the uncertainties and inter-dependencies when making predictions for some new input data. By comparison, alternative (frequentist) methods typically describes uncertainty in predictions using confidence intervals, which are widely used but easy to misinterpret.
 
 Confidence intervals are calculated so that they will contain the *true* value of whatever you are trying to predict with some desired frequency. They provide no information (in the absence of additional assumptions) on how credible various possible results are. The Bayesian equivalent (sometimes called credible intervals) can be drawn anywhere on a predictive distribution. In [Pratt, Raiffa and Schlaiffer's textbook](https://mitpress.mit.edu/books/introduction-statistical-decision-theory) an example is used to highlight this difference:
 
 *Imagine the plight of the manager who exclaims, 'I understand [does he?] the meaning that the demand for XYZ will lie in the interval 973 to 1374 with confidence .90. However, I am particularly interested in the interval 1300 to 1500. What confidence can I place on that interval?'*
 *Unfortunately, this question cannot be answered. Of course, however, it is possible to give a posterior probability to that particular interval - or any other - based on the sample data and on a codification of the manager's prior judgements.*
 
-And a more succinct description of the same view from [Dan Ovando's fishery statistics blog](https://www.weirdfishes.blog/):
+This is a nice example (aside from assuming the manager is a male) of a simple question that we need a Bayesian posterior distribution to answer. A more succinct description of the same view from [Dan Ovando's fishery statistics blog](https://www.weirdfishes.blog/):
 
 *Bayesian credible intervals mean what we’d like Frequentist confidence intervals to mean.*
 
@@ -57,7 +57,9 @@ As stated in [James Berger's (quite theoretical) book on Bayesian statistics](ht
 
 #### Flexible Modelling
 
-So this one is based on a point made in [Ben Lambert's book on Bayesian statistics](https://uk.sagepub.com/en-gb/eur/a-student%E2%80%99s-guide-to-bayesian-statistics/book245409). It is regarding how modern Bayesian statistics is achieved in practice. The computational methods require some effort to pick up, especially if you do not have experience with programming (though Ben Lambert's book gives a nice introduction to [Stan](https://mc-stan.org/)). However, they can be readily extended to larger and more complex models.
+So this one is based on a point made in [Ben Lambert's book on Bayesian statistics](https://uk.sagepub.com/en-gb/eur/a-student%E2%80%99s-guide-to-bayesian-statistics/book245409). It is regarding how modern Bayesian statistics is achieved in practice. The computational methods may require some effort to pick up, especially if you do not have experience with programming (though Ben's book gives a nice introduction to [Stan](https://mc-stan.org/)). However, they can be readily extended to larger and more complex models. 
+
+Essentially, we can propose weird and bespoke model structures, and then use the same approach to fit them. 
 
 ![Some Compelling Arguments](https://media.giphy.com/media/WiyczarN2XMm4/giphy.gif)
 
@@ -67,28 +69,26 @@ So why would anyone ever *not* use Bayesian models when making predictions?
 
 #### Subjectivity
 
-Perhaps the most common criticism of Bayesian statistics is the requirement for prior models. An initial estimate of uncertainty is a term in Bayes' theorem - but how can you estimate the extent of variability before you see it in your data? This will surely be completely subjective, so the results will vary depending on who is doing the analysis. This, understandably, doesn't seem right with a lot of casual enquirers.
+Perhaps the most common criticism of Bayesian statistics is the requirement for priors - i.e. a starting point for your model. This initial estimate of uncertainty is a term in Bayes' theorem - but how can you estimate the extent of variability before you see it in your data? This will surely be completely subjective, so the results will vary depending on who is doing the analysis. This, understandably, doesn't seem right with a lot of casual enquirers.
 
-A common response to this accusation is that subjectivity is not an exclusive feature of Bayesian analysis (how about the whole structure of the model you are trying to fit, regardless of your method?) *...but* at least Bayesians are required to be explicit about it. Priors are part of the model with no-where to hide (in the code or the reporting) and so they are open to criticism. This point is discussed in **much** more detail in this paper from [Colombia University](http://www.stat.columbia.edu/~gelman/research/published/gelman_hennig_full_discussion.pdf).
+A common response to this accusation is that subjectivity is not an exclusive feature of Bayesian analysis (how about the whole approach you are taking to solving your problem !) *...but* at least Bayesians are required to be explicit about it. Priors mean that any subjective inputs have no-where to hide (in the code or the reporting) and so they are open to criticism. This point is discussed in **much** more detail in this paper from [Colombia University](http://www.stat.columbia.edu/~gelman/research/published/gelman_hennig_full_discussion.pdf).
 
-Priors can contain, as much or as little, information as desired. However, even in instances where you may feel you don't have any upfront knowledge of a problem, they represent a valuable opportunity for introducing regularisation (which protects against bad predictions due to overfitting). This idea is discussed in detail in [Richard McElreath's textbook](https://www.crcpress.com/Statistical-Rethinking-A-Bayesian-Course-with-Examples-in-R-and-STAN/McElreath/p/book/9780367139919).
+Priors can contain, as much or as little, information as desired. However, even in instances where you may feel you don't have any upfront knowledge of a problem, they represent a valuable opportunity for introducing regularisation (which protects against bad predictions due to overfitting). This idea is discussed in detail in [Richard McElreath's textbook](https://www.crcpress.com/Statistical-Rethinking-A-Bayesian-Course-with-Examples-in-R-and-STAN/McElreath/p/book/9780367139919). I would suggest that in plenty of cases, we often have a fair idea of what is happening even before we collect and analyse data, and starting from zero everytime is just not sensible. Will a doctor who has just evaluated you base their diagnosis entirely on a test outcome, or will they incorporate that eveidence into their existing understanding of your circumstances and symptoms? Bayesian statistics is the means by which this can be done mathematically.
 
 #### Computational Requirements
 
-In practice, statisticians estimate Bayesian posterior distributions using Markov Chain Monte Carlo (MCMC) sampling algorithms. This approach is slower, more complicated and less informative than standard, independent Monte Carlo sampling. The models that I have worked with during my PhD have taken several hours to finish sampling from, but I have met statisticians whose models run for days or even weeks. Following this, there are checks that need to be completed as there are plenty of things that can go wrong with MCMC.
+In practice, statisticians estimate Bayesian posterior distributions using very clever Markov Chain Monte Carlo (MCMC) sampling algorithms, that are run by their favourite probabilistic programming software. The models that I have worked with during my PhD have taken several hours to finish sampling from, but I have met statisticians whose models run for days or even weeks. Following this, there are checks that need to be completed as there are plenty of things that can go wrong with MCMC. There is a nice discussion of a recommended Bayesian workflow to make sure you are checking what you need to [here](https://arxiv.org/abs/2011.01808).
 
-My background is in mechanical and civil engineering. In discussions with engineering researchers at conferences I have often been told that the errors and complications they encountered when using MCMC methods had made them believe that Bayesian statistics wasn't for them. These are challenges that I imagine everyone who has attempted modern Bayesian statistics will have encountered and resolving them can require a deep understanding of your model. Both domain-specific and statistical knowledge is required to help ensure the model you are trying to fit is justified. In addition some programming *tricks* like reparameterisation can be of great help to your software, which sometimes needs equivalent, but easier to interpret instructions. 
-
-With all that in mind, when would this ever be worthwhile?
+My background is in mechanical and civil engineering. In discussions with engineering researchers at conferences I have often been told that the errors and complications they encountered when playing around with Bayesian software caused them to abandon the approach in favour of more established, less informative analysis. These are challenges that I imagine everyone who has attempted modern Bayesian statistics will have encountered and resolving them can require a deep understanding of your model, and perhaps some formal training. In addition some programming *tricks* like reparameterisation (describing your model in a seemingly equivalent way, but one that is much friendlier to your software) can also help.  
 
 ### Conclusions
 
-Regardless of whether you believe we exist in a deterministic universe or not, you will never have perfect state of knowledge describing your problem: uncertainty exists, so we need a sensible and safe way of accounting for it. 
+Regardless of whether you believe we exist in a deterministic universe or not, you will never have perfect state of knowledge describing your problem: uncertainty exists, so we need a sensible and safe way of accounting for it. It's difficult to escape the implications of the Maths - for instance, in avoiding quantifying uncertainty, we are often making some implicit assumptions (the implications of which can be difficult to justify) that we may not want to propagate into our decision-making. There is generally a trade-off for apparent conveniences.
 
-I believe that Bayesian statistics is actually well suited to traditional engineering problems, which are concerned with managing risk when confronted with small, messy datasets and models with plenty of uncertainty. As suggested in the earlier description of confidence intervals, frequentist statistics defines probability based on occurrences of events following a large number of trials or samples. When only limited data is available, Bayesian statistics can shine by comparison. 
+I believe that Bayesian statistics is actually well suited to traditional engineering problems, which are concerned with managing risk when confronted with small, messy datasets and models with plenty of uncertainty. As suggested in the earlier description of confidence intervals, frequentist statistics defines probability based on occurrences of events following a large number of trials or samples. When trying to understand the behaviour of small datasets (or even unique structural systems), Bayesian statistics can shine by comparison. 
 
-Very large datasets may contain enough information to precisely estimate parameters in a model using standard machine learning methods, and so it becomes less worthwhile running simulations to characterise variability. But how common are these big data problems in science and engineering? Sometimes large populations of data are better described as multiple smaller constituent groups, after accounting for key differences between them. Bayesian statistics has a very useful way of managing such problems by structuring models hierarchically. This method allows for **partial pooling of information** between groups, so that predictions account for the variability and commonality between groups. I will provide a detailed example of this in a future post.
+Very large datasets may contain enough information to precisely estimate parameters in a model using conventional machine learning methods, and so it becomes less worthwhile running simulations to characterise variability. But how common are these big data problems in science and engineering? Sometimes large populations of data are better described as multiple smaller constituent groups, after accounting for key differences between them. Bayesian statistics has a very useful way of managing such problems by structuring models hierarchically. This method allows for **partial pooling of information** between groups, so that predictions account for the variability and commonality between groups. I will provide a detailed example of this in a future post.
 
-In conclusion, Bayesian statistics requires (computational and personal) effort to apply. But it provides results that are (usually) more interpretable and closely linked to the questions we want to answer. Whether or not these methods are worth learning of course depend on personal circumstances. I encountered Bayesian statistics during my PhD, and so had plenty of time to read up and I've found this to be very rewarding and enjoyable...
+Bayesian inference requires (computational and personal) effort to apply. But it provides results that are generally more interpretable and closely related to the actual questions we want to answer. Whether or not these methods are worth learning will of course depend on personal circumstances. I encountered this field during my PhD, and so had plenty of time to read and play with them, which I appreicate is a privelidged position to be in. 
 
 ![Boring, isn't it? Writing, Fitting and Evaluating Bayesian Models All Day....](https://media.giphy.com/media/WPLPEu0GUp41W/giphy.gif)

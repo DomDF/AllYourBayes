@@ -20,10 +20,12 @@ about:
 
 ---
 
-I'm Dom Di Francesco, a researcher in digital twins and data-centric engineering at the Alan Turing Institute and a member of the CSML group at Cambridge University (Civil Engineering). 
+I'm Dom Di Francesco, a Turing Research Fellow, working in digital twins, data-centric engineering and AI assurance at the Alan Turing Institute. I am also a member of the CSML group at Cambridge University (Civil Engineering).
 
 My research interests include Bayesian statistics and it’s applications to decision support, such as quantification of the expected value of data collection. 
 
 I also work in football (soccer) analytics.
 
 Here is a link back to the hompage: [Home](https://allyourbayes.com).
+
+*Any opinions expressed here are my own and do not necessarily reflect the views of my employer.*

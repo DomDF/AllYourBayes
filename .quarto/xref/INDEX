@@ -49,5 +49,14 @@
   },
   "posts/Bayes@Lund/Bayes@Lund.qmd": {
     "Bayes@Lund.html": "2947f1c4"
+  },
+  "posts/Who_Am_I/index.qmd": {
+    "index.html": "40bedc69"
+  },
+  "posts/Turing_Podcast/index.qmd": {
+    "index.html": "95b6eda5"
+  },
+  "posts/BDA_pt1/index.qmd": {
+    "index.html": "409f86bc"
   }
 }

@@ -1,7 +1,7 @@
 data {
 
   int <lower = 0> N; // Defining the number of defects in the test dataset
-  int <lower = 0, upper = 1> det [N]; // A variable that describes whether each defect was detected [1]or not [0]
+  array [N] int <lower = 0, upper = 1> det; // A variable that describes whether each defect was detected (1) or not (0)
   vector <lower = 0> [N] depth; // A variable that describes the corresponding depth of each defect
   
   int <lower = 0> K; // Defining the number of probabilistic predictions required from the model

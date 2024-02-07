@@ -1,0 +1,21 @@
+---
+title: "The Turing Podcast"
+subtitle: "My coffee pod episode"
+author: "Domenic Di Francesco"
+date: "2024-01-25"
+categories: [Podcast, Bayes, Engineering, Dogs]
+fields: [date, title, reading-time, description]
+citation: true
+image: "young_ada.png"
+from: markdown+emoji
+---
+
+### TLDR
+
+Last year, I participated in an episode of the Alan Turing Institute's Coffee Pod podcast. It was hosted by my friend [Bea](https://twitter.com/mooniean) and we talked about my background in engineering, my PhD and transition into computational statistics and machine learning, my interest in football, and my (then) new puppy Ada - looking skeptical in the thumbnail :dog:. 
+
+Here's the episode, I hope you enjoy it!
+
+---
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/episode/5FqU7ZRATxp9CIwHvD7pvP?utm_source=generator&theme=0&t=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>

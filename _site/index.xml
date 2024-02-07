@@ -6,15 +6,240 @@
       version="2.0">
 <channel>
 <title>All Your Bayes</title>
-<link>https://allyourbayes.com/index.html</link>
-<atom:link href="https://allyourbayes.com/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://www.allyourbayes.com/index.html</link>
+<atom:link href="https://www.allyourbayes.com/index.xml" rel="self" type="application/rss+xml"/>
 <description>thoughts on risk and uncertainty in decision support</description>
-<generator>quarto-1.3.119</generator>
-<lastBuildDate>Mon, 23 Jan 2023 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.3.450</generator>
+<lastBuildDate>Thu, 01 Feb 2024 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Decisions under Uncertainty. Part 1</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
+  <link>https://www.allyourbayes.com/posts/BDA_pt1/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>For many of you reading this, developing and testing predictive models is a lot of fun - but my pragmatic, buzz-killing message here, is that we shouldn’t forget why we ever asked to do it. I suggest that the reason is (almost?) always, to help support decision-making. And yet, we often have this unhelpful disconnect between a calculation, and what the results imply for how we should act. An analyst hands over their work to a manager or budget holder, who then reinterprets everything and makes a call, which may or may not be consistent with the information they have been provided - sound familiar? It does to me.</p>
+<p>In this post (Part 1) these two domains are considered jointly, using an example. We see how this can allow for practioners to arrive at coherent and reproducible (auditable) decisions. Part 2 will consider a specific application of this approach, known as value of information analysis.</p>
+<hr>
+</section>
+<section id="a-familiar-scenario" class="level3">
+<h3 class="anchored" data-anchor-id="a-familiar-scenario">A Familiar Scenario</h3>
+<p>When I worked as an engineer I would often be asked to perform calculations (using spreadsheets <span class="emoji" data-emoji="upside_down_face">🙃</span> ) to arrive at some number regarding a safe operating condition for a damaged structure.</p>
+<p>Models for the sake of themselves can be plenty of fun, but unless they are tied to the underlying decsions that they are supposed to inform, they are not necessarily fulfilling their purpose.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://www.allyourbayes.com/posts/BDA_pt1/https:/media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZngxNnN0YzE5eWdmNDJua3JwYmN3dGJza2Y5d3l5eXo3YTFyZTlvbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/miFGO0mIRDhf2/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">So You’ve Fit a Predictive Model?</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  d1[Decision] --&gt; o1((Uncertain \noutcome))
+  d1 --&gt; c1{Utility}
+  o1 --&gt; c1
+
+</pre>
+</div>
+<p>Example Influence Diagram with Decisions (square nodes), Uncertain Outcomes (circles) and Utility (diamonds).</p>
+</div>
+</div>
+</div>
+</section>
+<section id="analysis-vibes" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-vibes">Analysis &gt; Vibes!</h3>
+<p>These (decision/influence/whatever!) diagrams provide a clear map of what factors we think we need to consider when making a decision. They also provide causal information, showing how intervening at one point can have downstream effects. They may seem trivial, but once you try and draw one for a problem you are working on, you will see they encourage you to think deeply about your area of expertise - no seriously, please try it!</p>
+<p>Their apparent simplicity also has the benefit of being able to communicate qualitative information with various stakeholders. An experienced engineer could map out complex relationships between variables so that a statistical model could be developed that was consistent with this information. This could then be used to inform decisions.</p>
+<p>But, is any of this ever required? If the goal is to arrive at a decision that aligns with subject matter knowledge, then can’t we just ask the expert to jump right to the decision?</p>
+<p>This will not always be a valid shortcut. If you have attended workshops that were organised to get a room of experts to agree on a strategy, there will not always be a clear agreement. This is not necessarily because of a lack of expertise, but because of a lack of a common language to communicate the information. Formalising the structure of the problem, the prior knowledge, and where data should be used to update parameters results in a quantitive, reproducible and (with a little extra work) explanaible decision-making process.</p>
+</section>
+<section id="buying-a-car" class="level3">
+<h3 class="anchored" data-anchor-id="buying-a-car">Buying a car</h3>
+<p>I do not know much about cars, despite being mistake for a mechanic based on my interest in engineering. In fact, when buying my first car, I noticed that a button on the key was not unlocking the door and so suggested to the garage that they may need to reduce the price. A confused salesman showed me the other side of the key, where a small light was flashing, “it’s a torch, mate. For when you need to unlock your car in the dark.” I lost all bargaining power.</p>
+<p>I was reluctant to overpay, and could perhaps have looked at some data to help inform me. Here is an <a href="https://www.kaggle.com/datasets/jacksondivakarr/sample34">example dataset on car prices from Kaggle</a>. We’re using my new favourite language for scientific computing, <code>Julia</code>, today. FYI, it’s a dream. I’ll perhaps write about why I love it another time, but <a href="https://julialang.org">here is the homepage</a>.</p>
+<p>Let’s start by loading the libraries that we’ll need.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># For reading and handling the data</span></span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">CSV</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">DataFrames</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">DataFramesMeta</span></span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># For working with probabilistic models</span></span>
+<span id="cb1-5"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Distributions</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Random</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Stan</span></span></code></pre></div>
+</div>
+<p>A simple example - perhaps you will develop some intuition for the problem as you read it, but hopefully I have convinced you that it will sometimes be worthwhile to draw it out and do the maths. Think of the early decision-theorist Howard Raiffa famously drew a decision tree to help him decide which academic position to take up, as he documented in this paper.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">MersenneTwister</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">231123</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb2-2">  prng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rand</span>(prng, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Normal</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="39">
+<pre><code>10-element Vector{Float64}:
+ -0.4797047482429591
+  0.3492046160452603
+  1.9035942889710349
+ -1.0599399228488406
+ -0.05026230935484321
+  1.6159635845804887
+  0.46192798081799236
+  0.38816396593759556
+ -1.4500821161955104
+ -0.3667444519178413</code></pre>
+</div>
+</div>
+</section>
+<section id="reproducibility" class="level3">
+<h3 class="anchored" data-anchor-id="reproducibility">Reproducibility</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://www.allyourbayes.com/posts/BDA_pt1/https:/media.giphy.com/media/v1.Y2lkPTc5MGI3NjExajFkdTI0dnN6amt1cmZ5Y3UwaHFneG5xb3cybXVwZXcxYjN3bDdvbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/W1tZZhie5U7RYqjg7Z/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Might your decisions impact the safety of the public?</figcaption>
+</figure>
+</div>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2024,
+  author = {Di Francesco, Domenic},
+  title = {Decisions Under {Uncertainty.} {Part} 1},
+  date = {2024-02-01},
+  url = {https://www.allyourbayes.com//posts/BDA_pt1},
+  langid = {en}
+}
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2024" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2024. <span>“Decisions Under Uncertainty. Part
+1.”</span> February 1, 2024. <a href="https://www.allyourbayes.com//posts/BDA_pt1">https://www.allyourbayes.com//posts/BDA_pt1</a>.
+</div></div></section></div> ]]></description>
+  <category>Decision Analysis</category>
+  <category>Uncertainty</category>
+  <category>Julia</category>
+  <category>Optimisation</category>
+  <guid>https://www.allyourbayes.com/posts/BDA_pt1/index.html</guid>
+  <pubDate>Thu, 01 Feb 2024 00:00:00 GMT</pubDate>
+  <media:content url="https://www.allyourbayes.com/posts/BDA_pt1/young_ada.png" medium="image" type="image/png" height="148" width="144"/>
+</item>
+<item>
+  <title>The Turing Podcast</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
+  <link>https://www.allyourbayes.com/posts/Turing_Podcast/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>Last year, I participated in an episode of the Alan Turing Institute’s Coffee Pod podcast. It was hosted by my friend <a href="https://twitter.com/mooniean">Bea</a> and we talked about my background in engineering, my PhD and transition into computational statistics and machine learning, my interest in football, and my (then) new puppy Ada - looking skeptical in the thumbnail <span class="emoji" data-emoji="dog">🐶</span>.</p>
+<p>Here’s the episode, I hope you enjoy it!</p>
+<hr>
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/episode/5FqU7ZRATxp9CIwHvD7pvP?utm_source=generator&amp;theme=0&amp;t=0" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+</iframe>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2024,
+  author = {Di Francesco, Domenic},
+  title = {The {Turing} {Podcast}},
+  date = {2024-01-25},
+  url = {https://allyourbayes.com/posts/Turing_Podcast},
+  langid = {en}
+}
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2024" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2024. <span>“The Turing Podcast.”</span> January
+25, 2024. <a href="https://allyourbayes.com/posts/Turing_Podcast">https://allyourbayes.com/posts/Turing_Podcast</a>.
+</div></div></section></div> ]]></description>
+  <category>Podcast</category>
+  <category>Bayes</category>
+  <category>Engineering</category>
+  <category>Dogs</category>
+  <guid>https://www.allyourbayes.com/posts/Turing_Podcast/index.html</guid>
+  <pubDate>Thu, 25 Jan 2024 00:00:00 GMT</pubDate>
+  <media:content url="https://www.allyourbayes.com/posts/Turing_Podcast/young_ada.png" medium="image" type="image/png" height="148" width="144"/>
+</item>
+<item>
+  <title>Who Am I?</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
+  <link>https://www.allyourbayes.com/posts/Who_Am_I/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>At a previous job, my colleagues and I would occasionally create football (soccer) quizzes for each other. The game I used to send them would involve me sequentially sending a list of (increasingly helpful) clues, from which they had to guess which player I was thinking of. I have now turned this into a web app using the <a href="https://shiny.rstudio.com">shiny</a> and <a href="https://deanattali.com/shinyjs/">shinyjs</a> <code>R</code> libraries, and you can play it here. You can find the code on the GitHub link that I have included in the app.</p>
+<p>I hope you enjoy it!</p>
+<p>Edit: I will try and update this regularly with new players &amp; clues, so keep checking back. Suggestions are welcome - you can <a href="https://twitter.com/Domenic_DF">message me on Twitter</a>.</p>
+<hr>
+<iframe height="750" width="100%" frameborder="no" src="https://domdf.shinyapps.io/who_am_i/">
+</iframe>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2023,
+  author = {Di Francesco, Domenic},
+  title = {Who {Am} {I?}},
+  date = {2023-03-21},
+  url = {https://allyourbayes.com/posts/Who_Am_I},
+  langid = {en}
+}
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2023" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2023. <span>“Who Am I?”</span> March 21, 2023. <a href="https://allyourbayes.com/posts/Who_Am_I">https://allyourbayes.com/posts/Who_Am_I</a>.
+</div></div></section></div> ]]></description>
+  <category>Football</category>
+  <category>R</category>
+  <category>Shiny</category>
+  <guid>https://www.allyourbayes.com/posts/Who_Am_I/index.html</guid>
+  <pubDate>Tue, 21 Mar 2023 00:00:00 GMT</pubDate>
+  <media:content url="https://www.allyourbayes.com/posts/Who_Am_I/game.png" medium="image" type="image/png" height="77" width="144"/>
+</item>
 <item>
   <title>Bayes@Lund2023</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Bayes@Lund/index.html</link>
+  <link>https://www.allyourbayes.com/posts/Bayes@Lund/index.html</link>
   <description><![CDATA[ 
 
 
@@ -36,29 +261,29 @@
 </section>
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2023,
-  author = {Domenic Di Francesco},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2023,
+  author = {Di Francesco, Domenic},
   title = {Bayes@Lund2023},
-  date = {23-01-23},
+  date = {2023-01-23},
   url = {https://allyourbayes.com/posts/Bayes@Lund},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2023" class="csl-entry quarto-appendix-citeas">
-Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
-23AD. <a href="https://allyourbayes.com/posts/Bayes@Lund">https://allyourbayes.com/posts/Bayes@Lund</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2023" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
+2023. <a href="https://allyourbayes.com/posts/Bayes@Lund">https://allyourbayes.com/posts/Bayes@Lund</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>Stan</category>
   <category>Julia</category>
   <category>Decisions</category>
   <category>Value of Information</category>
-  <guid>https://allyourbayes.com/posts/Bayes@Lund/index.html</guid>
+  <guid>https://www.allyourbayes.com/posts/Bayes@Lund/index.html</guid>
   <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
   <title>All Your Bayes 2.0</title>
-  <link>https://allyourbayes.com/posts/welcome/index.html</link>
+  <link>https://www.allyourbayes.com/posts/welcome/index.html</link>
   <description><![CDATA[ 
 
 
@@ -70,24 +295,18 @@ Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
 
  ]]></description>
   <category>news</category>
-  <guid>https://allyourbayes.com/posts/welcome/index.html</guid>
+  <guid>https://www.allyourbayes.com/posts/welcome/index.html</guid>
   <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Player form. Part 1: Overview</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/player_form/index.html</link>
+  <link>https://www.allyourbayes.com/posts/player_form/index.html</link>
   <description><![CDATA[ 
 
 
 
 
-<div class="cell">
-
-</div>
-<div class="cell">
-
-</div>
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
 <p>When is a player <strong>in form</strong> (over performing, or enjoying a hot streak) and how long does this last? If there is such an effect, I suspect it will be a result of some complicated system of personal circumstances. In this post I suggest a popular statistical model (Gaussian process) for approximating the dependencies (how many games back should we look?) and non-linearities (rise and fall of form) that we need. Again, I am suggesting that we should care about uncertainty when trying to model just about anything in football, and using probability is a helpful way of doing so.</p>
@@ -100,8 +319,8 @@ Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
 <p>As I alluded to in the TLDR above, I suspect a players form is somehow linked to their current mental state. When they are feeling confident they may be less likely to doubt their abilities, and more decisive. This could mean they act quicker and become more difficult to play against.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/https:/media.giphy.com/media/STYcRDzNO6AYNmMgvA/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Confidence is key …probably</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/https:/media.giphy.com/media/STYcRDzNO6AYNmMgvA/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Confidence is key …probably</figcaption>
 </figure>
 </div>
 <p>I will not propose a detailed causal model here, just a statistical proxy. But, I will be assuming that form can rise and decay over time. For some players even a single good or bad performance may be enough to drastically impact their next game, and for others this process may be smoother and less volatile. More on this later.</p>
@@ -116,15 +335,15 @@ Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
 <p>Ellen White is a clinical striker who, at the time of writing this, plays for Manchester City and England. She is a former winner of the Women’s Super League (WSL) golden boot, and is England’s all-time top scorer. So plenty of opportunities to see her distinctive celebration:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/https:/media.giphy.com/media/SVlBW8O5jw3dtU17dv/giphy-downsized-large.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Ellen’s goal goggles</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/https:/media.giphy.com/media/SVlBW8O5jw3dtU17dv/giphy-downsized-large.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Ellen’s goal goggles</figcaption>
 </figure>
 </div>
 <p>StatsBomb have kindly made data from the WSL (2019/20 season) freely available in <a href="https://github.com/statsbomb/StatsBombR">their R package</a>, and so we will consider this league season of Ellen White’s career here.</p>
 <p>Here is a plot of Ellen’s <strong>form</strong> (performance vs.&nbsp;xG) over the 12 league games that she featured in, during that season. Her biggest over performance vs.&nbsp;xG was when she scored in a <a href="https://womenscompetitions.thefa.com/Article/TottenhamManCity05012020">4-1 win away at Tottenham</a> despite a cumulative xG of 0.597. Her worst performance by the same measure was the following week, failing to score in the <a href="https://womenscompetitions.thefa.com/Article/Manchester-City-3-1-Everton-110120">3-1 win at home to Everton</a>. Although she only played the final <img src="https://latex.codecogs.com/png.latex?25"> minutes of this game, she accrued a match xG of 0.302. The fact that these games were back to back could be tricky for a form model to accommodate!</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -146,17 +365,14 @@ Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
 <p>So we have this probabilistic model of smooth, non-linear functions. Let’s see what it looks like. In the below plot, the match days are the same as those presented in the above plot, we just have a new y-axis scale, and we have ‘days’ (rather than date) along the x-axis.</p>
 <p>There are multiple functions that are consistent with Ellen White’s form in the league that season, so let’s look at one example first:</p>
 <div class="cell">
-
-</div>
-<div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Where there is a large gap between successive games (such as the 3 weeks between White’s first and second appearances of the season), there is less evidence to guide predictions of form. This is also true for the period around day 60 (late December). Here though, she was on an upward trajectory. In both cases, this lack of data results in higher uncertainty, as is apparent when we look at more samples, which are shown on top of the full predictive distribution below.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -168,7 +384,7 @@ Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
 <p>Below are some predictions from the model in the period just after White’s last game of the season (to the right of the final match day on the above plots). She appeared to be on a slight upward trend at this point, over performing in her final game at home to Chelsea. This is shown in the uppermost histogram. As we move away from this game, into the off-season, we see the uncertainty gradually increase in our predictions and the average move towards zero. This is consistent with the considerations discussed above.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -180,8 +396,8 @@ Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
 <p>Alternatively, we acknowledge that our system of parameters are not perfectly precise, and our predictions will span credible ranges. Quantifying this variability is a strength, not a weakness of our models, and is actually of more direct use in decision support.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/https:/media.giphy.com/media/3otPoyudZ18xASX0rK/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Yes we can!</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/https:/media.giphy.com/media/3otPoyudZ18xASX0rK/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Yes we can!</figcaption>
 </figure>
 </div>
 </section>
@@ -195,16 +411,16 @@ Domenic Di Francesco. 23AD. <span>“Bayes@Lund2023.”</span> January 23,
 </section>
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2022,
-  author = {Domenic Di Francesco},
-  title = {Player Form. {Part} 1: {Overview}},
-  date = {22-01-19},
-  url = {https://allyourbayes.com/posts/player_form},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2022,
+  author = {Di Francesco, Domenic},
+  title = {Player {Form.} {Part} 1},
+  date = {2022-01-19},
+  url = {https://www.allyourbayes.com//posts/player_form},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2022" class="csl-entry quarto-appendix-citeas">
-Domenic Di Francesco. 22AD. <span>“Player Form. Part 1:
-Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/player_form">https://allyourbayes.com/posts/player_form</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2022" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2022. <span>“Player Form. Part 1.”</span> January
+19, 2022. <a href="https://www.allyourbayes.com//posts/player_form">https://www.allyourbayes.com//posts/player_form</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -212,25 +428,19 @@ Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/pl
   <category>uncertainty</category>
   <category>Bayes</category>
   <category>gaussian process</category>
-  <guid>https://allyourbayes.com/posts/player_form/index.html</guid>
+  <guid>https://www.allyourbayes.com/posts/player_form/index.html</guid>
   <pubDate>Wed, 19 Jan 2022 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/player_form/plot.png" medium="image" type="image/png" height="96" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/player_form/plot.png" medium="image" type="image/png" height="96" width="144"/>
 </item>
 <item>
   <title>Uncertainty in xG. Part 2: Partial Pooling</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/xg_pt2/index.html</link>
+  <link>https://www.allyourbayes.com/posts/xg_pt2/index.html</link>
   <description><![CDATA[ 
 
 
 
 
-<div class="cell">
-
-</div>
-<div class="cell">
-
-</div>
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
 <p>This is part 2 of an article on fitting a Bayesian partial pooling model to predict expected goals. It has the benefits of (a) quantifying <em>aleatory and epistemic</em> uncertainty, and (b) making both group-level (player-specific) and population-level (team-specific) probabilistic predictions. If you are interested in these ideas but not in statistical language, then you can also check out <a href="https://allyourbayes.com/posts/xg_pt1/">part 1</a>.</p>
@@ -242,23 +452,87 @@ Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/pl
 <p>Unfortunately this causes some overlap with a <a href="https://www.allyourbayes.com/post/2020-02-14-bayesian-logistic-regression-with-stan/">previous blog post - ‘<em>Bayesian Logistic Regression with Stan</em>’</a>, but don’t worry - the focus here is all about <em>Partial Pooling</em>.</p>
 <p>First let’s look at a non-Bayesian base case. <a href="https://statsbomb.com/">StatsBomb</a> have kindly made lots of football data freely available in <a href="https://github.com/statsbomb/StatsBombR">their R package</a>. The below creates a dataframe of the shots taken by Arsenal FC during the <code>2003</code>-<code>04</code> Premier League winning season.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;">library</span>(StatsBombR); <span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(StatsBombR); <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
 <span id="cb1-2"></span>
-<span id="cb1-3">Prem_SB_matches <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">FreeMatches</span>(<span class="at" style="color: #657422;">Competitions =</span> SB_comps <span class="sc" style="color: #5E5E5E;">%&gt;%</span> </span>
-<span id="cb1-4">                               dplyr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">filter</span>(competition_name <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">'Premier League'</span>) <span class="sc" style="color: #5E5E5E;">%&gt;%</span> </span>
-<span id="cb1-5">                               dplyr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">filter</span>(competition_gender <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">'male'</span>))</span>
+<span id="cb1-3">Prem_SB_matches <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">FreeMatches</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Competitions =</span> SB_comps <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb1-4">                               dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(competition_name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Premier League'</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb1-5">                               dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(competition_gender <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'male'</span>))</span>
 <span id="cb1-6"></span>
-<span id="cb1-7">Arsenal_0304_shots <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">StatsBombFreeEvents</span>(<span class="at" style="color: #657422;">MatchesDF =</span> Prem_SB_matches, </span>
-<span id="cb1-8">                                          <span class="at" style="color: #657422;">Parallel =</span> <span class="cn" style="color: #8f5902;">TRUE</span>) <span class="sc" style="color: #5E5E5E;">%&gt;%</span> </span>
-<span id="cb1-9">  <span class="fu" style="color: #4758AB;">allclean</span>() <span class="sc" style="color: #5E5E5E;">%&gt;%</span> </span>
-<span id="cb1-10">  dplyr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">filter</span>(type.name <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">'Shot'</span>) <span class="sc" style="color: #5E5E5E;">%&gt;%</span> </span>
-<span id="cb1-11">  dplyr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">filter</span>(possession_team.name <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">'Arsenal'</span>)</span></code></pre></div>
+<span id="cb1-7">Arsenal_0304_shots <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">StatsBombFreeEvents</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">MatchesDF =</span> Prem_SB_matches, </span>
+<span id="cb1-8">                                          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Parallel =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb1-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">allclean</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb1-10">  dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(type.name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Shot'</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb1-11">  dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(possession_team.name <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Arsenal'</span>)</span></code></pre></div>
 </div>
 <p>Using <code>R</code>’s <code>tidymodels</code> framework - make sure to have a look at <a href="https://www.youtube.com/channel/UCTTBgWyJl2HrrhQOOc710kA">Julia Silge’s tutorials</a> if you are unfamiliar - we can specify and fit a logistic regression. The below compares our results (including confidence intervals) to those from StatsBomb.</p>
 <p>If you are interested in creating something similar yourself, this model has standardised inputs for parameters with relatively large values (such as angles and distances) and one hot encoding of categorical inputs (such as whether or not the shot was taken with a players weaker foot).</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Since we have used StatsBomb data (though their model will no doubt be based on a much larger collection) we would expect our results to be similar to theirs, and they are. Considering just the point estimates, the two models appear to broadly agree, especially when both are predicting a very low or a very high xG.</p>
@@ -280,8 +554,8 @@ Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/pl
 <p>Note that this process has introduced an extra layer (or level) to the model structure. This is why they are known as <em>multi-level</em> or <em>hierarchical</em> models. The term <em>partial pooling</em> is more a description of what they do.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/https:/media.giphy.com/media/nXvirfLCf99rG/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">In the Absence of Multi-Level Models</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/https:/media.giphy.com/media/nXvirfLCf99rG/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">In the Absence of Multi-Level Models</figcaption>
 </figure>
 </div>
 <p>We see the greatest benefit of this approach when only limited data is available for one or more groups. If one player took very few shots during a period of data collection, then there will be a lot of uncertainty in their xG predictions ….<em>unless</em> we can make use of the data we have for the rest of the team.</p>
@@ -290,52 +564,142 @@ Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/pl
 <h3 class="anchored" data-anchor-id="what-does-this-look-like-in-stan">What does this look like in <code>Stan</code>?</h3>
 <p>The below is a reduced <code>Stan</code> model, with just one co-efficient (concerning the distance from goal of the shot). This is not me being secretive, its just that the full model is quite large. You can simply add more parameters like a multi-variate linear regression on the log-odds scale, but remember that they will each require priors, hyperpriors, and data.</p>
 <div class="cell" data-output.var="xG_model_reduced">
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode stan code-with-copy"><code class="sourceCode stan"><span id="cb2-1"><span class="kw" style="color: #003B4F;">data</span> {</span>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode stan code-with-copy"><code class="sourceCode stan"><span id="cb2-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">data</span> {</span>
 <span id="cb2-2"></span>
-<span id="cb2-3">  <span class="dt" style="color: #AD0000;">int</span> &lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">1</span>&gt; n_shots;</span>
-<span id="cb2-4">  <span class="dt" style="color: #AD0000;">int</span> &lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">0</span>, <span class="kw" style="color: #003B4F;">upper</span> = <span class="dv" style="color: #AD0000;">1</span>&gt; goal [n_shots];</span>
+<span id="cb2-3">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">int</span> &lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>&gt; n_shots;</span>
+<span id="cb2-4">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">int</span> &lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">upper</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>&gt; goal [n_shots];</span>
 <span id="cb2-5">  </span>
-<span id="cb2-6">  <span class="dt" style="color: #AD0000;">int</span> &lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">1</span>&gt; n_players;</span>
-<span id="cb2-7">  <span class="dt" style="color: #AD0000;">int</span> &lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">1</span>&gt; player_id [n_shots];</span>
+<span id="cb2-6">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">int</span> &lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>&gt; n_players;</span>
+<span id="cb2-7">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">int</span> &lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>&gt; player_id [n_shots];</span>
 <span id="cb2-8">  </span>
-<span id="cb2-9">  <span class="dt" style="color: #AD0000;">vector</span> [n_shots] dist_goal;</span>
+<span id="cb2-9">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">vector</span> [n_shots] dist_goal;</span>
 <span id="cb2-10"></span>
-<span id="cb2-11">  <span class="dt" style="color: #AD0000;">real</span> mu_mu_alpha;</span>
-<span id="cb2-12">  <span class="dt" style="color: #AD0000;">real</span> &lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">0</span>&gt; sigma_mu_alpha;</span>
-<span id="cb2-13">  <span class="dt" style="color: #AD0000;">real</span>&lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">0</span>&gt; rate_sigma_alpha;</span>
+<span id="cb2-11">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> mu_mu_alpha;</span>
+<span id="cb2-12">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> &lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>&gt; sigma_mu_alpha;</span>
+<span id="cb2-13">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span>&lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>&gt; rate_sigma_alpha;</span>
 <span id="cb2-14">  </span>
-<span id="cb2-15">  <span class="dt" style="color: #AD0000;">real</span> mu_mu_beta_dist_goal;</span>
-<span id="cb2-16">  <span class="dt" style="color: #AD0000;">real</span> &lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">0</span>&gt; sigma_mu_beta_dist_goal;</span>
-<span id="cb2-17">  <span class="dt" style="color: #AD0000;">real</span>&lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">0</span>&gt; rate_sigma_beta_dist_goal;</span>
+<span id="cb2-15">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> mu_mu_beta_dist_goal;</span>
+<span id="cb2-16">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> &lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>&gt; sigma_mu_beta_dist_goal;</span>
+<span id="cb2-17">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span>&lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>&gt; rate_sigma_beta_dist_goal;</span>
 <span id="cb2-18">  </span>
 <span id="cb2-19">}</span>
 <span id="cb2-20"></span>
-<span id="cb2-21"><span class="kw" style="color: #003B4F;">parameters</span> {</span>
+<span id="cb2-21"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">parameters</span> {</span>
 <span id="cb2-22">  </span>
-<span id="cb2-23">  <span class="dt" style="color: #AD0000;">vector</span> [n_players] alpha;</span>
+<span id="cb2-23">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">vector</span> [n_players] alpha;</span>
 <span id="cb2-24">  </span>
-<span id="cb2-25">  <span class="dt" style="color: #AD0000;">vector</span> [n_players] beta_dist_goal;</span>
+<span id="cb2-25">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">vector</span> [n_players] beta_dist_goal;</span>
 <span id="cb2-26"></span>
-<span id="cb2-27">  <span class="dt" style="color: #AD0000;">real</span> mu_alpha;</span>
-<span id="cb2-28">  <span class="dt" style="color: #AD0000;">real</span> &lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">0</span>&gt; sigma_alpha;</span>
+<span id="cb2-27">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> mu_alpha;</span>
+<span id="cb2-28">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> &lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>&gt; sigma_alpha;</span>
 <span id="cb2-29">  </span>
-<span id="cb2-30">  <span class="dt" style="color: #AD0000;">real</span> mu_beta_dist_goal;</span>
-<span id="cb2-31">  <span class="dt" style="color: #AD0000;">real</span> &lt;<span class="kw" style="color: #003B4F;">lower</span> = <span class="dv" style="color: #AD0000;">0</span>&gt; sigma_beta_dist_goal;</span>
+<span id="cb2-30">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> mu_beta_dist_goal;</span>
+<span id="cb2-31">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> &lt;<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lower</span> = <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>&gt; sigma_beta_dist_goal;</span>
 <span id="cb2-32">  </span>
 <span id="cb2-33">}</span>
 <span id="cb2-34"></span>
-<span id="cb2-35"><span class="kw" style="color: #003B4F;">model</span> {</span>
+<span id="cb2-35"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">model</span> {</span>
 <span id="cb2-36"></span>
-<span id="cb2-37">  <span class="co" style="color: #5E5E5E;">// Logistic model </span></span>
+<span id="cb2-37">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Logistic model </span></span>
 <span id="cb2-38">  </span>
 <span id="cb2-39">  goal ~ bernoulli_logit(alpha[player_id] + beta_dist_goal[player_id] .* dist_goal); </span>
 <span id="cb2-40"></span>
-<span id="cb2-41">  <span class="co" style="color: #5E5E5E;">// Priors </span></span>
+<span id="cb2-41">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Priors </span></span>
 <span id="cb2-42">  </span>
 <span id="cb2-43">  alpha ~ normal(mu_alpha, sigma_alpha);</span>
 <span id="cb2-44">  beta_dist_goal ~ normal(mu_beta_dist_goal, sigma_beta_dist_goal);</span>
 <span id="cb2-45"></span>
-<span id="cb2-46">  <span class="co" style="color: #5E5E5E;">// Hyperpriors</span></span>
+<span id="cb2-46">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Hyperpriors</span></span>
 <span id="cb2-47">  </span>
 <span id="cb2-48">  mu_alpha ~ normal(mu_mu_alpha, sigma_mu_alpha);</span>
 <span id="cb2-49">  sigma_alpha ~ exponential(rate_sigma_alpha);</span>
@@ -345,10 +709,16 @@ Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/pl
 <span id="cb2-53">  </span>
 <span id="cb2-54">}</span>
 <span id="cb2-55"></span>
-<span id="cb2-56"><span class="kw" style="color: #003B4F;">generated quantities</span> {</span>
+<span id="cb2-56"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">generated quantities</span> {</span>
 <span id="cb2-57">  </span>
-<span id="cb2-58">  <span class="dt" style="color: #AD0000;">real</span> alpha_pp = normal_rng(mu_alpha, sigma_alpha);</span>
-<span id="cb2-59">  <span class="dt" style="color: #AD0000;">real</span> beta_dist_goal_pp = normal_rng(mu_beta_dist_goal, sigma_beta_dist_goal);</span>
+<span id="cb2-58">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> alpha_pp = normal_rng(mu_alpha, sigma_alpha);</span>
+<span id="cb2-59">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">real</span> beta_dist_goal_pp = normal_rng(mu_beta_dist_goal, sigma_beta_dist_goal);</span>
 <span id="cb2-60"></span>
 <span id="cb2-61">}</span></code></pre></div>
 </div>
@@ -363,7 +733,7 @@ Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/pl
 <p>The posterior distribution (which <code>Stan</code> has sampled from) is a joint probabilistic model of all parameters. Let’s have a look at a few, specifically those corresponding to the effect of distance between the shot taker and goalkeeper. Shown below is the co-efficient for <img src="https://latex.codecogs.com/png.latex?6"> players (indexed <img src="https://latex.codecogs.com/png.latex?1%20%5Crightarrow%206">). We can see that the distance to the keeper is predicted to influence each player differently.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Some of the players will have taken fewer shots and therefore we will have less data to fit their player-specific parameters. The <code>mu_beta_dist_keeper</code> and <code>sigma_beta_dist_keeper</code> parameters in the above plot are the shared ‘<em>priors</em>’ that control how the data from each of the players can be used to inform one another. The <code>beta_dist_keeper_pp</code> parameter is specified in the generated quantities block of my <code>Stan</code> model. It is correlated samples from the distribution characterised by the shared priors. This becomes the population (team) level co-efficient in my predictions.</p>
@@ -371,13 +741,13 @@ Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/pl
 <p>Here is Robert Pirès goal from just outside the box at home to Bolton Wanderers in 2004. It was on his stronger (right) foot and he was not under pressure from any defenders.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>As labelled on the above plot, the StatsBomb model only gave Pirès a 5% chance of scoring this chance. The below xG predictions are from the Bayesian partial pooling model, both for Robert Pirès (upper) and for the case where any Arsenal player could be shooting (lower). Also shown is the StatsBomb prediction. We see an improvement (since we know this chance was scored) when we make a player-specific prediction.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Our probabilistic predictions contain more information than point estimates, but for the purposes of a simpler comparison we can consider the mean value. The mean value of our team-level prediction is 20%, but conditional on the knowledge that Pirès was shooting, this becomes 33%.</p>
@@ -388,8 +758,8 @@ Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/pl
 <p>Multi-level models capture the multi-level structure of hierarchical (nested) datasets, accounting for both variability and commonality between different groups (in this example: between different players in a team). However, as we can see from the previous plot, by introducing a set of parameters for each group and relating them all in this way, the posterior distribution now has many more dimensions and is more challenging to sample from. If you are using <code>Stan</code> you may now see more warning messages regarding <em>divergent transitions</em> - a concept that José Mourinho is acting out, below. If you do run into these problems, I would recommend reviewing the <a href="https://mc-stan.org/docs/2_25/stan-users-guide/reparameterization-section.html">guidance in the Stan manual on reparameterisation</a> (writing your same model on a new scale, such that it is easier for the software to work with).</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/https:/media.giphy.com/media/140EFtM0NCyjHq/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Mou’s Divergent Transitions</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/https:/media.giphy.com/media/140EFtM0NCyjHq/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Mou’s Divergent Transitions</figcaption>
 </figure>
 </div>
 <p>Finally, I have published a paper demonstrating this modelling approach in an engineering context, which includes additional details for anyone who is interested: <a href="https://www.sciencedirect.com/science/article/abs/pii/S0951832020306189?via=ihub">‘Consistent and coherent treatment of uncertainties and dependencies in fatigue crack growth calculations using multi-level Bayesian models’</a>.</p>
@@ -397,16 +767,16 @@ Overview.”</span> January 19, 22AD. <a href="https://allyourbayes.com/posts/pl
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2021,
-  author = {Domenic Di Francesco},
-  title = {Uncertainty in {xG.} {Part} 2: {Partial} {Pooling}},
-  date = {21-01-07},
-  url = {https://allyourbayes.com/posts/xg_pt2},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2021,
+  author = {Di Francesco, Domenic},
+  title = {Uncertainty in {xG.} {Part} 2},
+  date = {2021-01-07},
+  url = {https://www.allyourbayes.com//posts/xg_pt2},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2021" class="csl-entry quarto-appendix-citeas">
-Domenic Di Francesco. 21AD. <span>“Uncertainty in xG. Part 2: Partial
-Pooling.”</span> January 7, 21AD. <a href="https://allyourbayes.com/posts/xg_pt2">https://allyourbayes.com/posts/xg_pt2</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2021" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2021. <span>“Uncertainty in xG. Part 2.”</span>
+January 7, 2021. <a href="https://www.allyourbayes.com//posts/xg_pt2">https://www.allyourbayes.com//posts/xg_pt2</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -416,25 +786,19 @@ Pooling.”</span> January 7, 21AD. <a href="https://allyourbayes.com/posts/xg_p
   <category>Bayes</category>
   <category>multi-level modelling</category>
   <category>partial pooling</category>
-  <guid>https://allyourbayes.com/posts/xg_pt2/index.html</guid>
+  <guid>https://www.allyourbayes.com/posts/xg_pt2/index.html</guid>
   <pubDate>Thu, 07 Jan 2021 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/xg_pt2/xg2.png" medium="image" type="image/png" height="104" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/xg_pt2/xg2.png" medium="image" type="image/png" height="104" width="144"/>
 </item>
 <item>
   <title>Uncertainty in xG. Part 1: Overview</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/xg_pt1/index.html</link>
+  <link>https://www.allyourbayes.com/posts/xg_pt1/index.html</link>
   <description><![CDATA[ 
 
 
 
 
-<div class="cell">
-
-</div>
-<div class="cell">
-
-</div>
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
 <p>The Expected Goals (xG) metric is now widely recognised as numerical measure of the <em>quality</em> of a goal scoring opportunity in a football (soccer) match. In this article we consider how to deal with uncertainty in predicting xG, and how each players individual abilities can be accounted for. This is part 1 of the article, which is intended to be free of stats jargon, maths and code. If you are interested in those details, you can also check out <a href="https://allyourbayes.com/posts/xg_pt2/">part 2</a>.</p>
@@ -452,20 +816,20 @@ Pooling.”</span> January 7, 21AD. <a href="https://allyourbayes.com/posts/xg_p
 <p>I’m using Arsenal’s unbeaten league season as an example because <a href="https://statsbomb.com/">StatsBomb</a> have kindly made all this data freely available in <a href="https://github.com/statsbomb/StatsBombR">their R package</a>.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/https:/media.giphy.com/media/uBxP06JlaB7VCIaYXm/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">The Invincibles</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/https:/media.giphy.com/media/uBxP06JlaB7VCIaYXm/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">The Invincibles</figcaption>
 </figure>
 </div>
 <p>Here are their league goal scorers:</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>And here’s where the goals were scored from:</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>The above plot shows that many of these goals were scored, even though the (StatsBomb) xG was relatively low. In fact the mean xG of the shots they scored was 0.33. This isn’t necessarily a problem as we do see improbable goals. Below is Giorgian De Arrascaeta’s contender for the 2020 FIFA Puskas award. Was anyone expecting him to score this chance? Could he do it again?</p>
@@ -482,44 +846,41 @@ Pooling.”</span> January 7, 21AD. <a href="https://allyourbayes.com/posts/xg_p
 </section>
 <section id="what-does-the-model-do" class="level3">
 <h3 class="anchored" data-anchor-id="what-does-the-model-do">What does the Model do?</h3>
-<div class="cell">
-
-</div>
 <p>We have a model that describes uncertainty (using probability) and makes both team-level and player-specific predictions. Here are some examples:</p>
 <p>How about <a href="https://en.wikipedia.org/wiki/Dennis_Bergkamp">Dennis Bergkamp’s</a> dinked finish when clear through on goal against Birmingham. Remember it? Me neither - here’s where the shot was taken from:</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>And our predicted xG is shown below, both for Dennis Bergkamp (upper) and for the case where any Arsenal player could be shooting (lower). Here is a great example of being able to make a better prediction conditional on the information of who is taking the shot. The model has identified that Bergkamp was very capable of scoring these kind of chances and was therefore able to identify a narrow range of very high xG values. However, if we were considering a generic player in the Arsenal team, there is more uncertainty in our prediction.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>What about Thierry Henry’s long range goal against Man Utd? (Note that the straight arrow in the below plot does not reflect the true trajectory of his shot).</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>OK, so I wouldn’t have seen that one coming either ….but I would have given it more of a chance knowing who was shooting.</p>
 <p>Here is a final example - a shot from Gilberto Silva, on his stronger foot, which was saved by Neil Sullivan (who I’d completely forgotten had <a href="http://news.bbc.co.uk/sport1/hi/football/teams/c/chelsea/3190149.stm">signed for Chelsea that season</a>). I thought this was worth looking at because StatsBomb’s xG suggests this was a very good chance.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Our model did not expect him to score, and also predicted that <a href="https://en.wikipedia.org/wiki/Freddie_Ljungberg">Freddie Ljungberg</a> would have missed. Henry (unsurprisingly) is expected to have had a better chance, but <strong>interestingly</strong>, our model thinks that Arsenal’s goalscoring winger <a href="https://en.wikipedia.org/wiki/Robert_Pires">Robert Pirès</a> would have been most likely to score this opportunity.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -527,8 +888,8 @@ Pooling.”</span> January 7, 21AD. <a href="https://allyourbayes.com/posts/xg_p
 <h3 class="anchored" data-anchor-id="final-thought-making-sense-of-probabilistic-predictions">Final Thought: Making Sense of Probabilistic Predictions</h3>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/https:/media.giphy.com/media/e78UID432cQGA/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Thoughtful Pirlo</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/https:/media.giphy.com/media/e78UID432cQGA/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Thoughtful Pirlo</figcaption>
 </figure>
 </div>
 <p>What should we make of the above predictions? The single values (<em>point estimates</em>) provided by analytics companies may be a bit easier to read, but I’m suggesting that they are not as useful. We should want our models to tell us when they are not sure. There is more information in a probabilistic prediction than a point estimate, which means you can go from the former to the latter, but not vice-versa. The type of model we have discussed in this article has the added benefit of sharing information between different players in a mathematically coherent way (see <a href="https://allyourbayes.com/posts/xg_pt2/">part 2</a>) for the technical details).</p>
@@ -536,16 +897,16 @@ Pooling.”</span> January 7, 21AD. <a href="https://allyourbayes.com/posts/xg_p
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
-  author = {Domenic Di Francesco},
-  title = {Uncertainty in {xG.} {Part} 1: {Overview}},
-  date = {20-12-10},
-  url = {https://allyourbayes.com/posts/xg_pt1},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2020,
+  author = {Di Francesco, Domenic},
+  title = {Uncertainty in {xG.} {Part} 1},
+  date = {2020-12-10},
+  url = {https://www.allyourbayes.com//posts/xg_pt1},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas">
-Domenic Di Francesco. 20AD. <span>“Uncertainty in xG. Part 1:
-Overview.”</span> December 10, 20AD. <a href="https://allyourbayes.com/posts/xg_pt1">https://allyourbayes.com/posts/xg_pt1</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2020" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2020. <span>“Uncertainty in xG. Part 1.”</span>
+December 10, 2020. <a href="https://www.allyourbayes.com//posts/xg_pt1">https://www.allyourbayes.com//posts/xg_pt1</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -555,14 +916,14 @@ Overview.”</span> December 10, 20AD. <a href="https://allyourbayes.com/posts/x
   <category>Bayes</category>
   <category>multi-level modelling</category>
   <category>partial pooling</category>
-  <guid>https://allyourbayes.com/posts/xg_pt1/index.html</guid>
+  <guid>https://www.allyourbayes.com/posts/xg_pt1/index.html</guid>
   <pubDate>Thu, 10 Dec 2020 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/xg_pt1/xg1.png" medium="image" type="image/png" height="99" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/xg_pt1/xg1.png" medium="image" type="image/png" height="99" width="144"/>
 </item>
 <item>
   <title>Why be Bayesian?</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Why_Bayes/index.html</link>
+  <link>https://www.allyourbayes.com/posts/Why_Bayes/index.html</link>
   <description><![CDATA[ 
 
 
@@ -570,14 +931,14 @@ Overview.”</span> December 10, 20AD. <a href="https://allyourbayes.com/posts/x
 
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: <em>Is it worth me learning Bayesian statistics?</em> or <em>Should I look into using Bayesian statistics in my project?</em> Maths, code and technical details have all been left out.</p>
+<p>This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: <em>Is it worth me learning Bayesian statistics?</em> or <em>Should I look into using Bayesian statistics in my project?</em> No maths or code in this post.</p>
 <hr>
 <section id="bayes" class="level4">
 <h4 class="anchored" data-anchor-id="bayes">Bayes</h4>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Why_Bayes/https:/media.giphy.com/media/TJBbXQooivUNq/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Bayes</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/Why_Bayes/https:/media.giphy.com/media/TJBbXQooivUNq/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Bayes</figcaption>
 </figure>
 </div>
 </section>
@@ -592,18 +953,18 @@ Overview.”</span> December 10, 20AD. <a href="https://allyourbayes.com/posts/x
 <li>Updating</li>
 <li>Data Analysis</li>
 </ul>
-<p>…can be considered the same thing (certainly for the purposes of this post): <strong>the application of Bayes theorem to quantify uncertainty</strong>.</p>
-<p>So Bayesian statistics may be of interest to you if you are dealing with a problem associated with uncertainty - either due to some underlying variability, or due to limitations of your data.</p>
+<p>…can boradly be considered the same thing (certainly for the purposes of this post): <strong>the application of Bayes theorem to quantify uncertainty</strong>.</p>
+<p>Depending on your background, you may have preconceptions about Bayesian methods being specialist or complicated. However, analysts and researchers in many domains are increasingly experimenting with the growing catalogue of open source software and resources that is making probabilistic programming more accessible.</p>
 </section>
 <section id="what-does-a-bayesian-approach-provide" class="level3">
-<h3 class="anchored" data-anchor-id="what-does-a-bayesian-approach-provide">What does a Bayesian Approach Provide?</h3>
+<h3 class="anchored" data-anchor-id="what-does-a-bayesian-approach-provide">What does a Bayesian approach provide?</h3>
 <p>Bayesian statistics is not the only way to account for uncertainty in calculations. The below points describe what a Bayesian approach offers, that others don’t. Note that I am only really discussing methods involving probability here, though <a href="https://www.springer.com/gp/book/9783540402947">alternative approaches are available</a>.</p>
 <section id="intuitive-interpretation-of-results" class="level4">
 <h4 class="anchored" data-anchor-id="intuitive-interpretation-of-results">Intuitive Interpretation of Results</h4>
-<p>The outcome of a Bayesian model is a posterior distribution. This describes the joint uncertainty in all the parameters you are trying to estimate. This can be used to describe uncertainty in a prediction for some new input data. By comparison, alternative (frequentist) methods typically describes uncertainty in predictions using confidence intervals, which are widely used but easy to misinterpret.</p>
+<p>Bayesian methods give you distributions. Your parameters (and so also your predictions) are all described as distributions. A single, joint distribution in fact, which is aligned with the evidence that you provide your model. This allows you to propagate all the uncertainties and inter-dependencies when making predictions for some new input data. By comparison, alternative (frequentist) methods typically describes uncertainty in predictions using confidence intervals, which are widely used but easy to misinterpret.</p>
 <p>Confidence intervals are calculated so that they will contain the <em>true</em> value of whatever you are trying to predict with some desired frequency. They provide no information (in the absence of additional assumptions) on how credible various possible results are. The Bayesian equivalent (sometimes called credible intervals) can be drawn anywhere on a predictive distribution. In <a href="https://mitpress.mit.edu/books/introduction-statistical-decision-theory">Pratt, Raiffa and Schlaiffer’s textbook</a> an example is used to highlight this difference:</p>
 <p><em>Imagine the plight of the manager who exclaims, ‘I understand [does he?] the meaning that the demand for XYZ will lie in the interval 973 to 1374 with confidence .90. However, I am particularly interested in the interval 1300 to 1500. What confidence can I place on that interval?’</em> <em>Unfortunately, this question cannot be answered. Of course, however, it is possible to give a posterior probability to that particular interval - or any other - based on the sample data and on a codification of the manager’s prior judgements.</em></p>
-<p>And a more succinct description of the same view from <a href="https://www.weirdfishes.blog/">Dan Ovando’s fishery statistics blog</a>:</p>
+<p>This is a nice example (aside from assuming the manager is a male) of a simple question that we need a Bayesian posterior distribution to answer. A more succinct description of the same view from <a href="https://www.weirdfishes.blog/">Dan Ovando’s fishery statistics blog</a>:</p>
 <p><em>Bayesian credible intervals mean what we’d like Frequentist confidence intervals to mean.</em></p>
 </section>
 <section id="seamless-integration-with-decision-analysis" class="level4">
@@ -614,11 +975,12 @@ Overview.”</span> December 10, 20AD. <a href="https://allyourbayes.com/posts/x
 </section>
 <section id="flexible-modelling" class="level4">
 <h4 class="anchored" data-anchor-id="flexible-modelling">Flexible Modelling</h4>
-<p>So this one is based on a point made in <a href="https://uk.sagepub.com/en-gb/eur/a-student%E2%80%99s-guide-to-bayesian-statistics/book245409">Ben Lambert’s book on Bayesian statistics</a>. It is regarding how modern Bayesian statistics is achieved in practice. The computational methods require some effort to pick up, especially if you do not have experience with programming (though Ben Lambert’s book gives a nice introduction to <a href="https://mc-stan.org/">Stan</a>). However, they can be readily extended to larger and more complex models.</p>
+<p>So this one is based on a point made in <a href="https://uk.sagepub.com/en-gb/eur/a-student%E2%80%99s-guide-to-bayesian-statistics/book245409">Ben Lambert’s book on Bayesian statistics</a>. It is regarding how modern Bayesian statistics is achieved in practice. The computational methods may require some effort to pick up, especially if you do not have experience with programming (though Ben’s book gives a nice introduction to <a href="https://mc-stan.org/">Stan</a>). However, they can be readily extended to larger and more complex models.</p>
+<p>Essentially, we can propose weird and bespoke model structures, and then use the same approach to fit them.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Why_Bayes/https:/media.giphy.com/media/WiyczarN2XMm4/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Some Compelling Arguments</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/Why_Bayes/https:/media.giphy.com/media/WiyczarN2XMm4/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Some Compelling Arguments</figcaption>
 </figure>
 </div>
 </section>
@@ -628,103 +990,138 @@ Overview.”</span> December 10, 20AD. <a href="https://allyourbayes.com/posts/x
 <p>So why would anyone ever <em>not</em> use Bayesian models when making predictions?</p>
 <section id="subjectivity" class="level4">
 <h4 class="anchored" data-anchor-id="subjectivity">Subjectivity</h4>
-<p>Perhaps the most common criticism of Bayesian statistics is the requirement for prior models. An initial estimate of uncertainty is a term in Bayes’ theorem - but how can you estimate the extent of variability before you see it in your data? This will surely be completely subjective, so the results will vary depending on who is doing the analysis. This, understandably, doesn’t seem right with a lot of casual enquirers.</p>
-<p>A common response to this accusation is that subjectivity is not an exclusive feature of Bayesian analysis (how about the whole structure of the model you are trying to fit, regardless of your method?) <em>…but</em> at least Bayesians are required to be explicit about it. Priors are part of the model with no-where to hide (in the code or the reporting) and so they are open to criticism. This point is discussed in <strong>much</strong> more detail in this paper from <a href="http://www.stat.columbia.edu/~gelman/research/published/gelman_hennig_full_discussion.pdf">Colombia University</a>.</p>
-<p>Priors can contain, as much or as little, information as desired. However, even in instances where you may feel you don’t have any upfront knowledge of a problem, they represent a valuable opportunity for introducing regularisation (which protects against bad predictions due to overfitting). This idea is discussed in detail in <a href="https://www.crcpress.com/Statistical-Rethinking-A-Bayesian-Course-with-Examples-in-R-and-STAN/McElreath/p/book/9780367139919">Richard McElreath’s textbook</a>.</p>
+<p>Perhaps the most common criticism of Bayesian statistics is the requirement for priors - i.e.&nbsp;a starting point for your model. This initial estimate of uncertainty is a term in Bayes’ theorem - but how can you estimate the extent of variability before you see it in your data? This will surely be completely subjective, so the results will vary depending on who is doing the analysis. This, understandably, doesn’t seem right with a lot of casual enquirers.</p>
+<p>A common response to this accusation is that subjectivity is not an exclusive feature of Bayesian analysis (how about the whole approach you are taking to solving your problem !) <em>…but</em> at least Bayesians are required to be explicit about it. Priors mean that any subjective inputs have no-where to hide (in the code or the reporting) and so they are open to criticism. This point is discussed in <strong>much</strong> more detail in this paper from <a href="http://www.stat.columbia.edu/~gelman/research/published/gelman_hennig_full_discussion.pdf">Colombia University</a>.</p>
+<p>Priors can contain, as much or as little, information as desired. However, even in instances where you may feel you don’t have any upfront knowledge of a problem, they represent a valuable opportunity for introducing regularisation (which protects against bad predictions due to overfitting). This idea is discussed in detail in <a href="https://www.crcpress.com/Statistical-Rethinking-A-Bayesian-Course-with-Examples-in-R-and-STAN/McElreath/p/book/9780367139919">Richard McElreath’s textbook</a>. I would suggest that in plenty of cases, we often have a fair idea of what is happening even before we collect and analyse data, and starting from zero everytime is just not sensible. Will a doctor who has just evaluated you base their diagnosis entirely on a test outcome, or will they incorporate that eveidence into their existing understanding of your circumstances and symptoms? Bayesian statistics is the means by which this can be done mathematically.</p>
 </section>
 <section id="computational-requirements" class="level4">
 <h4 class="anchored" data-anchor-id="computational-requirements">Computational Requirements</h4>
-<p>In practice, statisticians estimate Bayesian posterior distributions using Markov Chain Monte Carlo (MCMC) sampling algorithms. This approach is slower, more complicated and less informative than standard, independent Monte Carlo sampling. The models that I have worked with during my PhD have taken several hours to finish sampling from, but I have met statisticians whose models run for days or even weeks. Following this, there are checks that need to be completed as there are plenty of things that can go wrong with MCMC.</p>
-<p>My background is in mechanical and civil engineering. In discussions with engineering researchers at conferences I have often been told that the errors and complications they encountered when using MCMC methods had made them believe that Bayesian statistics wasn’t for them. These are challenges that I imagine everyone who has attempted modern Bayesian statistics will have encountered and resolving them can require a deep understanding of your model. Both domain-specific and statistical knowledge is required to help ensure the model you are trying to fit is justified. In addition some programming <em>tricks</em> like reparameterisation can be of great help to your software, which sometimes needs equivalent, but easier to interpret instructions.</p>
-<p>With all that in mind, when would this ever be worthwhile?</p>
+<p>In practice, statisticians estimate Bayesian posterior distributions using very clever Markov Chain Monte Carlo (MCMC) sampling algorithms, that are run by their favourite probabilistic programming software. The models that I have worked with during my PhD have taken several hours to finish sampling from, but I have met statisticians whose models run for days or even weeks. Following this, there are checks that need to be completed as there are plenty of things that can go wrong with MCMC. There is a nice discussion of a recommended Bayesian workflow to make sure you are checking what you need to <a href="https://arxiv.org/abs/2011.01808">here</a>.</p>
+<p>My background is in mechanical and civil engineering. In discussions with engineering researchers at conferences I have often been told that the errors and complications they encountered when playing around with Bayesian software caused them to abandon the approach in favour of more established, less informative analysis. These are challenges that I imagine everyone who has attempted modern Bayesian statistics will have encountered and resolving them can require a deep understanding of your model, and perhaps some formal training. In addition some programming <em>tricks</em> like reparameterisation (describing your model in a seemingly equivalent way, but one that is much friendlier to your software) can also help.</p>
 </section>
 </section>
 <section id="conclusions" class="level3">
 <h3 class="anchored" data-anchor-id="conclusions">Conclusions</h3>
-<p>Regardless of whether you believe we exist in a deterministic universe or not, you will never have perfect state of knowledge describing your problem: uncertainty exists, so we need a sensible and safe way of accounting for it.</p>
-<p>I believe that Bayesian statistics is actually well suited to traditional engineering problems, which are concerned with managing risk when confronted with small, messy datasets and models with plenty of uncertainty. As suggested in the earlier description of confidence intervals, frequentist statistics defines probability based on occurrences of events following a large number of trials or samples. When only limited data is available, Bayesian statistics can shine by comparison.</p>
-<p>Very large datasets may contain enough information to precisely estimate parameters in a model using standard machine learning methods, and so it becomes less worthwhile running simulations to characterise variability. But how common are these big data problems in science and engineering? Sometimes large populations of data are better described as multiple smaller constituent groups, after accounting for key differences between them. Bayesian statistics has a very useful way of managing such problems by structuring models hierarchically. This method allows for <strong>partial pooling of information</strong> between groups, so that predictions account for the variability and commonality between groups. I will provide a detailed example of this in a future post.</p>
-<p>In conclusion, Bayesian statistics requires (computational and personal) effort to apply. But it provides results that are (usually) more interpretable and closely linked to the questions we want to answer. Whether or not these methods are worth learning of course depend on personal circumstances. I encountered Bayesian statistics during my PhD, and so had plenty of time to read up and I’ve found this to be very rewarding and enjoyable…</p>
+<p>Regardless of whether you believe we exist in a deterministic universe or not, you will never have perfect state of knowledge describing your problem: uncertainty exists, so we need a sensible and safe way of accounting for it. It’s difficult to escape the implications of the Maths - for instance, in avoiding quantifying uncertainty, we are often making some implicit assumptions (the implications of which can be difficult to justify) that we may not want to propagate into our decision-making. There is generally a trade-off for apparent conveniences.</p>
+<p>I believe that Bayesian statistics is actually well suited to traditional engineering problems, which are concerned with managing risk when confronted with small, messy datasets and models with plenty of uncertainty. As suggested in the earlier description of confidence intervals, frequentist statistics defines probability based on occurrences of events following a large number of trials or samples. When trying to understand the behaviour of small datasets (or even unique structural systems), Bayesian statistics can shine by comparison.</p>
+<p>Very large datasets may contain enough information to precisely estimate parameters in a model using conventional machine learning methods, and so it becomes less worthwhile running simulations to characterise variability. But how common are these big data problems in science and engineering? Sometimes large populations of data are better described as multiple smaller constituent groups, after accounting for key differences between them. Bayesian statistics has a very useful way of managing such problems by structuring models hierarchically. This method allows for <strong>partial pooling of information</strong> between groups, so that predictions account for the variability and commonality between groups. I will provide a detailed example of this in a future post.</p>
+<p>Bayesian inference requires (computational and personal) effort to apply. But it provides results that are generally more interpretable and closely related to the actual questions we want to answer. Whether or not these methods are worth learning will of course depend on personal circumstances. I encountered this field during my PhD, and so had plenty of time to read and play with them, which I appreicate is a privelidged position to be in.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Why_Bayes/https:/media.giphy.com/media/WPLPEu0GUp41W/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Boring, isn’t it? Writing, Fitting and Evaluating Bayesian Models All Day….</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/Why_Bayes/https:/media.giphy.com/media/WPLPEu0GUp41W/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Boring, isn’t it? Writing, Fitting and Evaluating Bayesian Models All Day….</figcaption>
 </figure>
 </div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
-  author = {Domenic Di Francesco},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2020,
+  author = {Di Francesco, Domenic},
   title = {Why Be {Bayesian?}},
-  date = {20-03-24},
-  url = {https://allyourbayes.com/posts/Why_Bayes},
+  date = {2020-03-24},
+  url = {https://www.allyourbayes.com//posts/Why_Bayes},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas">
-Domenic Di Francesco. 20AD. <span>“Why Be Bayesian?”</span> March 24,
-20AD. <a href="https://allyourbayes.com/posts/Why_Bayes">https://allyourbayes.com/posts/Why_Bayes</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2020" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2020. <span>“Why Be Bayesian?”</span> March 24,
+2020. <a href="https://www.allyourbayes.com//posts/Why_Bayes">https://www.allyourbayes.com//posts/Why_Bayes</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>uncertainty</category>
   <category>decisions</category>
-  <guid>https://allyourbayes.com/posts/Why_Bayes/index.html</guid>
+  <guid>https://www.allyourbayes.com/posts/Why_Bayes/index.html</guid>
   <pubDate>Tue, 24 Mar 2020 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Why_Bayes/gp.png" medium="image" type="image/png" height="84" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Why_Bayes/gp.png" medium="image" type="image/png" height="84" width="144"/>
 </item>
 <item>
   <title>Bayesian Logistic Regression with Stan</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Logistic_Bayes/index.html</link>
+  <link>https://www.allyourbayes.com/posts/Logistic_Bayes/index.html</link>
   <description><![CDATA[ 
 
 
 
 
-<div class="cell">
-
-</div>
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>Logistic regression is a popular machine learning model. One application of it in an engineering context is quantifying the effectiveness of inspection technologies at detecting damage. This post describes the additional information provided by a Bayesian application of logistic regression (and how it can be implemented using the <code>Stan</code> probabilistic programming language). Finally, I’ve also included some recommendations for making sense of priors.</p>
+<p>Logistic regression is a popular statistical model for making predictions on outcomes between zero and one - like probabilities. One application of it in an engineering context is quantifying the effectiveness of inspection technologies at detecting damage. This post describes the additional information provided by a Bayesian application of logistic regression (and how it can be implemented using the <code>Stan</code> probabilistic programming language). I’ve also included some recommendations for giving your model a sensible starting point (using prior information).</p>
 <hr>
 </section>
 <section id="introductions" class="level3">
 <h3 class="anchored" data-anchor-id="introductions">Introductions</h3>
-<p>So there are a couple of key topics discussed here: Logistic Regression, and Bayesian Statistics. Before jumping straight into the example application, I’ve provided some <strong>very</strong> brief introductions below.</p>
+<p>So there are a couple of key topics discussed here: logistic regression, and Bayesian inference. Before jumping straight into the example application, I’ve provided some <strong>very</strong> brief introductions below.</p>
 <section id="bayesian-inference" class="level4">
 <h4 class="anchored" data-anchor-id="bayesian-inference">Bayesian Inference</h4>
-<p>At a very high level, Bayesian models quantify (aleatory and epistemic) uncertainty, so that our predictions and decisions take into account the ways in which our knowledge is limited or imperfect. We specify a statistical model, and identify probabilistic estimates for the parameters using a family of sampling algorithms known as Markov Chain Monte Carlo (MCMC). My preferred software for writing a fitting Bayesian models is <a href="https://mc-stan.org/"><code>Stan</code></a>. If you are not yet familiar with Bayesian statistics, then I imagine you won’t be fully satisfied with that 3 sentence summary, so I will put together a separate post on the merits and challenges of applied Bayesian inference, which will include much more detail.</p>
+<p>At a very high level, Bayesian models quantify uncertainty, so that our predictions and decisions take into account the ways in which our knowledge is limited or imperfect. We specify a statistical model, and identify probabilistic estimates for the parameters. My preferred software for writing a fitting Bayesian models is <a href="https://mc-stan.org/"><code>Stan</code></a>. If you are not yet familiar with Bayesian statistics, then I imagine you won’t be fully satisfied with that 3 sentence summary, so I will put together a separate post on the merits and challenges of applied Bayesian inference, which will include much more detail.</p>
 </section>
 <section id="logistic-regression" class="level4">
 <h4 class="anchored" data-anchor-id="logistic-regression">Logistic Regression</h4>
-<p>Logistic regression is used to estimate the probability of a binary outcome, such as <em>Pass</em> or <em>Fail</em> (though it can be extended for <code>&gt; 2</code> outcomes). This is achieved by transforming a standard regression using the logit function, shown below. The term in the brackets may be familiar to gamblers as it is how odds are calculated from probabilities. You may see <em>logit</em> and <em>log-odds</em> used exchangeably for this reason.</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0ALogit%20(x)%20=%20%5Clog%5CBigg(%7B%5Cfrac%7Bx%7D%7B1%20-%20x%7D%7D%5CBigg)%0A"></p>
-<p>Since the logit function transformed data <em>from</em> a probability scale, the inverse logit function transforms data <em>to</em> a probability scale. Therefore, as shown in the below plot, it’s values range from <code>0</code> to <code>1</code>, and this feature is very useful when we are interested the probability of <em>Pass</em>/<em>Fail</em> type outcomes.</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AInverse%5C;Logit%20(x)%20=%20%5Cfrac%7B1%7D%7B1%20+%20%5Cexp(-x)%7D%0A"></p>
+<p>Logistic regression is used to estimate the probability of a binary outcome, such as <em>Pass</em> or <em>Fail</em> (though it can be extended for <code>&gt; 2</code> outcomes). This is achieved by transforming a standard regression using the logit function, shown below. The term in the brackets may be familiar to gamblers as it is how odds are calculated from probabilities (p). You may see <em>logit</em> and <em>log-odds</em> used exchangeably for this reason.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctextrm%7BLog%20odds%7D%20=%20%5Clog%5CBigg(%7B%5Cfrac%7Bp%7D%7B1%20-%20p%7D%7D%5CBigg)%0A"></p>
+<p>Since the logit function transformed data <em>from</em> a probability scale, the inverse logit (or logistic) function transforms data <em>to</em> a probability scale. We can re-arrange this equation ourselves to see this:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cexp(%5Ctextrm%7BLog%20odds%7D)%20=%20%5CBigg(%7B%5Cfrac%7Bp%7D%7B1%20-%20p%7D%7D%5CBigg)%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cexp(%5Ctextrm%7BLog%20odds%7D)%20%5Ctimes%20(1%20-%20p)%20=%20p%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cexp(%5Ctextrm%7BLog%20odds%7D)%20-%20p%20%5Ctimes%20%5Cexp(%5Ctextrm%7BLog%20odds%7D)%20=%20p%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cexp(%5Ctextrm%7BLog%20odds%7D)%20=%20p%20+%20p%20%5Ctimes%20%5Cexp(%5Ctextrm%7BLog%20odds%7D)%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cexp(%5Ctextrm%7BLog%20odds%7D)%20=%20p%20(1%20+%20%5Cexp(%5Ctextrm%7BLog%20odds%7D))%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B%5Cexp(%5Ctextrm%7BLog%20odds%7D)%7D%20%7B1%20+%20%5Cexp(%5Ctextrm%7BLog%20odds%7D)%7D%20=%20p%0A"></p>
+<p>because multiplying by <img src="https://latex.codecogs.com/png.latex?%5Cexp(x)"> is the same as diviving by <img src="https://latex.codecogs.com/png.latex?%5Cexp(-x)">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B1%7D%20%7B%5Cexp(%5Ctextrm%7B-Log%20odds%7D)%20%5Ctimes%20(1%20+%20%5Cexp(%5Ctextrm%7BLog%20odds%7D))%7D%20=%20p%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B1%7D%20%7B%5Cexp(%5Ctextrm%7B-Log%20odds%7D)%20%20+%201%7D%20=%20p%0A"></p>
+<p>As shown in the below plot, the values of this function range from <code>0</code> to <code>1</code>.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctextrm%7BInverse%20Logit%7D%20(x)%20=%20%5Cfrac%7B1%7D%7B1%20+%20%5Cexp(-x)%7D%0A"></p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Before moving on, some terminology that you may find when reading about logistic regression elsewhere:</p>
-<ul>
-<li>When a linear regression is combined with a re-scaling function such as this, it is known as a Generalised Linear Model (<strong>GLM</strong>).</li>
-<li>The re-scaling (in this case, the logit) function is known as a <strong>link function</strong> in this context.</li>
-<li>Logistic regression is a <strong>Bernoulli-Logit GLM</strong>.</li>
-</ul>
+<p>The reason we start with with log-odds is because we can define a linear model on this scale, with a gradient, <img src="https://latex.codecogs.com/png.latex?%5Cbeta"> and an intercept <img src="https://latex.codecogs.com/png.latex?%5Calpha">, and then transform it to a prediction on the probability scale, using the above steps. When a linear regression is combined with a re-scaling function such as this, it is known as a Generalised Linear Model (<strong>GLM</strong>).</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctextrm%7BLog%20odds%7D%20=%20%5Calpha%20+%20%5Cbeta%20%5Ctimes%20%5Ctextrm%7Binput%20variables%7D%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap%20=%20%5Cfrac%7B1%7D%7B1%20+%20%5Cexp(-%5B%5Calpha%20+%20%5Cbeta%20%5Ctimes%20%5Ctextrm%7Binput%20variables%7D%5D)%7D%0A"></p>
 <p>You may be familiar with libraries that automate the fitting of logistic regression models, either in <code>Python</code> (via <code>sklearn</code>):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;">from</span> sklearn.linear_model <span class="im" style="color: #00769E;">import</span> LogisticRegression</span>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> sklearn.linear_model <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> LogisticRegression</span>
 <span id="cb1-2"></span>
-<span id="cb1-3">model <span class="op" style="color: #5E5E5E;">=</span> LogisticRegression()</span>
-<span id="cb1-4">model.fit(X <span class="op" style="color: #5E5E5E;">=</span> dataset[<span class="st" style="color: #20794D;">'input_variables'</span>], y <span class="op" style="color: #5E5E5E;">=</span> dataset[<span class="st" style="color: #20794D;">'predictions'</span>])</span></code></pre></div>
+<span id="cb1-3">model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> LogisticRegression()</span>
+<span id="cb1-4">model.fit(X <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dataset[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'input_variables'</span>], y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dataset[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'predictions'</span>])</span></code></pre></div>
 </div>
 <p>…or in <code>R</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">model_fit <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">glm</span>(<span class="at" style="color: #657422;">formula =</span> preditions <span class="sc" style="color: #5E5E5E;">~</span> input_variables,</span>
-<span id="cb2-2">                 <span class="at" style="color: #657422;">data =</span> dataset, <span class="at" style="color: #657422;">family =</span> <span class="fu" style="color: #4758AB;">binomial</span>(<span class="at" style="color: #657422;">link =</span> <span class="st" style="color: #20794D;">'logit'</span>))</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">model_fit <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glm</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">formula =</span> preditions <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> input_variables,</span>
+<span id="cb2-2">                 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> dataset, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">family =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">binomial</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">link =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'logit'</span>))</span></code></pre></div>
 </div>
 </section>
 </section>
@@ -735,37 +1132,155 @@ Domenic Di Francesco. 20AD. <span>“Why Be Bayesian?”</span> March 24,
 <li>There is a crack of <strong>exact</strong> length <code>30 mm</code> and <strong>exact</strong> depth <code>5 mm</code> at this <strong>exact</strong> location, or</li>
 <li>There is <strong>definitely</strong> no damage at this location.</li>
 </ul>
-<p>For various reasons, the information we receive from inspections is imperfect and this is something that engineers need to deal with. As a result, providers of inspection services are requested to provide some measure of how good their product is. This typically includes some measure of how accurately damage is sized and how reliable an outcome (detection or no detection) is.</p>
+<p>For various reasons, the information we receive from inspections is imperfect and this is something that engineers need to deal with. As a result, providers of inspection services should be requested to provide some measure of how good their product is. This typically includes some measure of how accurately damage is sized and how reliable an outcome (detection or no detection) is.</p>
 <p>This example will consider trials of an inspection tool looking for damage of varying size, to fit a model that will predict the probability of detection for any size of damage. Since various forms of damage can initiate in structures, each requiring inspection methods that are suitable, let’s avoid ambiguity and imagine we are only looking for cracks.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/https:/media.giphy.com/media/42wQXwITfQbDGKqUP7/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Detecting Damage: Never 100% Reliable</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/https:/media.giphy.com/media/42wQXwITfQbDGKqUP7/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Detecting damage: never 100% reliable</figcaption>
 </figure>
 </div>
 <section id="test-data" class="level4">
 <h4 class="anchored" data-anchor-id="test-data">Test Data</h4>
 <p>For the purposes of this example we will simulate some data. Let’s imagine we have introduced some cracks (of known size) into some test specimens and then arranged for some blind trials to test whether an inspection technology is able to detect them.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;">set.seed</span>(<span class="dv" style="color: #AD0000;">1008</span>)</span>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1008</span>)</span>
 <span id="cb3-2"></span>
-<span id="cb3-3">N <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="dv" style="color: #AD0000;">30</span>; lower <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="dv" style="color: #AD0000;">0</span>; upper <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="dv" style="color: #AD0000;">10</span>; alpha_true <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="sc" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">1</span>; beta_true <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="dv" style="color: #AD0000;">1</span></span>
+<span id="cb3-3">N <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>; lower <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>; upper <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>; alpha_true <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>; beta_true <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
 <span id="cb3-4"></span>
-<span id="cb3-5">depth <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">runif</span>(<span class="at" style="color: #657422;">n =</span> N, <span class="at" style="color: #657422;">min =</span> lower, <span class="at" style="color: #657422;">max =</span> upper)</span>
+<span id="cb3-5">depth <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">runif</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> N, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">min =</span> lower, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max =</span> upper)</span>
 <span id="cb3-6"></span>
-<span id="cb3-7">PoD_1D <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="cf" style="color: #003B4F;">function</span>(depth, alpha_1D, beta_1D){</span>
-<span id="cb3-8">  PoD <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">exp</span>(alpha_1D <span class="sc" style="color: #5E5E5E;">+</span> beta_1D <span class="sc" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">log</span>(depth)) <span class="sc" style="color: #5E5E5E;">/</span> (<span class="dv" style="color: #AD0000;">1</span> <span class="sc" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">exp</span>(alpha_1D <span class="sc" style="color: #5E5E5E;">+</span> beta_1D <span class="sc" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">log</span>(depth)))</span>
-<span id="cb3-9">  <span class="fu" style="color: #4758AB;">return</span> (PoD)</span>
+<span id="cb3-7">PoD_1D <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(depth, alpha_1D, beta_1D){</span>
+<span id="cb3-8">  PoD <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">exp</span>(alpha_1D <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> beta_1D <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">log</span>(depth)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">exp</span>(alpha_1D <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> beta_1D <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">log</span>(depth)))</span>
+<span id="cb3-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span> (PoD)</span>
 <span id="cb3-10">}</span>
 <span id="cb3-11"></span>
-<span id="cb3-12">pod_df <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">tibble</span>(<span class="at" style="color: #657422;">depth =</span> depth, <span class="at" style="color: #657422;">det =</span> <span class="fu" style="color: #4758AB;">double</span>(<span class="at" style="color: #657422;">length =</span> N))</span>
+<span id="cb3-12">pod_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">depth =</span> depth, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">det =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">double</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length =</span> N))</span>
 <span id="cb3-13"></span>
-<span id="cb3-14"><span class="cf" style="color: #003B4F;">for</span> (i <span class="cf" style="color: #003B4F;">in</span> <span class="fu" style="color: #4758AB;">seq</span>(<span class="at" style="color: #657422;">from =</span> <span class="dv" style="color: #AD0000;">1</span>, <span class="at" style="color: #657422;">to =</span> <span class="fu" style="color: #4758AB;">nrow</span>(pod_df), <span class="at" style="color: #657422;">by =</span> <span class="dv" style="color: #AD0000;">1</span>)) {</span>
+<span id="cb3-14"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">from =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">to =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(pod_df), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)) {</span>
 <span id="cb3-15">  </span>
-<span id="cb3-16">  pod_df<span class="sc" style="color: #5E5E5E;">$</span>det[i] <span class="ot" style="color: #003B4F;">=</span> <span class="fu" style="color: #4758AB;">rbernoulli</span>(<span class="at" style="color: #657422;">n =</span> <span class="dv" style="color: #AD0000;">1</span>, </span>
-<span id="cb3-17">                             <span class="at" style="color: #657422;">p =</span> <span class="fu" style="color: #4758AB;">PoD_1D</span>(<span class="at" style="color: #657422;">depth =</span> pod_df<span class="sc" style="color: #5E5E5E;">$</span>depth[i], </span>
-<span id="cb3-18">                                       <span class="at" style="color: #657422;">alpha_1D =</span> alpha_true, </span>
-<span id="cb3-19">                                       <span class="at" style="color: #657422;">beta_1D =</span> beta_true))</span>
+<span id="cb3-16">  pod_df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>det[i] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rbernoulli</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, </span>
+<span id="cb3-17">                             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">p =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">PoD_1D</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">depth =</span> pod_df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>depth[i], </span>
+<span id="cb3-18">                                       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha_1D =</span> alpha_true, </span>
+<span id="cb3-19">                                       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">beta_1D =</span> beta_true))</span>
 <span id="cb3-20">  </span>
 <span id="cb3-21">}</span></code></pre></div>
 </div>
@@ -774,53 +1289,95 @@ Domenic Di Francesco. 20AD. <span>“Why Be Bayesian?”</span> March 24,
 <p>After fitting our model, we will be able to predict the probability of detection for a crack of any size.</p>
 <div class="cell" data-ouput="false">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p><code>Stan</code> is a <a href="https://en.wikipedia.org/wiki/Probabilistic_programming">probabilistic programming language</a>. In a future post I will explain why it has been my preferred software for statistical inference throughout my PhD.</p>
 <p>The below is a simple <code>Stan</code> program to fit a Bayesian Probability of Detection (PoD) model:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;">library</span>(cmdstanr)</span>
-<span id="cb4-2"></span>
-<span id="cb4-3">PoD_model <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">cmdstan_model</span>(<span class="at" style="color: #657422;">stan_file =</span> <span class="st" style="color: #20794D;">"PoD_model.stan"</span>)</span>
-<span id="cb4-4"></span>
-<span id="cb4-5">PoD_model<span class="sc" style="color: #5E5E5E;">$</span><span class="fu" style="color: #4758AB;">format</span>()</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">PoD_model <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> cmdstanr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cmdstan_model</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stan_file =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'PoD_model.stan'</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in readLines(stan_file): incomplete final line found on
+'PoD_model.stan'</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">PoD_model<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>()</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>data {
-  int&lt;lower=0&gt; N; // Defining the number of defects in the test dataset
-  array[N] int&lt;lower=0, upper=1&gt; det; // A variable that describes whether each defect was detected [1]or not [0]
-  vector&lt;lower=0&gt;[N] depth; // A variable that describes the corresponding depth of each defect
+
+  int &lt;lower = 0&gt; N; // Defining the number of defects in the test dataset
+  array [N] int &lt;lower = 0, upper = 1&gt; det; // A variable that describes whether each defect was detected (1) or not (0)
+  vector &lt;lower = 0&gt; [N] depth; // A variable that describes the corresponding depth of each defect
   
-  int&lt;lower=0&gt; K; // Defining the number of probabilistic predictions required from the model
-  vector&lt;lower=0&gt;[K] depth_pred;
+  int &lt;lower = 0&gt; K; // Defining the number of probabilistic predictions required from the model
+  vector &lt;lower = 0&gt; [K] depth_pred;
+  
 }
+
 parameters {
+  
   // The (unobserved) model parameters that we want to recover
   real alpha;
   real beta;
+  
 }
+
 model {
+
   // A logistic regression model relating the defect depth to whether it will be detected
   det ~ bernoulli_logit(alpha + beta * log(depth));
   
   // Prior models for the unobserved parameters
   alpha ~ normal(0, 1);
   beta ~ normal(1, 1);
+
 }
+
 generated quantities {
+  
   // Using the fitted model for probabilistic prediction.
   // K posterior predictive distributions will be estimated for a corresponding crack depth
-  vector[K] postpred_pr;
+  vector [K] postpred_pr;
   
-  for (k in 1 : K) {
+  for (k in 1:K) {
+    
     postpred_pr[k] = inv_logit(alpha + beta * log(depth_pred[k]));
+    
   }
+  
 }</code></pre>
 </div>
 </div>
 <p>The <code>generated quantities</code> block will be used to make predictions for the <code>K</code> values of <code>depth_pred</code> that we provide.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">K <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="dv" style="color: #AD0000;">50</span>; depth_pred <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">seq</span>(<span class="at" style="color: #657422;">from =</span> lower, <span class="at" style="color: #657422;">to =</span> upper, <span class="at" style="color: #657422;">length.out =</span> K)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">K <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>; depth_pred <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">from =</span> lower, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">to =</span> upper, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> K)</span></code></pre></div>
 </div>
 <p>The above code generates 50 evenly spaced values, which we will eventually combine in a plot. In some instances we may have specific values that we want to generate probabilistic predictions for, and this can be achieved in the same way.</p>
 </section>
@@ -833,42 +1390,81 @@ generated quantities {
 <h4 class="anchored" data-anchor-id="results">Results</h4>
 <p>Once we have our data, and are happy with our model, we can set off the Markov chains. There are plenty of opportunities to control the way that the <code>Stan</code> algorithm will run, but I won’t include that here, rather we will mostly stick with the default arguments in <code>cmdstanr</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">PoD_fit <span class="ot" style="color: #003B4F;">&lt;-</span> PoD_model<span class="sc" style="color: #5E5E5E;">$</span><span class="fu" style="color: #4758AB;">sample</span>(<span class="at" style="color: #657422;">data =</span> <span class="fu" style="color: #4758AB;">list</span>(<span class="at" style="color: #657422;">N =</span> N, <span class="at" style="color: #657422;">det =</span> pod_df<span class="sc" style="color: #5E5E5E;">$</span>det, <span class="at" style="color: #657422;">depth =</span> pod_df<span class="sc" style="color: #5E5E5E;">$</span>depth,</span>
-<span id="cb7-2">                                        <span class="at" style="color: #657422;">K =</span> K, <span class="at" style="color: #657422;">depth_pred =</span> depth_pred), <span class="at" style="color: #657422;">seed =</span> <span class="dv" style="color: #AD0000;">2408</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">PoD_fit <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> PoD_model<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">N =</span> N, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">det =</span> pod_df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>det, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">depth =</span> pod_df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>depth,</span>
+<span id="cb9-2">                                        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">K =</span> K, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">depth_pred =</span> depth_pred), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">seed =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2408</span>)</span></code></pre></div>
 </div>
 <p><strong>Note</strong>:I’ve not included any detail here on the checks we need to do on our samples. There are some common challenges associated with MCMC methods, each with plenty of associated guidance on how to diagnose and resolve them. For now, let’s assume everything has gone to plan.</p>
 <p>Now, there are a few options for extracting samples from a stanfit object such as <code>PoD_samples</code>, including <code>cmdstanr::as_draws()</code>. However, these usually require a little post-processing to get them into a tidy format. There is a function in my <a href="https://github.com/DomDF/DomDF">DomDF R package</a> for this, which we can use to create a tidy output that specifies the iteration, parameter value and chain associated with each data point:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;">library</span>(DomDF)</span>
-<span id="cb8-2"></span>
-<span id="cb8-3">PoD_samples <span class="ot" style="color: #003B4F;">&lt;-</span> PoD_fit <span class="sc" style="color: #5E5E5E;">|&gt;</span> DomDF<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">tidy_mcmc_draws</span>()</span>
-<span id="cb8-4"></span>
-<span id="cb8-5"><span class="fu" style="color: #4758AB;">head</span>(<span class="at" style="color: #657422;">x =</span> PoD_samples, <span class="at" style="color: #657422;">n =</span> <span class="dv" style="color: #AD0000;">5</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">PoD_samples <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> PoD_fit <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> DomDF<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tidy_mcmc_draws</span>()</span>
+<span id="cb10-2"></span>
+<span id="cb10-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> PoD_samples, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 4
   Parameter Chain Iteration value
   &lt;chr&gt;     &lt;int&gt;     &lt;int&gt; &lt;dbl&gt;
-1 lp__          1         1 -15.5
+1 lp__          1         1 -15.6
 2 lp__          1         2 -15.2
-3 lp__          1         3 -15.8
-4 lp__          1         4 -16.6
-5 lp__          1         5 -16.1</code></pre>
+3 lp__          1         3 -15.5
+4 lp__          1         4 -16.0
+5 lp__          1         5 -16.2</code></pre>
 </div>
-</div>
-<div class="cell">
-
 </div>
 <p>We have sampled from a 2-dimensional posterior distribution of the unobserved parameters in the model: <img src="https://latex.codecogs.com/png.latex?%5Calpha"> and <img src="https://latex.codecogs.com/png.latex?%5Cbeta">. Below is a density plot of their corresponding marginal distributions based on the <code>1000</code> samples collected from each of the <code>4</code> Markov chains that have been run.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>So our estimates are beginning to converge on the values that were used to generate the data, but this plot also shows that there is still plenty of uncertainty in the results. Unlike many alternative approaches, Bayesian models account for the statistical uncertainty associated with our limited dataset - remember that we are estimating these values from 30 trials. These results describe the possible values of <img src="https://latex.codecogs.com/png.latex?%5Calpha"> and <img src="https://latex.codecogs.com/png.latex?%5Cbeta"> in our model that are consistent with the limited available evidence. If more data was available, we could expect the uncertainty in our results to decrease. I think there are some great reasons to keep track of this statistical (sometimes called <em>epistemic</em>) uncertainty - a primary example being that we should be interested in how confident our predictive models are in their own results! …but I’ll leave it at that for now, and try to stay on topic.</p>
 <p>How do we know what do these estimates of <img src="https://latex.codecogs.com/png.latex?%5Calpha"> and <img src="https://latex.codecogs.com/png.latex?%5Cbeta"> mean for the PoD (what we are ultimately interested in)? We can check this using the posterior predictive distributions that we have (thanks to the <code>generated quantities</code> block of the <code>Stan</code> program).</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>One thing to note from these results is that the model is able to make much more confident predictions for larger crack sizes. The increased uncertainty associated with shallow cracks reflects the lack of data available in this region - this could be useful information for a decision maker!</p>
@@ -880,8 +1476,8 @@ generated quantities {
 <p>Flat priors have the appeal of describing a state of complete uncertainty, which we may believe we are in before seeing any data - but is this really the case?</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/https:/media.giphy.com/media/UgM7H8OEmf4mQ/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Prior Expectations: Can We Do Better?</figcaption><p></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/https:/media.giphy.com/media/UgM7H8OEmf4mQ/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Prior Expectations: Can We Do Better?</figcaption>
 </figure>
 </div>
 <p>Suppose you are using Bayesian methods to model the speed of some athletes. Even before seeing any data, there is some information that we can build into the model. For instance, we can discount negative speeds. We also wouldn’t need to know anything about the athletes to know that they would not be travelling faster than the speed of light. This may sound facetious, but flat priors are implying that we should treat all outcomes as equally likely. In fact, there are some cases where flat priors cause models to require large amounts of data to make good predictions (meaning we are failing to take advantage of Bayesian statistics ability to work with limited data).</p>
@@ -892,23 +1488,10 @@ generated quantities {
 <p><em>(Thank you to Jiun for your kind message that helped me tidy up the below)</em></p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Calpha%20%5Csim%20N(%5Cmu_%7B%5Calpha%7D,%20%5Csigma_%7B%5Calpha%7D)%0A"></p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbeta%20%5Csim%20N(%5Cmu_%7B%5Cbeta%7D,%20%5Csigma_%7B%5Cbeta%7D)%0A"></p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 2
-   depth     PoD_pr
-   &lt;dbl&gt;      &lt;dbl&gt;
-1 0      0         
-2 0.0100 0.00000780
-3 0.0200 0.00366   
-4 0.0300 0.0452    
-5 0.0400 0.0413    
-6 0.0501 0.00619   </code></pre>
-</div>
-</div>
 <p>And we can visualise the information contained within our priors for a couple of different cases.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Our wide, supposedly <em>non</em>-informative priors result in some pretty useless predictions. I’ve suggested some more sensible priors that suggest that larger cracks are more likely to be detected than small cracks, without overly constraining our outcome (see that there is still prior credible that very small cracks are detected reliably and that very large cracks are often missed).</p>
@@ -917,7 +1500,7 @@ generated quantities {
 <p>I’ll end by directing you towards some additional (generally non-technical) discussion of choosing priors, written by the <code>Stan</code> development team <a href="https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations">(link)</a>. It provides a definition of <em>weakly informative priors</em>, some words of warning against <em>flat priors</em> and more general detail than this humble footnote.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 
@@ -925,25 +1508,25 @@ generated quantities {
 </section>
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
-  author = {Domenic Di Francesco},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2020,
+  author = {Di Francesco, Domenic},
   title = {Bayesian {Logistic} {Regression} with {Stan}},
-  date = {20-02-15},
-  url = {https://allyourbayes.com/posts/Logistic_Bayes},
+  date = {2020-02-15},
+  url = {https://www.allyourbayes.com//posts/Logistic_Bayes},
   langid = {en}
 }
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas">
-Domenic Di Francesco. 20AD. <span>“Bayesian Logistic Regression with
-Stan.”</span> February 15, 20AD. <a href="https://allyourbayes.com/posts/Logistic_Bayes">https://allyourbayes.com/posts/Logistic_Bayes</a>.
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2020" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2020. <span>“Bayesian Logistic Regression with
+Stan.”</span> February 15, 2020. <a href="https://www.allyourbayes.com//posts/Logistic_Bayes">https://www.allyourbayes.com//posts/Logistic_Bayes</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>Logistic Regression</category>
   <category>MCMC</category>
   <category>Stan</category>
   <category>R</category>
-  <guid>https://allyourbayes.com/posts/Logistic_Bayes/index.html</guid>
+  <guid>https://www.allyourbayes.com/posts/Logistic_Bayes/index.html</guid>
   <pubDate>Sat, 15 Feb 2020 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Logistic_Bayes/logistic_priors.png" medium="image" type="image/png" height="108" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Logistic_Bayes/logistic_priors.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 </channel>
 </rss>

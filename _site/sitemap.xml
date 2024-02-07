@@ -1,39 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://allyourbayes.com/posts/xg_pt1/index.html</loc>
-    <lastmod>2023-02-09T09:57:44.348Z</lastmod>
-  </url>
-  <url>
-    <loc>https://allyourbayes.com/posts/Bayes@Lund/index.html</loc>
-    <lastmod>2023-02-09T09:57:44.980Z</lastmod>
-  </url>
-  <url>
-    <loc>https://allyourbayes.com/posts/Why_Bayes/index.html</loc>
-    <lastmod>2023-02-09T09:57:45.713Z</lastmod>
-  </url>
-  <url>
-    <loc>https://allyourbayes.com/posts/welcome/index.html</loc>
-    <lastmod>2023-02-09T09:57:46.110Z</lastmod>
-  </url>
-  <url>
-    <loc>https://allyourbayes.com/posts/player_form/index.html</loc>
-    <lastmod>2023-02-09T09:57:46.940Z</lastmod>
+    <loc>https://allyourbayes.com/about.html</loc>
+    <lastmod>2024-01-26T00:12:04.794Z</lastmod>
   </url>
   <url>
     <loc>https://allyourbayes.com/posts/xg_pt2/index.html</loc>
-    <lastmod>2023-02-09T09:57:48.005Z</lastmod>
+    <lastmod>2024-01-26T00:11:59.755Z</lastmod>
+  </url>
+  <url>
+    <loc>https://allyourbayes.com/posts/welcome/index.html</loc>
+    <lastmod>2024-01-26T00:11:56.899Z</lastmod>
+  </url>
+  <url>
+    <loc>https://allyourbayes.com/posts/Who_Am_I/index.html</loc>
+    <lastmod>2024-01-26T00:11:55.167Z</lastmod>
+  </url>
+  <url>
+    <loc>https://allyourbayes.com/posts/Turing_Podcast/index.html</loc>
+    <lastmod>2024-01-26T00:11:53.362Z</lastmod>
+  </url>
+  <url>
+    <loc>https://allyourbayes.com/posts/xg_pt1/index.html</loc>
+    <lastmod>2024-01-26T00:11:52.415Z</lastmod>
+  </url>
+  <url>
+    <loc>https://allyourbayes.com/posts/Bayes@Lund/index.html</loc>
+    <lastmod>2024-01-26T00:11:54.260Z</lastmod>
+  </url>
+  <url>
+    <loc>https://allyourbayes.com/posts/Why_Bayes/index.html</loc>
+    <lastmod>2024-01-26T00:11:56.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://allyourbayes.com/posts/player_form/index.html</loc>
+    <lastmod>2024-01-26T00:11:58.209Z</lastmod>
   </url>
   <url>
     <loc>https://allyourbayes.com/posts/Logistic_Bayes/index.html</loc>
-    <lastmod>2023-02-09T09:57:49.094Z</lastmod>
+    <lastmod>2024-01-26T00:12:01.503Z</lastmod>
   </url>
   <url>
     <loc>https://allyourbayes.com/index.html</loc>
-    <lastmod>2023-02-09T09:57:50.304Z</lastmod>
+    <lastmod>2024-01-26T00:12:04.143Z</lastmod>
   </url>
   <url>
-    <loc>https://allyourbayes.com/about.html</loc>
-    <lastmod>2023-02-09T09:57:50.719Z</lastmod>
+    <loc>https://www.allyourbayes.com/index.html</loc>
+    <lastmod>2024-02-07T16:20:05.131Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.allyourbayes.com/posts/BDA_pt1/index.html</loc>
+    <lastmod>2024-02-01T16:19:59.168Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.allyourbayes.com/posts/xg_pt2/index.html</loc>
+    <lastmod>2024-02-01T09:39:29.776Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.allyourbayes.com/posts/xg_pt1/index.html</loc>
+    <lastmod>2024-02-01T11:45:00.327Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.allyourbayes.com/posts/player_form/index.html</loc>
+    <lastmod>2024-02-01T11:45:01.671Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.allyourbayes.com/posts/Logistic_Bayes/index.html</loc>
+    <lastmod>2024-02-07T10:53:39.810Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.allyourbayes.com/posts/Why_Bayes/index.html</loc>
+    <lastmod>2024-02-07T16:20:13.633Z</lastmod>
   </url>
 </urlset>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.119">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -19,9 +19,10 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -48,43 +49,13 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
@@ -124,7 +95,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-HP3SQSW9PW"></script>
@@ -153,12 +125,13 @@ cookieconsent.run({
 </script> 
   
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
 <meta name="twitter:title" content="All Your Bayes - Bayesian Logistic Regression with Stan">
 <meta name="twitter:description" content="">
-<meta name="twitter:image" content="https://allyourbayes.com/posts/Logistic_Bayes/DomDF.jpg">
+<meta name="twitter:image" content="https://www.allyourbayes.com/posts/Logistic_Bayes/DomDF.jpg">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -174,6 +147,7 @@ cookieconsent.run({
     <span class="navbar-title">All Your Bayes</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
@@ -199,10 +173,9 @@ cookieconsent.run({
  <span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div class="quarto-toggle-container">
-                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
-              </div>
-              <div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
@@ -253,42 +226,66 @@ cookieconsent.run({
 
 
 
-<div class="cell">
-
-</div>
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>Logistic regression is a popular machine learning model. One application of it in an engineering context is quantifying the effectiveness of inspection technologies at detecting damage. This post describes the additional information provided by a Bayesian application of logistic regression (and how it can be implemented using the <code>Stan</code> probabilistic programming language). Finally, I’ve also included some recommendations for making sense of priors.</p>
+<p>Logistic regression is a popular statistical model for making predictions on outcomes between zero and one - like probabilities. One application of it in an engineering context is quantifying the effectiveness of inspection technologies at detecting damage. This post describes the additional information provided by a Bayesian application of logistic regression (and how it can be implemented using the <code>Stan</code> probabilistic programming language). I’ve also included some recommendations for giving your model a sensible starting point (using prior information).</p>
 <hr>
 </section>
 <section id="introductions" class="level3">
 <h3 class="anchored" data-anchor-id="introductions">Introductions</h3>
-<p>So there are a couple of key topics discussed here: Logistic Regression, and Bayesian Statistics. Before jumping straight into the example application, I’ve provided some <strong>very</strong> brief introductions below.</p>
+<p>So there are a couple of key topics discussed here: logistic regression, and Bayesian inference. Before jumping straight into the example application, I’ve provided some <strong>very</strong> brief introductions below.</p>
 <section id="bayesian-inference" class="level4">
 <h4 class="anchored" data-anchor-id="bayesian-inference">Bayesian Inference</h4>
-<p>At a very high level, Bayesian models quantify (aleatory and epistemic) uncertainty, so that our predictions and decisions take into account the ways in which our knowledge is limited or imperfect. We specify a statistical model, and identify probabilistic estimates for the parameters using a family of sampling algorithms known as Markov Chain Monte Carlo (MCMC). My preferred software for writing a fitting Bayesian models is <a href="https://mc-stan.org/"><code>Stan</code></a>. If you are not yet familiar with Bayesian statistics, then I imagine you won’t be fully satisfied with that 3 sentence summary, so I will put together a separate post on the merits and challenges of applied Bayesian inference, which will include much more detail.</p>
+<p>At a very high level, Bayesian models quantify uncertainty, so that our predictions and decisions take into account the ways in which our knowledge is limited or imperfect. We specify a statistical model, and identify probabilistic estimates for the parameters. My preferred software for writing a fitting Bayesian models is <a href="https://mc-stan.org/"><code>Stan</code></a>. If you are not yet familiar with Bayesian statistics, then I imagine you won’t be fully satisfied with that 3 sentence summary, so I will put together a separate post on the merits and challenges of applied Bayesian inference, which will include much more detail.</p>
 </section>
 <section id="logistic-regression" class="level4">
 <h4 class="anchored" data-anchor-id="logistic-regression">Logistic Regression</h4>
-<p>Logistic regression is used to estimate the probability of a binary outcome, such as <em>Pass</em> or <em>Fail</em> (though it can be extended for <code>&gt; 2</code> outcomes). This is achieved by transforming a standard regression using the logit function, shown below. The term in the brackets may be familiar to gamblers as it is how odds are calculated from probabilities. You may see <em>logit</em> and <em>log-odds</em> used exchangeably for this reason.</p>
+<p>Logistic regression is used to estimate the probability of a binary outcome, such as <em>Pass</em> or <em>Fail</em> (though it can be extended for <code>&gt; 2</code> outcomes). This is achieved by transforming a standard regression using the logit function, shown below. The term in the brackets may be familiar to gamblers as it is how odds are calculated from probabilities (p). You may see <em>logit</em> and <em>log-odds</em> used exchangeably for this reason.</p>
 <p><span class="math display">\[
-Logit (x) = \log\Bigg({\frac{x}{1 - x}}\Bigg)
+\textrm{Log odds} = \log\Bigg({\frac{p}{1 - p}}\Bigg)
 \]</span></p>
-<p>Since the logit function transformed data <em>from</em> a probability scale, the inverse logit function transforms data <em>to</em> a probability scale. Therefore, as shown in the below plot, it’s values range from <code>0</code> to <code>1</code>, and this feature is very useful when we are interested the probability of <em>Pass</em>/<em>Fail</em> type outcomes.</p>
+<p>Since the logit function transformed data <em>from</em> a probability scale, the inverse logit (or logistic) function transforms data <em>to</em> a probability scale. We can re-arrange this equation ourselves to see this:</p>
 <p><span class="math display">\[
-Inverse\;Logit (x) = \frac{1}{1 + \exp(-x)}
+\exp(\textrm{Log odds}) = \Bigg({\frac{p}{1 - p}}\Bigg)
+\]</span></p>
+<p><span class="math display">\[
+\exp(\textrm{Log odds}) \times (1 - p) = p
+\]</span></p>
+<p><span class="math display">\[
+\exp(\textrm{Log odds}) - p \times \exp(\textrm{Log odds}) = p
+\]</span></p>
+<p><span class="math display">\[
+\exp(\textrm{Log odds}) = p + p \times \exp(\textrm{Log odds})
+\]</span></p>
+<p><span class="math display">\[
+\exp(\textrm{Log odds}) = p (1 + \exp(\textrm{Log odds}))
+\]</span></p>
+<p><span class="math display">\[
+\frac{\exp(\textrm{Log odds})} {1 + \exp(\textrm{Log odds})} = p
+\]</span></p>
+<p>because multiplying by <span class="math inline">\(\exp(x)\)</span> is the same as diviving by <span class="math inline">\(\exp(-x)\)</span>:</p>
+<p><span class="math display">\[
+\frac{1} {\exp(\textrm{-Log odds}) \times (1 + \exp(\textrm{Log odds}))} = p
+\]</span></p>
+<p><span class="math display">\[
+\frac{1} {\exp(\textrm{-Log odds})  + 1} = p
+\]</span></p>
+<p>As shown in the below plot, the values of this function range from <code>0</code> to <code>1</code>.</p>
+<p><span class="math display">\[
+\textrm{Inverse Logit} (x) = \frac{1}{1 + \exp(-x)}
 \]</span></p>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Before moving on, some terminology that you may find when reading about logistic regression elsewhere:</p>
-<ul>
-<li>When a linear regression is combined with a re-scaling function such as this, it is known as a Generalised Linear Model (<strong>GLM</strong>).</li>
-<li>The re-scaling (in this case, the logit) function is known as a <strong>link function</strong> in this context.</li>
-<li>Logistic regression is a <strong>Bernoulli-Logit GLM</strong>.</li>
-</ul>
+<p>The reason we start with with log-odds is because we can define a linear model on this scale, with a gradient, <span class="math inline">\(\beta\)</span> and an intercept <span class="math inline">\(\alpha\)</span>, and then transform it to a prediction on the probability scale, using the above steps. When a linear regression is combined with a re-scaling function such as this, it is known as a Generalised Linear Model (<strong>GLM</strong>).</p>
+<p><span class="math display">\[
+\textrm{Log odds} = \alpha + \beta \times \textrm{input variables}
+\]</span></p>
+<p><span class="math display">\[
+p = \frac{1}{1 + \exp(-[\alpha + \beta \times \textrm{input variables}])}
+\]</span></p>
 <p>You may be familiar with libraries that automate the fitting of logistic regression models, either in <code>Python</code> (via <code>sklearn</code>):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
@@ -310,12 +307,12 @@ Inverse\;Logit (x) = \frac{1}{1 + \exp(-x)}
 <li>There is a crack of <strong>exact</strong> length <code>30 mm</code> and <strong>exact</strong> depth <code>5 mm</code> at this <strong>exact</strong> location, or</li>
 <li>There is <strong>definitely</strong> no damage at this location.</li>
 </ul>
-<p>For various reasons, the information we receive from inspections is imperfect and this is something that engineers need to deal with. As a result, providers of inspection services are requested to provide some measure of how good their product is. This typically includes some measure of how accurately damage is sized and how reliable an outcome (detection or no detection) is.</p>
+<p>For various reasons, the information we receive from inspections is imperfect and this is something that engineers need to deal with. As a result, providers of inspection services should be requested to provide some measure of how good their product is. This typically includes some measure of how accurately damage is sized and how reliable an outcome (detection or no detection) is.</p>
 <p>This example will consider trials of an inspection tool looking for damage of varying size, to fit a model that will predict the probability of detection for any size of damage. Since various forms of damage can initiate in structures, each requiring inspection methods that are suitable, let’s avoid ambiguity and imagine we are only looking for cracks.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://media.giphy.com/media/42wQXwITfQbDGKqUP7/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Detecting Damage: Never 100% Reliable</figcaption><p></p>
+<figcaption class="figure-caption">Detecting damage: never 100% reliable</figcaption>
 </figure>
 </div>
 <section id="test-data" class="level4">
@@ -355,47 +352,61 @@ Inverse\;Logit (x) = \frac{1}{1 + \exp(-x)}
 <p><code>Stan</code> is a <a href="https://en.wikipedia.org/wiki/Probabilistic_programming">probabilistic programming language</a>. In a future post I will explain why it has been my preferred software for statistical inference throughout my PhD.</p>
 <p>The below is a simple <code>Stan</code> program to fit a Bayesian Probability of Detection (PoD) model:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cmdstanr)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>PoD_model <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="at">stan_file =</span> <span class="st">"PoD_model.stan"</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>PoD_model<span class="sc">$</span><span class="fu">format</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>PoD_model <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">cmdstan_model</span>(<span class="at">stan_file =</span> <span class="st">'PoD_model.stan'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in readLines(stan_file): incomplete final line found on
+'PoD_model.stan'</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>PoD_model<span class="sc">$</span><span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>data {
-  int&lt;lower=0&gt; N; // Defining the number of defects in the test dataset
-  array[N] int&lt;lower=0, upper=1&gt; det; // A variable that describes whether each defect was detected [1]or not [0]
-  vector&lt;lower=0&gt;[N] depth; // A variable that describes the corresponding depth of each defect
+
+  int &lt;lower = 0&gt; N; // Defining the number of defects in the test dataset
+  array [N] int &lt;lower = 0, upper = 1&gt; det; // A variable that describes whether each defect was detected (1) or not (0)
+  vector &lt;lower = 0&gt; [N] depth; // A variable that describes the corresponding depth of each defect
   
-  int&lt;lower=0&gt; K; // Defining the number of probabilistic predictions required from the model
-  vector&lt;lower=0&gt;[K] depth_pred;
+  int &lt;lower = 0&gt; K; // Defining the number of probabilistic predictions required from the model
+  vector &lt;lower = 0&gt; [K] depth_pred;
+  
 }
+
 parameters {
+  
   // The (unobserved) model parameters that we want to recover
   real alpha;
   real beta;
+  
 }
+
 model {
+
   // A logistic regression model relating the defect depth to whether it will be detected
   det ~ bernoulli_logit(alpha + beta * log(depth));
   
   // Prior models for the unobserved parameters
   alpha ~ normal(0, 1);
   beta ~ normal(1, 1);
+
 }
+
 generated quantities {
+  
   // Using the fitted model for probabilistic prediction.
   // K posterior predictive distributions will be estimated for a corresponding crack depth
-  vector[K] postpred_pr;
+  vector [K] postpred_pr;
   
-  for (k in 1 : K) {
+  for (k in 1:K) {
+    
     postpred_pr[k] = inv_logit(alpha + beta * log(depth_pred[k]));
+    
   }
+  
 }</code></pre>
 </div>
 </div>
 <p>The <code>generated quantities</code> block will be used to make predictions for the <code>K</code> values of <code>depth_pred</code> that we provide.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">50</span>; depth_pred <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> lower, <span class="at">to =</span> upper, <span class="at">length.out =</span> K)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">50</span>; depth_pred <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> lower, <span class="at">to =</span> upper, <span class="at">length.out =</span> K)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The above code generates 50 evenly spaced values, which we will eventually combine in a plot. In some instances we may have specific values that we want to generate probabilistic predictions for, and this can be achieved in the same way.</p>
 </section>
@@ -408,30 +419,25 @@ generated quantities {
 <h4 class="anchored" data-anchor-id="results">Results</h4>
 <p>Once we have our data, and are happy with our model, we can set off the Markov chains. There are plenty of opportunities to control the way that the <code>Stan</code> algorithm will run, but I won’t include that here, rather we will mostly stick with the default arguments in <code>cmdstanr</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>PoD_fit <span class="ot">&lt;-</span> PoD_model<span class="sc">$</span><span class="fu">sample</span>(<span class="at">data =</span> <span class="fu">list</span>(<span class="at">N =</span> N, <span class="at">det =</span> pod_df<span class="sc">$</span>det, <span class="at">depth =</span> pod_df<span class="sc">$</span>depth,</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">K =</span> K, <span class="at">depth_pred =</span> depth_pred), <span class="at">seed =</span> <span class="dv">2408</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>PoD_fit <span class="ot">&lt;-</span> PoD_model<span class="sc">$</span><span class="fu">sample</span>(<span class="at">data =</span> <span class="fu">list</span>(<span class="at">N =</span> N, <span class="at">det =</span> pod_df<span class="sc">$</span>det, <span class="at">depth =</span> pod_df<span class="sc">$</span>depth,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">K =</span> K, <span class="at">depth_pred =</span> depth_pred), <span class="at">seed =</span> <span class="dv">2408</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>Note</strong>:I’ve not included any detail here on the checks we need to do on our samples. There are some common challenges associated with MCMC methods, each with plenty of associated guidance on how to diagnose and resolve them. For now, let’s assume everything has gone to plan.</p>
 <p>Now, there are a few options for extracting samples from a stanfit object such as <code>PoD_samples</code>, including <code>cmdstanr::as_draws()</code>. However, these usually require a little post-processing to get them into a tidy format. There is a function in my <a href="https://github.com/DomDF/DomDF">DomDF R package</a> for this, which we can use to create a tidy output that specifies the iteration, parameter value and chain associated with each data point:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DomDF)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>PoD_samples <span class="ot">&lt;-</span> PoD_fit <span class="sc">|&gt;</span> DomDF<span class="sc">::</span><span class="fu">tidy_mcmc_draws</span>()</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="at">x =</span> PoD_samples, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>PoD_samples <span class="ot">&lt;-</span> PoD_fit <span class="sc">|&gt;</span> DomDF<span class="sc">::</span><span class="fu">tidy_mcmc_draws</span>()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="at">x =</span> PoD_samples, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 4
   Parameter Chain Iteration value
   &lt;chr&gt;     &lt;int&gt;     &lt;int&gt; &lt;dbl&gt;
-1 lp__          1         1 -15.5
+1 lp__          1         1 -15.6
 2 lp__          1         2 -15.2
-3 lp__          1         3 -15.8
-4 lp__          1         4 -16.6
-5 lp__          1         5 -16.1</code></pre>
+3 lp__          1         3 -15.5
+4 lp__          1         4 -16.0
+5 lp__          1         5 -16.2</code></pre>
 </div>
-</div>
-<div class="cell">
-
 </div>
 <p>We have sampled from a 2-dimensional posterior distribution of the unobserved parameters in the model: <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>. Below is a density plot of their corresponding marginal distributions based on the <code>1000</code> samples collected from each of the <code>4</code> Markov chains that have been run.</p>
 <div class="cell">
@@ -456,7 +462,7 @@ generated quantities {
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://media.giphy.com/media/UgM7H8OEmf4mQ/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Prior Expectations: Can We Do Better?</figcaption><p></p>
+<figcaption class="figure-caption">Prior Expectations: Can We Do Better?</figcaption>
 </figure>
 </div>
 <p>Suppose you are using Bayesian methods to model the speed of some athletes. Even before seeing any data, there is some information that we can build into the model. For instance, we can discount negative speeds. We also wouldn’t need to know anything about the athletes to know that they would not be travelling faster than the speed of light. This may sound facetious, but flat priors are implying that we should treat all outcomes as equally likely. In fact, there are some cases where flat priors cause models to require large amounts of data to make good predictions (meaning we are failing to take advantage of Bayesian statistics ability to work with limited data).</p>
@@ -471,19 +477,6 @@ generated quantities {
 <p><span class="math display">\[
 \beta \sim N(\mu_{\beta}, \sigma_{\beta})
 \]</span></p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 2
-   depth     PoD_pr
-   &lt;dbl&gt;      &lt;dbl&gt;
-1 0      0         
-2 0.0100 0.00000780
-3 0.0200 0.00366   
-4 0.0300 0.0452    
-5 0.0400 0.0413    
-6 0.0501 0.00619   </code></pre>
-</div>
-</div>
 <p>And we can visualise the information contained within our priors for a couple of different cases.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -504,16 +497,16 @@ generated quantities {
 </section>
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
-  author = {Domenic Di Francesco},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2020,
+  author = {Di Francesco, Domenic},
   title = {Bayesian {Logistic} {Regression} with {Stan}},
-  date = {20-02-15},
-  url = {https://allyourbayes.com/posts/Logistic_Bayes},
+  date = {2020-02-15},
+  url = {https://www.allyourbayes.com//posts/Logistic_Bayes},
   langid = {en}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
-Domenic Di Francesco. 20AD. <span>“Bayesian Logistic Regression with
-Stan.”</span> February 15, 20AD. <a href="https://allyourbayes.com/posts/Logistic_Bayes">https://allyourbayes.com/posts/Logistic_Bayes</a>.
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2020" class="csl-entry quarto-appendix-citeas" role="listitem">
+Di Francesco, Domenic. 2020. <span>“Bayesian Logistic Regression with
+Stan.”</span> February 15, 2020. <a href="https://www.allyourbayes.com//posts/Logistic_Bayes">https://www.allyourbayes.com//posts/Logistic_Bayes</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -657,9 +650,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -852,7 +859,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
 

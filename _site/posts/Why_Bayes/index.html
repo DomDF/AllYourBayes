@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.119">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -19,7 +19,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
@@ -61,7 +61,8 @@ ul.task-list li input[type="checkbox"] {
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-HP3SQSW9PW"></script>
@@ -94,7 +95,7 @@ cookieconsent.run({
 <link rel="stylesheet" href="../../styles.css">
 <meta name="twitter:title" content="All Your Bayes - Why be Bayesian?">
 <meta name="twitter:description" content="">
-<meta name="twitter:image" content="https://allyourbayes.com/posts/Why_Bayes/DomDF.jpg">
+<meta name="twitter:image" content="https://www.allyourbayes.com/posts/Why_Bayes/DomDF.jpg">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -110,6 +111,7 @@ cookieconsent.run({
     <span class="navbar-title">All Your Bayes</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
@@ -135,10 +137,9 @@ cookieconsent.run({
  <span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div class="quarto-toggle-container">
-                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
-              </div>
-              <div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
@@ -189,14 +190,14 @@ cookieconsent.run({
 
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: <em>Is it worth me learning Bayesian statistics?</em> or <em>Should I look into using Bayesian statistics in my project?</em> Maths, code and technical details have all been left out.</p>
+<p>This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: <em>Is it worth me learning Bayesian statistics?</em> or <em>Should I look into using Bayesian statistics in my project?</em> No maths or code in this post.</p>
 <hr>
 <section id="bayes" class="level4">
 <h4 class="anchored" data-anchor-id="bayes">Bayes</h4>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://media.giphy.com/media/TJBbXQooivUNq/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Bayes</figcaption><p></p>
+<figcaption class="figure-caption">Bayes</figcaption>
 </figure>
 </div>
 </section>
@@ -211,18 +212,18 @@ cookieconsent.run({
 <li>Updating</li>
 <li>Data Analysis</li>
 </ul>
-<p>…can be considered the same thing (certainly for the purposes of this post): <strong>the application of Bayes theorem to quantify uncertainty</strong>.</p>
-<p>So Bayesian statistics may be of interest to you if you are dealing with a problem associated with uncertainty - either due to some underlying variability, or due to limitations of your data.</p>
+<p>…can boradly be considered the same thing (certainly for the purposes of this post): <strong>the application of Bayes theorem to quantify uncertainty</strong>.</p>
+<p>Depending on your background, you may have preconceptions about Bayesian methods being specialist or complicated. However, analysts and researchers in many domains are increasingly experimenting with the growing catalogue of open source software and resources that is making probabilistic programming more accessible.</p>
 </section>
 <section id="what-does-a-bayesian-approach-provide" class="level3">
-<h3 class="anchored" data-anchor-id="what-does-a-bayesian-approach-provide">What does a Bayesian Approach Provide?</h3>
+<h3 class="anchored" data-anchor-id="what-does-a-bayesian-approach-provide">What does a Bayesian approach provide?</h3>
 <p>Bayesian statistics is not the only way to account for uncertainty in calculations. The below points describe what a Bayesian approach offers, that others don’t. Note that I am only really discussing methods involving probability here, though <a href="https://www.springer.com/gp/book/9783540402947">alternative approaches are available</a>.</p>
 <section id="intuitive-interpretation-of-results" class="level4">
 <h4 class="anchored" data-anchor-id="intuitive-interpretation-of-results">Intuitive Interpretation of Results</h4>
-<p>The outcome of a Bayesian model is a posterior distribution. This describes the joint uncertainty in all the parameters you are trying to estimate. This can be used to describe uncertainty in a prediction for some new input data. By comparison, alternative (frequentist) methods typically describes uncertainty in predictions using confidence intervals, which are widely used but easy to misinterpret.</p>
+<p>Bayesian methods give you distributions. Your parameters (and so also your predictions) are all described as distributions. A single, joint distribution in fact, which is aligned with the evidence that you provide your model. This allows you to propagate all the uncertainties and inter-dependencies when making predictions for some new input data. By comparison, alternative (frequentist) methods typically describes uncertainty in predictions using confidence intervals, which are widely used but easy to misinterpret.</p>
 <p>Confidence intervals are calculated so that they will contain the <em>true</em> value of whatever you are trying to predict with some desired frequency. They provide no information (in the absence of additional assumptions) on how credible various possible results are. The Bayesian equivalent (sometimes called credible intervals) can be drawn anywhere on a predictive distribution. In <a href="https://mitpress.mit.edu/books/introduction-statistical-decision-theory">Pratt, Raiffa and Schlaiffer’s textbook</a> an example is used to highlight this difference:</p>
 <p><em>Imagine the plight of the manager who exclaims, ‘I understand [does he?] the meaning that the demand for XYZ will lie in the interval 973 to 1374 with confidence .90. However, I am particularly interested in the interval 1300 to 1500. What confidence can I place on that interval?’</em> <em>Unfortunately, this question cannot be answered. Of course, however, it is possible to give a posterior probability to that particular interval - or any other - based on the sample data and on a codification of the manager’s prior judgements.</em></p>
-<p>And a more succinct description of the same view from <a href="https://www.weirdfishes.blog/">Dan Ovando’s fishery statistics blog</a>:</p>
+<p>This is a nice example (aside from assuming the manager is a male) of a simple question that we need a Bayesian posterior distribution to answer. A more succinct description of the same view from <a href="https://www.weirdfishes.blog/">Dan Ovando’s fishery statistics blog</a>:</p>
 <p><em>Bayesian credible intervals mean what we’d like Frequentist confidence intervals to mean.</em></p>
 </section>
 <section id="seamless-integration-with-decision-analysis" class="level4">
@@ -233,11 +234,12 @@ cookieconsent.run({
 </section>
 <section id="flexible-modelling" class="level4">
 <h4 class="anchored" data-anchor-id="flexible-modelling">Flexible Modelling</h4>
-<p>So this one is based on a point made in <a href="https://uk.sagepub.com/en-gb/eur/a-student%E2%80%99s-guide-to-bayesian-statistics/book245409">Ben Lambert’s book on Bayesian statistics</a>. It is regarding how modern Bayesian statistics is achieved in practice. The computational methods require some effort to pick up, especially if you do not have experience with programming (though Ben Lambert’s book gives a nice introduction to <a href="https://mc-stan.org/">Stan</a>). However, they can be readily extended to larger and more complex models.</p>
+<p>So this one is based on a point made in <a href="https://uk.sagepub.com/en-gb/eur/a-student%E2%80%99s-guide-to-bayesian-statistics/book245409">Ben Lambert’s book on Bayesian statistics</a>. It is regarding how modern Bayesian statistics is achieved in practice. The computational methods may require some effort to pick up, especially if you do not have experience with programming (though Ben’s book gives a nice introduction to <a href="https://mc-stan.org/">Stan</a>). However, they can be readily extended to larger and more complex models.</p>
+<p>Essentially, we can propose weird and bespoke model structures, and then use the same approach to fit them.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://media.giphy.com/media/WiyczarN2XMm4/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Some Compelling Arguments</figcaption><p></p>
+<figcaption class="figure-caption">Some Compelling Arguments</figcaption>
 </figure>
 </div>
 </section>
@@ -247,43 +249,42 @@ cookieconsent.run({
 <p>So why would anyone ever <em>not</em> use Bayesian models when making predictions?</p>
 <section id="subjectivity" class="level4">
 <h4 class="anchored" data-anchor-id="subjectivity">Subjectivity</h4>
-<p>Perhaps the most common criticism of Bayesian statistics is the requirement for prior models. An initial estimate of uncertainty is a term in Bayes’ theorem - but how can you estimate the extent of variability before you see it in your data? This will surely be completely subjective, so the results will vary depending on who is doing the analysis. This, understandably, doesn’t seem right with a lot of casual enquirers.</p>
-<p>A common response to this accusation is that subjectivity is not an exclusive feature of Bayesian analysis (how about the whole structure of the model you are trying to fit, regardless of your method?) <em>…but</em> at least Bayesians are required to be explicit about it. Priors are part of the model with no-where to hide (in the code or the reporting) and so they are open to criticism. This point is discussed in <strong>much</strong> more detail in this paper from <a href="http://www.stat.columbia.edu/~gelman/research/published/gelman_hennig_full_discussion.pdf">Colombia University</a>.</p>
-<p>Priors can contain, as much or as little, information as desired. However, even in instances where you may feel you don’t have any upfront knowledge of a problem, they represent a valuable opportunity for introducing regularisation (which protects against bad predictions due to overfitting). This idea is discussed in detail in <a href="https://www.crcpress.com/Statistical-Rethinking-A-Bayesian-Course-with-Examples-in-R-and-STAN/McElreath/p/book/9780367139919">Richard McElreath’s textbook</a>.</p>
+<p>Perhaps the most common criticism of Bayesian statistics is the requirement for priors - i.e.&nbsp;a starting point for your model. This initial estimate of uncertainty is a term in Bayes’ theorem - but how can you estimate the extent of variability before you see it in your data? This will surely be completely subjective, so the results will vary depending on who is doing the analysis. This, understandably, doesn’t seem right with a lot of casual enquirers.</p>
+<p>A common response to this accusation is that subjectivity is not an exclusive feature of Bayesian analysis (how about the whole approach you are taking to solving your problem !) <em>…but</em> at least Bayesians are required to be explicit about it. Priors mean that any subjective inputs have no-where to hide (in the code or the reporting) and so they are open to criticism. This point is discussed in <strong>much</strong> more detail in this paper from <a href="http://www.stat.columbia.edu/~gelman/research/published/gelman_hennig_full_discussion.pdf">Colombia University</a>.</p>
+<p>Priors can contain, as much or as little, information as desired. However, even in instances where you may feel you don’t have any upfront knowledge of a problem, they represent a valuable opportunity for introducing regularisation (which protects against bad predictions due to overfitting). This idea is discussed in detail in <a href="https://www.crcpress.com/Statistical-Rethinking-A-Bayesian-Course-with-Examples-in-R-and-STAN/McElreath/p/book/9780367139919">Richard McElreath’s textbook</a>. I would suggest that in plenty of cases, we often have a fair idea of what is happening even before we collect and analyse data, and starting from zero everytime is just not sensible. Will a doctor who has just evaluated you base their diagnosis entirely on a test outcome, or will they incorporate that eveidence into their existing understanding of your circumstances and symptoms? Bayesian statistics is the means by which this can be done mathematically.</p>
 </section>
 <section id="computational-requirements" class="level4">
 <h4 class="anchored" data-anchor-id="computational-requirements">Computational Requirements</h4>
-<p>In practice, statisticians estimate Bayesian posterior distributions using Markov Chain Monte Carlo (MCMC) sampling algorithms. This approach is slower, more complicated and less informative than standard, independent Monte Carlo sampling. The models that I have worked with during my PhD have taken several hours to finish sampling from, but I have met statisticians whose models run for days or even weeks. Following this, there are checks that need to be completed as there are plenty of things that can go wrong with MCMC.</p>
-<p>My background is in mechanical and civil engineering. In discussions with engineering researchers at conferences I have often been told that the errors and complications they encountered when using MCMC methods had made them believe that Bayesian statistics wasn’t for them. These are challenges that I imagine everyone who has attempted modern Bayesian statistics will have encountered and resolving them can require a deep understanding of your model. Both domain-specific and statistical knowledge is required to help ensure the model you are trying to fit is justified. In addition some programming <em>tricks</em> like reparameterisation can be of great help to your software, which sometimes needs equivalent, but easier to interpret instructions.</p>
-<p>With all that in mind, when would this ever be worthwhile?</p>
+<p>In practice, statisticians estimate Bayesian posterior distributions using very clever Markov Chain Monte Carlo (MCMC) sampling algorithms, that are run by their favourite probabilistic programming software. The models that I have worked with during my PhD have taken several hours to finish sampling from, but I have met statisticians whose models run for days or even weeks. Following this, there are checks that need to be completed as there are plenty of things that can go wrong with MCMC. There is a nice discussion of a recommended Bayesian workflow to make sure you are checking what you need to <a href="https://arxiv.org/abs/2011.01808">here</a>.</p>
+<p>My background is in mechanical and civil engineering. In discussions with engineering researchers at conferences I have often been told that the errors and complications they encountered when playing around with Bayesian software caused them to abandon the approach in favour of more established, less informative analysis. These are challenges that I imagine everyone who has attempted modern Bayesian statistics will have encountered and resolving them can require a deep understanding of your model, and perhaps some formal training. In addition some programming <em>tricks</em> like reparameterisation (describing your model in a seemingly equivalent way, but one that is much friendlier to your software) can also help.</p>
 </section>
 </section>
 <section id="conclusions" class="level3">
 <h3 class="anchored" data-anchor-id="conclusions">Conclusions</h3>
-<p>Regardless of whether you believe we exist in a deterministic universe or not, you will never have perfect state of knowledge describing your problem: uncertainty exists, so we need a sensible and safe way of accounting for it.</p>
-<p>I believe that Bayesian statistics is actually well suited to traditional engineering problems, which are concerned with managing risk when confronted with small, messy datasets and models with plenty of uncertainty. As suggested in the earlier description of confidence intervals, frequentist statistics defines probability based on occurrences of events following a large number of trials or samples. When only limited data is available, Bayesian statistics can shine by comparison.</p>
-<p>Very large datasets may contain enough information to precisely estimate parameters in a model using standard machine learning methods, and so it becomes less worthwhile running simulations to characterise variability. But how common are these big data problems in science and engineering? Sometimes large populations of data are better described as multiple smaller constituent groups, after accounting for key differences between them. Bayesian statistics has a very useful way of managing such problems by structuring models hierarchically. This method allows for <strong>partial pooling of information</strong> between groups, so that predictions account for the variability and commonality between groups. I will provide a detailed example of this in a future post.</p>
-<p>In conclusion, Bayesian statistics requires (computational and personal) effort to apply. But it provides results that are (usually) more interpretable and closely linked to the questions we want to answer. Whether or not these methods are worth learning of course depend on personal circumstances. I encountered Bayesian statistics during my PhD, and so had plenty of time to read up and I’ve found this to be very rewarding and enjoyable…</p>
+<p>Regardless of whether you believe we exist in a deterministic universe or not, you will never have perfect state of knowledge describing your problem: uncertainty exists, so we need a sensible and safe way of accounting for it. It’s difficult to escape the implications of the Maths - for instance, in avoiding quantifying uncertainty, we are often making some implicit assumptions (the implications of which can be difficult to justify) that we may not want to propagate into our decision-making. There is generally a trade-off for apparent conveniences.</p>
+<p>I believe that Bayesian statistics is actually well suited to traditional engineering problems, which are concerned with managing risk when confronted with small, messy datasets and models with plenty of uncertainty. As suggested in the earlier description of confidence intervals, frequentist statistics defines probability based on occurrences of events following a large number of trials or samples. When trying to understand the behaviour of small datasets (or even unique structural systems), Bayesian statistics can shine by comparison.</p>
+<p>Very large datasets may contain enough information to precisely estimate parameters in a model using conventional machine learning methods, and so it becomes less worthwhile running simulations to characterise variability. But how common are these big data problems in science and engineering? Sometimes large populations of data are better described as multiple smaller constituent groups, after accounting for key differences between them. Bayesian statistics has a very useful way of managing such problems by structuring models hierarchically. This method allows for <strong>partial pooling of information</strong> between groups, so that predictions account for the variability and commonality between groups. I will provide a detailed example of this in a future post.</p>
+<p>Bayesian inference requires (computational and personal) effort to apply. But it provides results that are generally more interpretable and closely related to the actual questions we want to answer. Whether or not these methods are worth learning will of course depend on personal circumstances. I encountered this field during my PhD, and so had plenty of time to read and play with them, which I appreicate is a privelidged position to be in.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://media.giphy.com/media/WPLPEu0GUp41W/giphy.gif" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Boring, isn’t it? Writing, Fitting and Evaluating Bayesian Models All Day….</figcaption><p></p>
+<figcaption class="figure-caption">Boring, isn’t it? Writing, Fitting and Evaluating Bayesian Models All Day….</figcaption>
 </figure>
 </div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{difrancesco2020,
-  author = {Domenic Di Francesco},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2020,
+  author = {Di Francesco, Domenic},
   title = {Why Be {Bayesian?}},
-  date = {20-03-24},
-  url = {https://allyourbayes.com/posts/Why_Bayes},
+  date = {2020-03-24},
+  url = {https://www.allyourbayes.com//posts/Why_Bayes},
   langid = {en}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-difrancesco2020" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
-Domenic Di Francesco. 20AD. <span>“Why Be Bayesian?”</span> March 24,
-20AD. <a href="https://allyourbayes.com/posts/Why_Bayes">https://allyourbayes.com/posts/Why_Bayes</a>.
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2020" class="csl-entry quarto-appendix-citeas" role="listitem">
+Di Francesco, Domenic. 2020. <span>“Why Be Bayesian?”</span> March 24,
+2020. <a href="https://www.allyourbayes.com//posts/Why_Bayes">https://www.allyourbayes.com//posts/Why_Bayes</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -427,9 +428,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -622,7 +637,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-      <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
   </div>
 </footer>
 
