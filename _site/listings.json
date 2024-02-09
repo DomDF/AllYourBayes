@@ -2,14 +2,14 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/BDA_pt1/index.html",
       "/posts/Turing_Podcast/index.html",
       "/posts/Who_Am_I/index.html",
       "/posts/Bayes@Lund/index.html",
       "/posts/welcome/index.html",
-      "/posts/player_form/index.html",
       "/posts/xg_pt2/index.html",
       "/posts/xg_pt1/index.html",
+      "/posts/BDA_pt1/index.html",
+      "/posts/player_form/index.html",
       "/posts/Why_Bayes/index.html",
       "/posts/Logistic_Bayes/index.html"
     ]

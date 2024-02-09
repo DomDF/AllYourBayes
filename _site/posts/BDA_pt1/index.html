@@ -7,7 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Domenic Di Francesco">
-<meta name="dcterms.date" content="2024-02-01">
 
 <title>All Your Bayes - Decisions under Uncertainty. Part 1</title>
 <style>
@@ -192,6 +191,7 @@ cookieconsent.run({
                 <div class="quarto-category">Uncertainty</div>
                 <div class="quarto-category">Julia</div>
                 <div class="quarto-category">Optimisation</div>
+                <div class="quarto-category">Bayesian</div>
               </div>
                   </div>
   </div>
@@ -209,7 +209,7 @@ cookieconsent.run({
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">February 1, 2024</p>
+        <p class="date">Invalid Date</p>
       </div>
     </div>
     
@@ -229,8 +229,9 @@ cookieconsent.run({
 
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>For many of you reading this, developing and testing predictive models is a lot of fun - but my pragmatic, buzz-killing message here, is that we shouldn’t forget why we ever asked to do it. I suggest that the reason is (almost?) always, to help support decision-making. And yet, we often have this unhelpful disconnect between a calculation, and what the results imply for how we should act. An analyst hands over their work to a manager or budget holder, who then reinterprets everything and makes a call, which may or may not be consistent with the information they have been provided - sound familiar? It does to me.</p>
-<p>In this post (Part 1) these two domains are considered jointly, using an example. We see how this can allow for practioners to arrive at coherent and reproducible (auditable) decisions. Part 2 will consider a specific application of this approach, known as value of information analysis.</p>
+<p>For many of you reading this, developing and testing predictive models will be a lot of fun - but my pragmatic, buzz-killing message here, is that we shouldn’t forget why we’re asked to do it. I suggest that the reason is (almost?) always, to help support decision-making. And yet, we often have this unhelpful disconnect between a calculation, and what the results imply for how we should act. An analyst hands over their work to a manager or budget holder, who then reinterprets everything and makes a call, which may or may not be consistent with the information they have been provided - sound familiar? It does to me.</p>
+<p>In this post (Part 1) these two domains are considered jointly, using an example. We see how this can allow for practioners to arrive at coherent (quantitiative) and reproducible (auditable) decisions. Part 2 will consider a specific application of this approach, known as value of information analysis.</p>
+<p>As ever, all code (in <code>Julia</code> today) is freely available!</p>
 <hr>
 </section>
 <section id="a-familiar-scenario" class="level3">
@@ -243,6 +244,7 @@ cookieconsent.run({
 <figcaption class="figure-caption">So You’ve Fit a Predictive Model?</figcaption>
 </figure>
 </div>
+<p>How might we bridge this gap? How</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -255,7 +257,7 @@ flowchart LR
 
 </pre>
 </div>
-<p>Example Influence Diagram with Decisions (square nodes), Uncertain Outcomes (circles) and Utility (diamonds).</p>
+<p>Example influence diagram with decisions (square nodes), uncertain outcomes (circles) and utility (diamonds).</p>
 </div>
 </div>
 </div>
@@ -267,23 +269,52 @@ flowchart LR
 <p>But, is any of this ever required? If the goal is to arrive at a decision that aligns with subject matter knowledge, then can’t we just ask the expert to jump right to the decision?</p>
 <p>This will not always be a valid shortcut. If you have attended workshops that were organised to get a room of experts to agree on a strategy, there will not always be a clear agreement. This is not necessarily because of a lack of expertise, but because of a lack of a common language to communicate the information. Formalising the structure of the problem, the prior knowledge, and where data should be used to update parameters results in a quantitive, reproducible and (with a little extra work) explanaible decision-making process.</p>
 </section>
-<section id="buying-a-car" class="level3">
-<h3 class="anchored" data-anchor-id="buying-a-car">Buying a car</h3>
-<p>I do not know much about cars, despite being mistake for a mechanic based on my interest in engineering. In fact, when buying my first car, I noticed that a button on the key was not unlocking the door and so suggested to the garage that they may need to reduce the price. A confused salesman showed me the other side of the key, where a small light was flashing, “it’s a torch, mate. For when you need to unlock your car in the dark.” I lost all bargaining power.</p>
-<p>I was reluctant to overpay, and could perhaps have looked at some data to help inform me. Here is an <a href="https://www.kaggle.com/datasets/jacksondivakarr/sample34">example dataset on car prices from Kaggle</a>. We’re using my new favourite language for scientific computing, <code>Julia</code>, today. FYI, it’s a dream. I’ll perhaps write about why I love it another time, but <a href="https://julialang.org">here is the homepage</a>.</p>
-<p>Let’s start by loading the libraries that we’ll need.</p>
+<section id="promising-vs.-delivering-an-example" class="level3">
+<h3 class="anchored" data-anchor-id="promising-vs.-delivering-an-example">Promising vs.&nbsp;Delivering: An Example</h3>
+<section id="intro" class="level4">
+<h4 class="anchored" data-anchor-id="intro">Intro</h4>
+<p>Lets consider a simple example…</p>
+<p>An urn is filled with 10 balls, 5 red and 5 blue. As part of a lottery game, you are invited to draw a ball…nah, I’m just kidding. We’re not doing that. Let’s all please stop doing that.</p>
+<p>You’re starting a business and have a prototype handmade product that is gaining some interest. You’ve pitched to some retailers and you have a couple of contracts on the table. However, these big shops are covering their backs with a penalty clause - if you deliver the order on time, you’ll be paid, if you over-promise (under-deliver) you pay a penalty to cover their ‘downstream’ losses.</p>
+</section>
+<section id="some-data" class="level4">
+<h4 class="anchored" data-anchor-id="some-data">Some data</h4>
+<p>To help make this decision, lets draw it out. Below is a diagram where we have listed all of the factors that we would like to consider, and how they are related.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  d1[Decision] --&gt; o1((Uncertain \noutcome))
+  d1 --&gt; c1{Utility}
+  o1 --&gt; c1
+</pre>
+</div>
+<p>Small business decision problem: which contract should you accept?</p>
+</div>
+</div>
+</div>
+<p>…or not.</p>
+<p>We may not necessarily have data on the rate at which you can produce your product. Focussing on decisions, rather than models reminds us of this. Sometimes a decision is required before we complete the experiments, trials, surveys etc. that we would like to.</p>
+<p>Maybe you’ve not been feeling confident in yourself lately, and are too worried to take on any risk. Perhaps some well meaning friends have tried to counter this by telling you that you can achieve anything. This may convince you to take whatever orders are available. It’s easy to be swayed either way by such circumstances, and anecdotes and intuition drive decisions at much larger companies too.</p>
 <div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For reading and handling the data</span></span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for working with data</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">CSV</span>, <span class="bu">DataFrames</span>, <span class="bu">DataFramesMeta</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># For working with probabilistic models</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Distributions</span>, <span class="bu">Random</span>, <span class="bu">Stan</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># for fitting probabilistic models</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Random</span>, <span class="bu">Distributions</span>, <span class="bu">Turing</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># for optimisation and solving decision problems</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">JuMP</span>, <span class="bu">HiGHS</span>, <span class="bu">DecisionProgramming</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>[ Info: Precompiling LogDensityProblemsADForwardDiffBenchmarkToolsExt [501e9729-9453-5dfd-bf52-aa40e3634be9]</code></pre>
 </div>
-<p>A simple example - perhaps you will develop some intuition for the problem as you read it, but hopefully I have convinced you that it will sometimes be worthwhile to draw it out and do the maths. Think of the early decision-theorist Howard Raiffa famously drew a decision tree to help him decide which academic position to take up, as he documented in this paper.</p>
+</div>
 <div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MersenneTwister</span>(<span class="fl">231123</span>) <span class="op">|&gt;</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  prng <span class="op">-&gt;</span> <span class="fu">rand</span>(prng, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="fl">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MersenneTwister</span>(<span class="fl">231123</span>) <span class="op">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  prng <span class="op">-&gt;</span> <span class="fu">rand</span>(prng, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="fl">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>10-element Vector{Float64}:
  -0.4797047482429591
   0.3492046160452603
@@ -298,6 +329,7 @@ flowchart LR
 </div>
 </div>
 </section>
+</section>
 <section id="reproducibility" class="level3">
 <h3 class="anchored" data-anchor-id="reproducibility">Reproducibility</h3>
 <div class="quarto-figure quarto-figure-center">
@@ -310,16 +342,16 @@ flowchart LR
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2024,
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco,
   author = {Di Francesco, Domenic},
   title = {Decisions Under {Uncertainty.} {Part} 1},
-  date = {2024-02-01},
+  date = {},
   url = {https://www.allyourbayes.com//posts/BDA_pt1},
   langid = {en}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2024" class="csl-entry quarto-appendix-citeas" role="listitem">
-Di Francesco, Domenic. 2024. <span>“Decisions Under Uncertainty. Part
-1.”</span> February 1, 2024. <a href="https://www.allyourbayes.com//posts/BDA_pt1">https://www.allyourbayes.com//posts/BDA_pt1</a>.
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco" class="csl-entry quarto-appendix-citeas" role="listitem">
+Di Francesco, Domenic. n.d. <span>“Decisions Under Uncertainty. Part
+1.”</span> <a href="https://www.allyourbayes.com//posts/BDA_pt1">https://www.allyourbayes.com//posts/BDA_pt1</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

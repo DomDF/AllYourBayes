@@ -6,13 +6,13 @@ date: "2024-01-25"
 categories: [Podcast, Bayes, Engineering, Dogs]
 fields: [date, title, reading-time, description]
 citation: true
-image: "young_ada.png"
+image: "alan_turing.png"
 from: markdown+emoji
 ---
 
 ### TLDR
 
-Last year, I participated in an episode of the Alan Turing Institute's Coffee Pod podcast. It was hosted by my friend [Bea](https://twitter.com/mooniean) and we talked about my background in engineering, my PhD and transition into computational statistics and machine learning, my interest in football, and my (then) new puppy Ada - looking skeptical in the thumbnail :dog:. 
+Last year, I participated in an episode of the Alan Turing Institute's Coffee Pod podcast. It was hosted by my friend [Bea](https://twitter.com/mooniean) and we talked about my background in engineering, my PhD and transition into computational statistics and machine learning, my interest in football, and my (then) new puppy Ada. 
 
 Here's the episode, I hope you enjoy it!
 

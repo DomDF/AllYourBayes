@@ -25,11 +25,11 @@ Logistic regression is a popular statistical model for making predictions on out
 
 So there are a couple of key topics discussed here: logistic regression, and Bayesian inference. Before jumping straight into the example application, I've provided some **very** brief introductions below.
 
-#### Bayesian Inference
+#### Bayesian inference
 
 At a very high level, Bayesian models quantify uncertainty, so that our predictions and decisions take into account the ways in which our knowledge is limited or imperfect. We specify a statistical model, and identify probabilistic estimates for the parameters. My preferred software for writing a fitting Bayesian models is [`Stan`](https://mc-stan.org/). If you are not yet familiar with Bayesian statistics, then I imagine you won't be fully satisfied with that 3 sentence summary, so I will put together a separate post on the merits and challenges of applied Bayesian inference, which will include much more detail.
 
-#### Logistic Regression
+#### Logistic regression
 
 Logistic regression is used to estimate the probability of a binary outcome, such as *Pass* or *Fail* (though it can be extended for `> 2` outcomes). This is achieved by transforming a standard regression using the logit function, shown below. The term in the brackets may be familiar to gamblers as it is how odds are calculated from probabilities (p). You may see *logit* and *log-odds* used exchangeably for this reason. 
 
@@ -133,7 +133,7 @@ model_fit <- glm(formula = preditions ~ input_variables,
 
 ```
 
-### Example Application: Probability of Detection
+### Example application: probability of detecting damage
 
 To demonstrate how a Bayesian logistic regression model can be fit (and utilised), I've included an example from one of my papers. Engineers make use of data from inspections to understand the condition of structures. Modern inspection methods, whether remote, autonomous or manual application of sensor technologies, are very good. They are generally evaluated in terms of the accuracy and reliability with which they size damage. Engineers never receive perfect information from an inspection, such as:
 
@@ -146,7 +146,7 @@ This example will consider trials of an inspection tool looking for damage of va
 
 ![Detecting damage: never 100% reliable](https://media.giphy.com/media/42wQXwITfQbDGKqUP7/giphy.gif)  
 
-#### Test Data
+#### Test data
 
 For the purposes of this example we will simulate some data. Let's imagine we have introduced some cracks (of known size) into some test specimens and then arranged for some blind trials to test whether an inspection technology is able to detect them.
 
@@ -331,7 +331,7 @@ One thing to note from these results is that the model is able to make much more
 
 There are only `r nrow(pod_df %>% dplyr::filter(depth < 3))` trials in our dataset considering cracks shallower than `r 3` mm (and only `r nrow(pod_df %>% dplyr::filter(depth < 2))` for crack depths `< 2` mm). If we needed to make predictions for shallow cracks, this analysis could be extended to quantify the value of future tests in this region.
 
-#### Final Thought: Where Did Those Priors Come From and Are They Any Good?
+#### Final thought: where did those priors come from and are they any good?
 
 There are many approaches for specifying prior models in Bayesian statistics. *Weakly informative* and *MaxEnt* priors are advocated by various authors. Unfortunately, *Flat Priors* are sometimes proposed too, particularly (but not exclusively) in older books. A flat prior is a wide distribution - in the extreme this would be a uniform distribution across all real numbers, but in practice distribution functions with very large variance parameters are sometimes used. In either case, a very large range prior of credible outcomes for our parameters is introduced the model. This may sound innocent enough, and in many cases could be harmless.
 
@@ -437,7 +437,7 @@ Why did our predictions end up looking like this?
 
 Borrowing from McElreath's explanation, it's because $\alpha$ and $\beta$ are linear regression parameters on a log-odds (logit) scale. Since we are estimating a PoD we end up transforming out predictions onto a probability scale. Flat priors for our parameters imply that extreme values of log-odds are credible. All that prior credibility of values `< - 3` and `> 3` ends up getting concentrated at probabilities near `0` and `1`. I think this is a really good example of flat priors containing a lot more information than they appear to.
 
-I'll end by directing you towards some additional (generally non-technical) discussion of choosing priors, written by the `Stan` development team [(link)](https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations). It provides a definition of *weakly informative priors*, some words of warning against *flat priors* and more general detail than this humble footnote. 
+I'll end by directing you towards some additional (generally non-technical) discussion of choosing priors, written by the `Stan` development team [(link)](https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations). It provides a definition of *weakly informative priors*, some words of warning against *flat priors* and more general detail than thisf footnote. 
 
 ```{r}
 #| echo: false

@@ -2,8 +2,8 @@
 title: "Decisions under Uncertainty. Part 1"
 subtitle: "Connecting Modelling and Actions"
 author: "Domenic Di Francesco"
-date: "2024-02-01"
-categories: [Decision Analysis, Uncertainty, Julia, Optimisation]
+date: "TBC"
+categories: [Decision Analysis, Uncertainty, Julia, Optimisation, Bayesian]
 fields: [date, title, reading-time, description]
 citation: true
 image: "young_ada.png"
@@ -13,9 +13,11 @@ jupyter: julia-1.10
 
 ### TLDR
 
-For many of you reading this, developing and testing predictive models is a lot of fun - but my pragmatic, buzz-killing message here, is that we shouldn't forget why we ever asked to do it. I suggest that the reason is (almost?) always, to help support decision-making. And yet, we often have this unhelpful disconnect between a calculation, and what the results imply for how we should act. An analyst hands over their work to a manager or budget holder, who then reinterprets everything and makes a call, which may or may not be consistent with the information they have been provided - sound familiar? It does to me.
+For many of you reading this, developing and testing predictive models will be a lot of fun - but my pragmatic, buzz-killing message here, is that we shouldn't forget why we're asked to do it. I suggest that the reason is (almost?) always, to help support decision-making. And yet, we often have this unhelpful disconnect between a calculation, and what the results imply for how we should act. An analyst hands over their work to a manager or budget holder, who then reinterprets everything and makes a call, which may or may not be consistent with the information they have been provided - sound familiar? It does to me.
 
-In this post (Part 1) these two domains are considered jointly, using an example. We see how this can allow for practioners to arrive at coherent and reproducible (auditable) decisions. Part 2 will consider a specific application of this approach, known as value of information analysis.
+In this post (Part 1) these two domains are considered jointly, using an example. We see how this can allow for practioners to arrive at coherent (quantitiative) and reproducible (auditable) decisions. Part 2 will consider a specific application of this approach, known as value of information analysis. 
+
+As ever, all code (in `Julia` today) is freely available!
 
 ---
 
@@ -78,10 +80,19 @@ flowchart LR
 
 We may not necessarily have data on the rate at which you can produce your product. Focussing on decisions, rather than models reminds us of this. Sometimes a decision is required before we complete the experiments, trials, surveys etc. that we would like to.
 
-
 Maybe you've not been feeling confident in yourself lately, and are too worried to take on any risk. Perhaps some well meaning friends have tried to counter this by telling you that you can achieve anything. This may convince you to take whatever orders are available. It's easy to be swayed either way by such circumstances, and anecdotes and intuition drive decisions at much larger companies too.
 
+```{julia}
+# for working with data
+using CSV, DataFrames, DataFramesMeta
 
+# for fitting probabilistic models
+using Random, Distributions, Turing
+
+# for optimisation and solving decision problems
+using JuMP, HiGHS, DecisionProgramming
+
+```
 
 ```{julia}
 

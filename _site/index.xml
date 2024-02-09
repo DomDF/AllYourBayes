@@ -10,155 +10,7 @@
 <atom:link href="https://www.allyourbayes.com/index.xml" rel="self" type="application/rss+xml"/>
 <description>thoughts on risk and uncertainty in decision support</description>
 <generator>quarto-1.3.450</generator>
-<lastBuildDate>Thu, 01 Feb 2024 00:00:00 GMT</lastBuildDate>
-<item>
-  <title>Decisions under Uncertainty. Part 1</title>
-  <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://www.allyourbayes.com/posts/BDA_pt1/index.html</link>
-  <description><![CDATA[ 
-
-
-
-
-<section id="tldr" class="level3">
-<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>For many of you reading this, developing and testing predictive models is a lot of fun - but my pragmatic, buzz-killing message here, is that we shouldn’t forget why we ever asked to do it. I suggest that the reason is (almost?) always, to help support decision-making. And yet, we often have this unhelpful disconnect between a calculation, and what the results imply for how we should act. An analyst hands over their work to a manager or budget holder, who then reinterprets everything and makes a call, which may or may not be consistent with the information they have been provided - sound familiar? It does to me.</p>
-<p>In this post (Part 1) these two domains are considered jointly, using an example. We see how this can allow for practioners to arrive at coherent and reproducible (auditable) decisions. Part 2 will consider a specific application of this approach, known as value of information analysis.</p>
-<hr>
-</section>
-<section id="a-familiar-scenario" class="level3">
-<h3 class="anchored" data-anchor-id="a-familiar-scenario">A Familiar Scenario</h3>
-<p>When I worked as an engineer I would often be asked to perform calculations (using spreadsheets <span class="emoji" data-emoji="upside_down_face">🙃</span> ) to arrive at some number regarding a safe operating condition for a damaged structure.</p>
-<p>Models for the sake of themselves can be plenty of fun, but unless they are tied to the underlying decsions that they are supposed to inform, they are not necessarily fulfilling their purpose.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://www.allyourbayes.com/posts/BDA_pt1/https:/media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZngxNnN0YzE5eWdmNDJua3JwYmN3dGJza2Y5d3l5eXo3YTFyZTlvbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/miFGO0mIRDhf2/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">So You’ve Fit a Predictive Model?</figcaption>
-</figure>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<div>
-<pre class="mermaid mermaid-js">flowchart LR
-  d1[Decision] --&gt; o1((Uncertain \noutcome))
-  d1 --&gt; c1{Utility}
-  o1 --&gt; c1
-
-</pre>
-</div>
-<p>Example Influence Diagram with Decisions (square nodes), Uncertain Outcomes (circles) and Utility (diamonds).</p>
-</div>
-</div>
-</div>
-</section>
-<section id="analysis-vibes" class="level3">
-<h3 class="anchored" data-anchor-id="analysis-vibes">Analysis &gt; Vibes!</h3>
-<p>These (decision/influence/whatever!) diagrams provide a clear map of what factors we think we need to consider when making a decision. They also provide causal information, showing how intervening at one point can have downstream effects. They may seem trivial, but once you try and draw one for a problem you are working on, you will see they encourage you to think deeply about your area of expertise - no seriously, please try it!</p>
-<p>Their apparent simplicity also has the benefit of being able to communicate qualitative information with various stakeholders. An experienced engineer could map out complex relationships between variables so that a statistical model could be developed that was consistent with this information. This could then be used to inform decisions.</p>
-<p>But, is any of this ever required? If the goal is to arrive at a decision that aligns with subject matter knowledge, then can’t we just ask the expert to jump right to the decision?</p>
-<p>This will not always be a valid shortcut. If you have attended workshops that were organised to get a room of experts to agree on a strategy, there will not always be a clear agreement. This is not necessarily because of a lack of expertise, but because of a lack of a common language to communicate the information. Formalising the structure of the problem, the prior knowledge, and where data should be used to update parameters results in a quantitive, reproducible and (with a little extra work) explanaible decision-making process.</p>
-</section>
-<section id="buying-a-car" class="level3">
-<h3 class="anchored" data-anchor-id="buying-a-car">Buying a car</h3>
-<p>I do not know much about cars, despite being mistake for a mechanic based on my interest in engineering. In fact, when buying my first car, I noticed that a button on the key was not unlocking the door and so suggested to the garage that they may need to reduce the price. A confused salesman showed me the other side of the key, where a small light was flashing, “it’s a torch, mate. For when you need to unlock your car in the dark.” I lost all bargaining power.</p>
-<p>I was reluctant to overpay, and could perhaps have looked at some data to help inform me. Here is an <a href="https://www.kaggle.com/datasets/jacksondivakarr/sample34">example dataset on car prices from Kaggle</a>. We’re using my new favourite language for scientific computing, <code>Julia</code>, today. FYI, it’s a dream. I’ll perhaps write about why I love it another time, but <a href="https://julialang.org">here is the homepage</a>.</p>
-<p>Let’s start by loading the libraries that we’ll need.</p>
-<div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># For reading and handling the data</span></span>
-<span id="cb1-2"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">using</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">CSV</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">DataFrames</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">DataFramesMeta</span></span>
-<span id="cb1-3"></span>
-<span id="cb1-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># For working with probabilistic models</span></span>
-<span id="cb1-5"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">using</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Distributions</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Random</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Stan</span></span></code></pre></div>
-</div>
-<p>A simple example - perhaps you will develop some intuition for the problem as you read it, but hopefully I have convinced you that it will sometimes be worthwhile to draw it out and do the maths. Think of the early decision-theorist Howard Raiffa famously drew a decision tree to help him decide which academic position to take up, as he documented in this paper.</p>
-<div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">MersenneTwister</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">231123</span>) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb2-2">  prng <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-&gt;</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rand</span>(prng, <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">Normal</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>), <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>)</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="39">
-<pre><code>10-element Vector{Float64}:
- -0.4797047482429591
-  0.3492046160452603
-  1.9035942889710349
- -1.0599399228488406
- -0.05026230935484321
-  1.6159635845804887
-  0.46192798081799236
-  0.38816396593759556
- -1.4500821161955104
- -0.3667444519178413</code></pre>
-</div>
-</div>
-</section>
-<section id="reproducibility" class="level3">
-<h3 class="anchored" data-anchor-id="reproducibility">Reproducibility</h3>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://www.allyourbayes.com/posts/BDA_pt1/https:/media.giphy.com/media/v1.Y2lkPTc5MGI3NjExajFkdTI0dnN6amt1cmZ5Y3UwaHFneG5xb3cybXVwZXcxYjN3bDdvbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/W1tZZhie5U7RYqjg7Z/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Might your decisions impact the safety of the public?</figcaption>
-</figure>
-</div>
-
-
-</section>
-
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2024,
-  author = {Di Francesco, Domenic},
-  title = {Decisions Under {Uncertainty.} {Part} 1},
-  date = {2024-02-01},
-  url = {https://www.allyourbayes.com//posts/BDA_pt1},
-  langid = {en}
-}
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2024" class="csl-entry quarto-appendix-citeas">
-Di Francesco, Domenic. 2024. <span>“Decisions Under Uncertainty. Part
-1.”</span> February 1, 2024. <a href="https://www.allyourbayes.com//posts/BDA_pt1">https://www.allyourbayes.com//posts/BDA_pt1</a>.
-</div></div></section></div> ]]></description>
-  <category>Decision Analysis</category>
-  <category>Uncertainty</category>
-  <category>Julia</category>
-  <category>Optimisation</category>
-  <guid>https://www.allyourbayes.com/posts/BDA_pt1/index.html</guid>
-  <pubDate>Thu, 01 Feb 2024 00:00:00 GMT</pubDate>
-  <media:content url="https://www.allyourbayes.com/posts/BDA_pt1/young_ada.png" medium="image" type="image/png" height="148" width="144"/>
-</item>
+<lastBuildDate>Thu, 25 Jan 2024 00:00:00 GMT</lastBuildDate>
 <item>
   <title>The Turing Podcast</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
@@ -170,7 +22,7 @@ Di Francesco, Domenic. 2024. <span>“Decisions Under Uncertainty. Part
 
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>Last year, I participated in an episode of the Alan Turing Institute’s Coffee Pod podcast. It was hosted by my friend <a href="https://twitter.com/mooniean">Bea</a> and we talked about my background in engineering, my PhD and transition into computational statistics and machine learning, my interest in football, and my (then) new puppy Ada - looking skeptical in the thumbnail <span class="emoji" data-emoji="dog">🐶</span>.</p>
+<p>Last year, I participated in an episode of the Alan Turing Institute’s Coffee Pod podcast. It was hosted by my friend <a href="https://twitter.com/mooniean">Bea</a> and we talked about my background in engineering, my PhD and transition into computational statistics and machine learning, my interest in football, and my (then) new puppy Ada.</p>
 <p>Here’s the episode, I hope you enjoy it!</p>
 <hr>
 <iframe style="border-radius:12px" src="https://open.spotify.com/embed/episode/5FqU7ZRATxp9CIwHvD7pvP?utm_source=generator&amp;theme=0&amp;t=0" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
@@ -196,7 +48,7 @@ Di Francesco, Domenic. 2024. <span>“The Turing Podcast.”</span> January
   <category>Dogs</category>
   <guid>https://www.allyourbayes.com/posts/Turing_Podcast/index.html</guid>
   <pubDate>Thu, 25 Jan 2024 00:00:00 GMT</pubDate>
-  <media:content url="https://www.allyourbayes.com/posts/Turing_Podcast/young_ada.png" medium="image" type="image/png" height="148" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Turing_Podcast/alan_turing.png" medium="image" type="image/png" height="104" width="144"/>
 </item>
 <item>
   <title>Who Am I?</title>
@@ -297,140 +149,6 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
   <category>news</category>
   <guid>https://www.allyourbayes.com/posts/welcome/index.html</guid>
   <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
-</item>
-<item>
-  <title>Player form. Part 1: Overview</title>
-  <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://www.allyourbayes.com/posts/player_form/index.html</link>
-  <description><![CDATA[ 
-
-
-
-
-<section id="tldr" class="level3">
-<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>When is a player <strong>in form</strong> (over performing, or enjoying a hot streak) and how long does this last? If there is such an effect, I suspect it will be a result of some complicated system of personal circumstances. In this post I suggest a popular statistical model (Gaussian process) for approximating the dependencies (how many games back should we look?) and non-linearities (rise and fall of form) that we need. Again, I am suggesting that we should care about uncertainty when trying to model just about anything in football, and using probability is a helpful way of doing so.</p>
-<p>Ellen White’s data from the 2019-20 WSL season (courtesy of StatsBomb) is used as an example.</p>
-<p>Similarly to the <a href="https://allyourbayes.com/posts/xg_pt2/">posts on multi-level models</a>, this will also be split into 2 parts. Part 1 (here) will focus on the features of a Gaussian process that are well suited to approximating player form. Part 2 (in preparation) will include more technical details and more code.</p>
-<hr>
-</section>
-<section id="a-questionable-measure-of-player-form" class="level3">
-<h3 class="anchored" data-anchor-id="a-questionable-measure-of-player-form">A (Questionable) Measure of Player Form</h3>
-<p>As I alluded to in the TLDR above, I suspect a players form is somehow linked to their current mental state. When they are feeling confident they may be less likely to doubt their abilities, and more decisive. This could mean they act quicker and become more difficult to play against.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://www.allyourbayes.com/posts/player_form/https:/media.giphy.com/media/STYcRDzNO6AYNmMgvA/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Confidence is key …probably</figcaption>
-</figure>
-</div>
-<p>I will not propose a detailed causal model here, just a statistical proxy. But, I will be assuming that form can rise and decay over time. For some players even a single good or bad performance may be enough to drastically impact their next game, and for others this process may be smoother and less volatile. More on this later.</p>
-<p>For the purposes of this post, goalscoring form on a given match day, <img src="https://latex.codecogs.com/png.latex?i">, is defined as the difference between the number of goals that were scored on that match day, minus the expected number of goals, <img src="https://latex.codecogs.com/png.latex?xG"> associated with the opportunities in that game.</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AForm_%7B%5Bi%5D%7D%20=%20Goals_%7B%5Bi%5D%7D%20-%20xG_%7B%5Bi%5D%7D%0A"></p>
-<p>A nice feature of this is that, in principle, it is invariant to the quality of opposition. A striker may have a higher xG when performing against a weaker team, but will therefore need to score more goals in such a game to be considered in the same form. By the same token, it should also account for the fact that a player will generally get fewer scoring opportunities as a substitute.</p>
-<p>…As for the not so nice features, there are plenty! For instance, what good is a measure of form that only considers goals scored? Is xG not also conditional on how well a striker is paying? Would it be more useful to standardise the result?</p>
-<p>These are all fair questions, and with a little thought could all be integrated into a more comprehensive characterisation. However, the type of model that I will introduce will be equally compatible with alternative definitions, so let’s imagine we just care about whether a striker is scoring as many goals as they should be, and whether this will continue.</p>
-</section>
-<section id="ellen-white" class="level3">
-<h3 class="anchored" data-anchor-id="ellen-white">Ellen White</h3>
-<p>Ellen White is a clinical striker who, at the time of writing this, plays for Manchester City and England. She is a former winner of the Women’s Super League (WSL) golden boot, and is England’s all-time top scorer. So plenty of opportunities to see her distinctive celebration:</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://www.allyourbayes.com/posts/player_form/https:/media.giphy.com/media/SVlBW8O5jw3dtU17dv/giphy-downsized-large.gif" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Ellen’s goal goggles</figcaption>
-</figure>
-</div>
-<p>StatsBomb have kindly made data from the WSL (2019/20 season) freely available in <a href="https://github.com/statsbomb/StatsBombR">their R package</a>, and so we will consider this league season of Ellen White’s career here.</p>
-<p>Here is a plot of Ellen’s <strong>form</strong> (performance vs.&nbsp;xG) over the 12 league games that she featured in, during that season. Her biggest over performance vs.&nbsp;xG was when she scored in a <a href="https://womenscompetitions.thefa.com/Article/TottenhamManCity05012020">4-1 win away at Tottenham</a> despite a cumulative xG of 0.597. Her worst performance by the same measure was the following week, failing to score in the <a href="https://womenscompetitions.thefa.com/Article/Manchester-City-3-1-Everton-110120">3-1 win at home to Everton</a>. Although she only played the final <img src="https://latex.codecogs.com/png.latex?25"> minutes of this game, she accrued a match xG of 0.302. The fact that these games were back to back could be tricky for a form model to accommodate!</p>
-<div class="cell">
-<div class="cell-output-display">
-<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
-<section id="what-would-such-a-model-need-to-do" class="level3">
-<h3 class="anchored" data-anchor-id="what-would-such-a-model-need-to-do">What would such a model need to do?</h3>
-<p>Essentially, we are looking for are some numbers to help us understand the following:</p>
-<ul>
-<li>What form is a player currently in?</li>
-<li>How long will a player remain in good (or bad) form?</li>
-<li>What is the uncertainty in our predictions?</li>
-</ul>
-<p>Since players can enter good and bad patches of form over the course of a season, we need a model that is able to twist and turn accordingly. This means we need some <em>non-linearity</em>.</p>
-<p>We also want future predictions to be based on recent games - if a player has over performed for the last 3 games in a row, then we generally expect them to continue on this path, at least in the short-term. But how far back should we look? Does a single great performance from <img src="https://latex.codecogs.com/png.latex?3"> months ago have any impact on a players current form? We need to quantify this <em>dependency</em> in our model too.</p>
-<p>Finally, a probabilistic model has the benefit of <em>quantifying uncertainty</em>. I emphasise the importance of this in the ‘final thoughts’ at the end of this post and for anyone interested, here is <a href="https://www.allyourbayes.com/post/2020-03-24-why-go-bayesian/">more Bayesian statistics propaganda</a>. But, in summary we should not neglect uncertainty in this model because (a) We are not even sure what form is, and (b) we are estimating it from a small amount of indirect observations. So let’s not pretend we will end up with a single number. Enough preaching and back to the task at hand….</p>
-<p>One solution that checks the above requirements is the Gaussian Process (GP).</p>
-</section>
-<section id="what-does-it-look-like" class="level3">
-<h3 class="anchored" data-anchor-id="what-does-it-look-like">What does it look like?</h3>
-<p>So we have this probabilistic model of smooth, non-linear functions. Let’s see what it looks like. In the below plot, the match days are the same as those presented in the above plot, we just have a new y-axis scale, and we have ‘days’ (rather than date) along the x-axis.</p>
-<p>There are multiple functions that are consistent with Ellen White’s form in the league that season, so let’s look at one example first:</p>
-<div class="cell">
-<div class="cell-output-display">
-<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>Where there is a large gap between successive games (such as the 3 weeks between White’s first and second appearances of the season), there is less evidence to guide predictions of form. This is also true for the period around day 60 (late December). Here though, she was on an upward trajectory. In both cases, this lack of data results in higher uncertainty, as is apparent when we look at more samples, which are shown on top of the full predictive distribution below.</p>
-<div class="cell">
-<div class="cell-output-display">
-<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
-<section id="and-so-what" class="level3">
-<h3 class="anchored" data-anchor-id="and-so-what">And, so what?</h3>
-<p>Some squiggly lines that approximately go through some points? What is the value of this when you could scribble something similar without knowing anything about statistics?</p>
-<p>Well, underlying all of these lines is a model of dependency. We have quantified how similar (correlated) form should be in successive games, and how this correlation will decrease with time. I will talk about the parameters that do this and how they can be interpreted in part 2 (in preparation), but to summarise, the model quantifies how correlation in form decreases as time progresses and this can be seen in the smoothness of the lines.</p>
-<p>For example, if form was always shown to be very similar to that of the previous game, then transitioning from good to bad performances would be gradual, and the samples from the associated GP model would be very smooth. Conversely, in the case where performance in subsequent games were completely independent, even if very little time had passed, the GP regression lines would need to be able to change direction very sharply.</p>
-<p>Below are some predictions from the model in the period just after White’s last game of the season (to the right of the final match day on the above plots). She appeared to be on a slight upward trend at this point, over performing in her final game at home to Chelsea. This is shown in the uppermost histogram. As we move away from this game, into the off-season, we see the uncertainty gradually increase in our predictions and the average move towards zero. This is consistent with the considerations discussed above.</p>
-<div class="cell">
-<div class="cell-output-display">
-<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
-<section id="some-final-thoughts" class="level3">
-<h3 class="anchored" data-anchor-id="some-final-thoughts">Some final thoughts…</h3>
-<section id="uncertainty" class="level4">
-<h4 class="anchored" data-anchor-id="uncertainty">Uncertainty</h4>
-<p>Any football models we propose will only vaguely resemble the ‘true’ data generating process and though we can incrementally add more parameters we do not automatically find more evidence for them. We can build big datasets by combining observations from multiple players, and leagues, but ignoring possible variation between such data is misleading. If your big football models need big data, why stop there? Feed it some Sunday league football, or some basketball, or some handwritten digits.</p>
-<p>Alternatively, we acknowledge that our system of parameters are not perfectly precise, and our predictions will span credible ranges. Quantifying this variability is a strength, not a weakness of our models, and is actually of more direct use in decision support.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://www.allyourbayes.com/posts/player_form/https:/media.giphy.com/media/3otPoyudZ18xASX0rK/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Yes we can!</figcaption>
-</figure>
-</div>
-</section>
-<section id="sources-of-information" class="level4">
-<h4 class="anchored" data-anchor-id="sources-of-information">Sources of Information</h4>
-<p>What can we do about long periods in time where no competitive games are taking place?</p>
-<p>There may be other sources of information that could help, such as performances in other competitions or even in training. Given we are not sure of the extent that these should inform the model, there is an argument to use a multi-level (partial pooling) structure, as was used to improve <a href="https://allyourbayes.com/posts/xg_pt2/">player-specifc xG estimates</a>.</p>
-<p>Finally, the other source of information is that contained in the priors, which I have not included here. But don’t panic, some prior predictive sampling is on the way in part 2 (in preparation).</p>
-
-
-</section>
-</section>
-
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2022,
-  author = {Di Francesco, Domenic},
-  title = {Player {Form.} {Part} 1},
-  date = {2022-01-19},
-  url = {https://www.allyourbayes.com//posts/player_form},
-  langid = {en}
-}
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2022" class="csl-entry quarto-appendix-citeas">
-Di Francesco, Domenic. 2022. <span>“Player Form. Part 1.”</span> January
-19, 2022. <a href="https://www.allyourbayes.com//posts/player_form">https://www.allyourbayes.com//posts/player_form</a>.
-</div></div></section></div> ]]></description>
-  <category>football</category>
-  <category>analysis</category>
-  <category>Stan</category>
-  <category>uncertainty</category>
-  <category>Bayes</category>
-  <category>gaussian process</category>
-  <guid>https://www.allyourbayes.com/posts/player_form/index.html</guid>
-  <pubDate>Wed, 19 Jan 2022 00:00:00 GMT</pubDate>
-  <media:content url="https://www.allyourbayes.com/posts/player_form/plot.png" medium="image" type="image/png" height="96" width="144"/>
 </item>
 <item>
   <title>Uncertainty in xG. Part 2: Partial Pooling</title>
@@ -771,12 +489,12 @@ font-style: inherit;">real</span> beta_dist_goal_pp = normal_rng(mu_beta_dist_go
   author = {Di Francesco, Domenic},
   title = {Uncertainty in {xG.} {Part} 2},
   date = {2021-01-07},
-  url = {https://www.allyourbayes.com//posts/xg_pt2},
+  url = {https://allyourbayes.com/posts/xg_pt2},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2021" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2021. <span>“Uncertainty in xG. Part 2.”</span>
-January 7, 2021. <a href="https://www.allyourbayes.com//posts/xg_pt2">https://www.allyourbayes.com//posts/xg_pt2</a>.
+January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2">https://allyourbayes.com/posts/xg_pt2</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -901,12 +619,12 @@ January 7, 2021. <a href="https://www.allyourbayes.com//posts/xg_pt2">https://ww
   author = {Di Francesco, Domenic},
   title = {Uncertainty in {xG.} {Part} 1},
   date = {2020-12-10},
-  url = {https://www.allyourbayes.com//posts/xg_pt1},
+  url = {https://allyourbayes.com/posts/xg_pt1},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2020" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2020. <span>“Uncertainty in xG. Part 1.”</span>
-December 10, 2020. <a href="https://www.allyourbayes.com//posts/xg_pt1">https://www.allyourbayes.com//posts/xg_pt1</a>.
+December 10, 2020. <a href="https://allyourbayes.com/posts/xg_pt1">https://allyourbayes.com/posts/xg_pt1</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -919,6 +637,331 @@ December 10, 2020. <a href="https://www.allyourbayes.com//posts/xg_pt1">https://
   <guid>https://www.allyourbayes.com/posts/xg_pt1/index.html</guid>
   <pubDate>Thu, 10 Dec 2020 00:00:00 GMT</pubDate>
   <media:content url="https://www.allyourbayes.com/posts/xg_pt1/xg1.png" medium="image" type="image/png" height="99" width="144"/>
+</item>
+<item>
+  <title>Decisions under Uncertainty. Part 1</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
+  <link>https://www.allyourbayes.com/posts/BDA_pt1/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>For many of you reading this, developing and testing predictive models will be a lot of fun - but my pragmatic, buzz-killing message here, is that we shouldn’t forget why we’re asked to do it. I suggest that the reason is (almost?) always, to help support decision-making. And yet, we often have this unhelpful disconnect between a calculation, and what the results imply for how we should act. An analyst hands over their work to a manager or budget holder, who then reinterprets everything and makes a call, which may or may not be consistent with the information they have been provided - sound familiar? It does to me.</p>
+<p>In this post (Part 1) these two domains are considered jointly, using an example. We see how this can allow for practioners to arrive at coherent (quantitiative) and reproducible (auditable) decisions. Part 2 will consider a specific application of this approach, known as value of information analysis.</p>
+<p>As ever, all code (in <code>Julia</code> today) is freely available!</p>
+<hr>
+</section>
+<section id="a-familiar-scenario" class="level3">
+<h3 class="anchored" data-anchor-id="a-familiar-scenario">A Familiar Scenario</h3>
+<p>When I worked as an engineer I would often be asked to perform calculations (using spreadsheets <span class="emoji" data-emoji="upside_down_face">🙃</span> ) to arrive at some number regarding a safe operating condition for a damaged structure.</p>
+<p>Models for the sake of themselves can be plenty of fun, but unless they are tied to the underlying decsions that they are supposed to inform, they are not necessarily fulfilling their purpose.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://www.allyourbayes.com/posts/BDA_pt1/https:/media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZngxNnN0YzE5eWdmNDJua3JwYmN3dGJza2Y5d3l5eXo3YTFyZTlvbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/miFGO0mIRDhf2/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">So You’ve Fit a Predictive Model?</figcaption>
+</figure>
+</div>
+<p>How might we bridge this gap? How</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  d1[Decision] --&gt; o1((Uncertain \noutcome))
+  d1 --&gt; c1{Utility}
+  o1 --&gt; c1
+
+</pre>
+</div>
+<p>Example influence diagram with decisions (square nodes), uncertain outcomes (circles) and utility (diamonds).</p>
+</div>
+</div>
+</div>
+</section>
+<section id="analysis-vibes" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-vibes">Analysis &gt; Vibes!</h3>
+<p>These (decision/influence/whatever!) diagrams provide a clear map of what factors we think we need to consider when making a decision. They also provide causal information, showing how intervening at one point can have downstream effects. They may seem trivial, but once you try and draw one for a problem you are working on, you will see they encourage you to think deeply about your area of expertise - no seriously, please try it!</p>
+<p>Their apparent simplicity also has the benefit of being able to communicate qualitative information with various stakeholders. An experienced engineer could map out complex relationships between variables so that a statistical model could be developed that was consistent with this information. This could then be used to inform decisions.</p>
+<p>But, is any of this ever required? If the goal is to arrive at a decision that aligns with subject matter knowledge, then can’t we just ask the expert to jump right to the decision?</p>
+<p>This will not always be a valid shortcut. If you have attended workshops that were organised to get a room of experts to agree on a strategy, there will not always be a clear agreement. This is not necessarily because of a lack of expertise, but because of a lack of a common language to communicate the information. Formalising the structure of the problem, the prior knowledge, and where data should be used to update parameters results in a quantitive, reproducible and (with a little extra work) explanaible decision-making process.</p>
+</section>
+<section id="promising-vs.-delivering-an-example" class="level3">
+<h3 class="anchored" data-anchor-id="promising-vs.-delivering-an-example">Promising vs.&nbsp;Delivering: An Example</h3>
+<section id="intro" class="level4">
+<h4 class="anchored" data-anchor-id="intro">Intro</h4>
+<p>Lets consider a simple example…</p>
+<p>An urn is filled with 10 balls, 5 red and 5 blue. As part of a lottery game, you are invited to draw a ball…nah, I’m just kidding. We’re not doing that. Let’s all please stop doing that.</p>
+<p>You’re starting a business and have a prototype handmade product that is gaining some interest. You’ve pitched to some retailers and you have a couple of contracts on the table. However, these big shops are covering their backs with a penalty clause - if you deliver the order on time, you’ll be paid, if you over-promise (under-deliver) you pay a penalty to cover their ‘downstream’ losses.</p>
+</section>
+<section id="some-data" class="level4">
+<h4 class="anchored" data-anchor-id="some-data">Some data</h4>
+<p>To help make this decision, lets draw it out. Below is a diagram where we have listed all of the factors that we would like to consider, and how they are related.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  d1[Decision] --&gt; o1((Uncertain \noutcome))
+  d1 --&gt; c1{Utility}
+  o1 --&gt; c1
+</pre>
+</div>
+<p>Small business decision problem: which contract should you accept?</p>
+</div>
+</div>
+</div>
+<p>…or not.</p>
+<p>We may not necessarily have data on the rate at which you can produce your product. Focussing on decisions, rather than models reminds us of this. Sometimes a decision is required before we complete the experiments, trials, surveys etc. that we would like to.</p>
+<p>Maybe you’ve not been feeling confident in yourself lately, and are too worried to take on any risk. Perhaps some well meaning friends have tried to counter this by telling you that you can achieve anything. This may convince you to take whatever orders are available. It’s easy to be swayed either way by such circumstances, and anecdotes and intuition drive decisions at much larger companies too.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># for working with data</span></span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">CSV</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">DataFrames</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">DataFramesMeta</span></span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># for fitting probabilistic models</span></span>
+<span id="cb1-5"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Random</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Distributions</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Turing</span></span>
+<span id="cb1-6"></span>
+<span id="cb1-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># for optimisation and solving decision problems</span></span>
+<span id="cb1-8"></span>
+<span id="cb1-9"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">JuMP</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">HiGHS</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">DecisionProgramming</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>[ Info: Precompiling LogDensityProblemsADForwardDiffBenchmarkToolsExt [501e9729-9453-5dfd-bf52-aa40e3634be9]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">MersenneTwister</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">231123</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb3-2">  prng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rand</span>(prng, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Normal</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>10-element Vector{Float64}:
+ -0.4797047482429591
+  0.3492046160452603
+  1.9035942889710349
+ -1.0599399228488406
+ -0.05026230935484321
+  1.6159635845804887
+  0.46192798081799236
+  0.38816396593759556
+ -1.4500821161955104
+ -0.3667444519178413</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="reproducibility" class="level3">
+<h3 class="anchored" data-anchor-id="reproducibility">Reproducibility</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://www.allyourbayes.com/posts/BDA_pt1/https:/media.giphy.com/media/v1.Y2lkPTc5MGI3NjExajFkdTI0dnN6amt1cmZ5Y3UwaHFneG5xb3cybXVwZXcxYjN3bDdvbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/W1tZZhie5U7RYqjg7Z/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Might your decisions impact the safety of the public?</figcaption>
+</figure>
+</div>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco,
+  author = {Di Francesco, Domenic},
+  title = {Decisions Under {Uncertainty.} {Part} 1},
+  date = {},
+  url = {https://www.allyourbayes.com//posts/BDA_pt1},
+  langid = {en}
+}
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. n.d. <span>“Decisions Under Uncertainty. Part
+1.”</span> <a href="https://www.allyourbayes.com//posts/BDA_pt1">https://www.allyourbayes.com//posts/BDA_pt1</a>.
+</div></div></section></div> ]]></description>
+  <category>Decision Analysis</category>
+  <category>Uncertainty</category>
+  <category>Julia</category>
+  <category>Optimisation</category>
+  <category>Bayesian</category>
+  <guid>https://www.allyourbayes.com/posts/BDA_pt1/index.html</guid>
+  <pubDate>Invalid Date</pubDate>
+  <media:content url="https://www.allyourbayes.com/posts/BDA_pt1/young_ada.png" medium="image" type="image/png" height="148" width="144"/>
+</item>
+<item>
+  <title>Player form. Part 1: Overview</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
+  <link>https://www.allyourbayes.com/posts/player_form/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>When is a player <strong>in form</strong> (over performing, or enjoying a hot streak) and how long does this last? If there is such an effect, I suspect it will be a result of some complicated system of personal circumstances. In this post I suggest a popular statistical model (Gaussian process) for approximating the dependencies (how many games back should we look?) and non-linearities (rise and fall of form) that we need. Again, I am suggesting that we should care about uncertainty when trying to model just about anything in football, and using probability is a helpful way of doing so.</p>
+<p>Ellen White’s data from the 2019-20 WSL season (courtesy of StatsBomb) is used as an example.</p>
+<p>Similarly to the <a href="https://allyourbayes.com/posts/xg_pt2/">posts on multi-level models</a>, this will also be split into 2 parts. Part 1 (here) will focus on the features of a Gaussian process that are well suited to approximating player form. Part 2 (in preparation) will include more technical details and more code.</p>
+<hr>
+</section>
+<section id="a-questionable-measure-of-player-form" class="level3">
+<h3 class="anchored" data-anchor-id="a-questionable-measure-of-player-form">A (Questionable) Measure of Player Form</h3>
+<p>As I alluded to in the TLDR above, I suspect a players form is somehow linked to their current mental state. When they are feeling confident they may be less likely to doubt their abilities, and more decisive. This could mean they act quicker and become more difficult to play against.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://www.allyourbayes.com/posts/player_form/https:/media.giphy.com/media/STYcRDzNO6AYNmMgvA/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Confidence is key …probably</figcaption>
+</figure>
+</div>
+<p>I will not propose a detailed causal model here, just a statistical proxy. But, I will be assuming that form can rise and decay over time. For some players even a single good or bad performance may be enough to drastically impact their next game, and for others this process may be smoother and less volatile. More on this later.</p>
+<p>For the purposes of this post, goalscoring form on a given match day, <img src="https://latex.codecogs.com/png.latex?i">, is defined as the difference between the number of goals that were scored on that match day, minus the expected number of goals, <img src="https://latex.codecogs.com/png.latex?xG"> associated with the opportunities in that game.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AForm_%7B%5Bi%5D%7D%20=%20Goals_%7B%5Bi%5D%7D%20-%20xG_%7B%5Bi%5D%7D%0A"></p>
+<p>A nice feature of this is that, in principle, it is invariant to the quality of opposition. A striker may have a higher xG when performing against a weaker team, but will therefore need to score more goals in such a game to be considered in the same form. By the same token, it should also account for the fact that a player will generally get fewer scoring opportunities as a substitute.</p>
+<p>…As for the not so nice features, there are plenty! For instance, what good is a measure of form that only considers goals scored? Is xG not also conditional on how well a striker is paying? Would it be more useful to standardise the result?</p>
+<p>These are all fair questions, and with a little thought could all be integrated into a more comprehensive characterisation. However, the type of model that I will introduce will be equally compatible with alternative definitions, so let’s imagine we just care about whether a striker is scoring as many goals as they should be, and whether this will continue.</p>
+</section>
+<section id="ellen-white" class="level3">
+<h3 class="anchored" data-anchor-id="ellen-white">Ellen White</h3>
+<p>Ellen White is a clinical striker who, at the time of writing this, plays for Manchester City and England. She is a former winner of the Women’s Super League (WSL) golden boot, and is England’s all-time top scorer. So plenty of opportunities to see her distinctive celebration:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://www.allyourbayes.com/posts/player_form/https:/media.giphy.com/media/SVlBW8O5jw3dtU17dv/giphy-downsized-large.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Ellen’s goal goggles</figcaption>
+</figure>
+</div>
+<p>StatsBomb have kindly made data from the WSL (2019/20 season) freely available in <a href="https://github.com/statsbomb/StatsBombR">their R package</a>, and so we will consider this league season of Ellen White’s career here.</p>
+<p>Here is a plot of Ellen’s <strong>form</strong> (performance vs.&nbsp;xG) over the 12 league games that she featured in, during that season. Her biggest over performance vs.&nbsp;xG was when she scored in a <a href="https://womenscompetitions.thefa.com/Article/TottenhamManCity05012020">4-1 win away at Tottenham</a> despite a cumulative xG of 0.597. Her worst performance by the same measure was the following week, failing to score in the <a href="https://womenscompetitions.thefa.com/Article/Manchester-City-3-1-Everton-110120">3-1 win at home to Everton</a>. Although she only played the final <img src="https://latex.codecogs.com/png.latex?25"> minutes of this game, she accrued a match xG of 0.302. The fact that these games were back to back could be tricky for a form model to accommodate!</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="what-would-such-a-model-need-to-do" class="level3">
+<h3 class="anchored" data-anchor-id="what-would-such-a-model-need-to-do">What would such a model need to do?</h3>
+<p>Essentially, we are looking for are some numbers to help us understand the following:</p>
+<ul>
+<li>What form is a player currently in?</li>
+<li>How long will a player remain in good (or bad) form?</li>
+<li>What is the uncertainty in our predictions?</li>
+</ul>
+<p>Since players can enter good and bad patches of form over the course of a season, we need a model that is able to twist and turn accordingly. This means we need some <em>non-linearity</em>.</p>
+<p>We also want future predictions to be based on recent games - if a player has over performed for the last 3 games in a row, then we generally expect them to continue on this path, at least in the short-term. But how far back should we look? Does a single great performance from <img src="https://latex.codecogs.com/png.latex?3"> months ago have any impact on a players current form? We need to quantify this <em>dependency</em> in our model too.</p>
+<p>Finally, a probabilistic model has the benefit of <em>quantifying uncertainty</em>. I emphasise the importance of this in the ‘final thoughts’ at the end of this post and for anyone interested, here is <a href="https://www.allyourbayes.com/post/2020-03-24-why-go-bayesian/">more Bayesian statistics propaganda</a>. But, in summary we should not neglect uncertainty in this model because (a) We are not even sure what form is, and (b) we are estimating it from a small amount of indirect observations. So let’s not pretend we will end up with a single number. Enough preaching and back to the task at hand….</p>
+<p>One solution that checks the above requirements is the Gaussian Process (GP).</p>
+</section>
+<section id="what-does-it-look-like" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-it-look-like">What does it look like?</h3>
+<p>So we have this probabilistic model of smooth, non-linear functions. Let’s see what it looks like. In the below plot, the match days are the same as those presented in the above plot, we just have a new y-axis scale, and we have ‘days’ (rather than date) along the x-axis.</p>
+<p>There are multiple functions that are consistent with Ellen White’s form in the league that season, so let’s look at one example first:</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Where there is a large gap between successive games (such as the 3 weeks between White’s first and second appearances of the season), there is less evidence to guide predictions of form. This is also true for the period around day 60 (late December). Here though, she was on an upward trajectory. In both cases, this lack of data results in higher uncertainty, as is apparent when we look at more samples, which are shown on top of the full predictive distribution below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="and-so-what" class="level3">
+<h3 class="anchored" data-anchor-id="and-so-what">And, so what?</h3>
+<p>Some squiggly lines that approximately go through some points? What is the value of this when you could scribble something similar without knowing anything about statistics?</p>
+<p>Well, underlying all of these lines is a model of dependency. We have quantified how similar (correlated) form should be in successive games, and how this correlation will decrease with time. I will talk about the parameters that do this and how they can be interpreted in part 2 (in preparation), but to summarise, the model quantifies how correlation in form decreases as time progresses and this can be seen in the smoothness of the lines.</p>
+<p>For example, if form was always shown to be very similar to that of the previous game, then transitioning from good to bad performances would be gradual, and the samples from the associated GP model would be very smooth. Conversely, in the case where performance in subsequent games were completely independent, even if very little time had passed, the GP regression lines would need to be able to change direction very sharply.</p>
+<p>Below are some predictions from the model in the period just after White’s last game of the season (to the right of the final match day on the above plots). She appeared to be on a slight upward trend at this point, over performing in her final game at home to Chelsea. This is shown in the uppermost histogram. As we move away from this game, into the off-season, we see the uncertainty gradually increase in our predictions and the average move towards zero. This is consistent with the considerations discussed above.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="some-final-thoughts" class="level3">
+<h3 class="anchored" data-anchor-id="some-final-thoughts">Some final thoughts…</h3>
+<section id="uncertainty" class="level4">
+<h4 class="anchored" data-anchor-id="uncertainty">Uncertainty</h4>
+<p>Any football models we propose will only vaguely resemble the ‘true’ data generating process and though we can incrementally add more parameters we do not automatically find more evidence for them. We can build big datasets by combining observations from multiple players, and leagues, but ignoring possible variation between such data is misleading. If your big football models need big data, why stop there? Feed it some Sunday league football, or some basketball, or some handwritten digits.</p>
+<p>Alternatively, we acknowledge that our system of parameters are not perfectly precise, and our predictions will span credible ranges. Quantifying this variability is a strength, not a weakness of our models, and is actually of more direct use in decision support.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://www.allyourbayes.com/posts/player_form/https:/media.giphy.com/media/3otPoyudZ18xASX0rK/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Yes we can!</figcaption>
+</figure>
+</div>
+</section>
+<section id="sources-of-information" class="level4">
+<h4 class="anchored" data-anchor-id="sources-of-information">Sources of Information</h4>
+<p>What can we do about long periods in time where no competitive games are taking place?</p>
+<p>There may be other sources of information that could help, such as performances in other competitions or even in training. Given we are not sure of the extent that these should inform the model, there is an argument to use a multi-level (partial pooling) structure, as was used to improve <a href="https://allyourbayes.com/posts/xg_pt2/">player-specifc xG estimates</a>.</p>
+<p>Finally, the other source of information is that contained in the priors, which I have not included here. But don’t panic, some prior predictive sampling is on the way in part 2 (in preparation).</p>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di francesco2023,
+  author = {Di Francesco, Domenic},
+  title = {Player {Form.} {Part} 1},
+  date = {2023-01-19},
+  url = {https://allyourbayes.com/posts/player_form},
+  langid = {en}
+}
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2023" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2023. <span>“Player Form. Part 1.”</span> January
+19, 2023. <a href="https://allyourbayes.com/posts/player_form">https://allyourbayes.com/posts/player_form</a>.
+</div></div></section></div> ]]></description>
+  <category>football</category>
+  <category>analysis</category>
+  <category>Stan</category>
+  <category>uncertainty</category>
+  <category>Bayes</category>
+  <category>gaussian process</category>
+  <guid>https://www.allyourbayes.com/posts/player_form/index.html</guid>
+  <pubDate>Thu, 19 Jan 2023 00:00:00 GMT</pubDate>
+  <media:content url="https://www.allyourbayes.com/posts/player_form/plot.png" medium="image" type="image/png" height="96" width="144"/>
 </item>
 <item>
   <title>Why be Bayesian?</title>
@@ -1020,12 +1063,12 @@ December 10, 2020. <a href="https://www.allyourbayes.com//posts/xg_pt1">https://
   author = {Di Francesco, Domenic},
   title = {Why Be {Bayesian?}},
   date = {2020-03-24},
-  url = {https://www.allyourbayes.com//posts/Why_Bayes},
+  url = {https://allyourbayes.com/posts/Why_Bayes},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di francesco2020" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2020. <span>“Why Be Bayesian?”</span> March 24,
-2020. <a href="https://www.allyourbayes.com//posts/Why_Bayes">https://www.allyourbayes.com//posts/Why_Bayes</a>.
+2020. <a href="https://allyourbayes.com/posts/Why_Bayes">https://allyourbayes.com/posts/Why_Bayes</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>uncertainty</category>
