@@ -8,7 +8,7 @@ fields: [date, title, reading-time, description]
 citation: true
 image: "young_ada.png"
 from: markdown+emoji
-jupyter: julia-1.10
+jupyter: julia-1.11
 ---
 
 ### TLDR

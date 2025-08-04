@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.7.30">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>All Your Bayes - Dom Di Francesco, PhD, CEng</title>
+<title>Dom Di Francesco, PhD, CEng – All Your Bayes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -34,24 +34,33 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/cookie-consent/cookie-consent.js"></script>
 <link href="site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
-<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de070a7b0ab54f8780927367ac907214.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-2b3e328b71be8d25427581baeb23079b.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de070a7b0ab54f8780927367ac907214.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-6bdd2aebeb936dcddaa5f935a5de481c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-ccd81253fefb92e9cd3f9eb5b5d87b54.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-6bdd2aebeb936dcddaa5f935a5de481c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -60,6 +69,7 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -115,63 +125,254 @@ cookieconsent.run({
   "notice_banner_reject_button_hide":false,
   "preferences_center_close_button_hide":false,
   "website_name":""
+  ,
+"language":"en"
   });
 });
 </script> 
   
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 <link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="All Your Bayes" href="index.xml"><meta name="twitter:title" content="All Your Bayes - Dom Di Francesco, PhD, CEng">
+<link rel="alternate" type="application/rss+xml" title="All Your Bayes" href="index.xml" data-external="1"><meta name="twitter:title" content="Dom Di Francesco, PhD, CEng – All Your Bayes">
 <meta name="twitter:description" content="thoughts on risk, uncertainty, statistics and decisions">
-<meta name="twitter:image" content="https://www.allyourbayes.com/DomDF.jpg">
+<meta name="twitter:image" content="https://allyourbayes.com/DomDF.jpg">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">All Your Bayes</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html" rel="" target="">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://www.github.com/DomDF" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://www.github.com/DomDF"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://www.twitter.com/Domenic_DF" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://www.twitter.com/Domenic_DF"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./index.xml" rel="" target=""><i class="bi bi-rss" role="img">
+    <a class="nav-link" href="./index.xml"> <i class="bi bi-rss" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
+          </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -185,7 +386,7 @@ cookieconsent.run({
   </div>
     
   
-  <div class="quarto-title-meta">
+  <div class="quarto-title-meta column-page-left">
 
       
     
@@ -198,7 +399,7 @@ cookieconsent.run({
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(10)</span></div><div class="category" data-category="Bayes">Bayes <span class="quarto-category-count">(7)</span></div><div class="category" data-category="Bayesian">Bayesian <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Decision Analysis">Decision Analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Decisions">Decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Dogs">Dogs <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Engineering">Engineering <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Football">Football <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Julia">Julia <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Logistic Regression">Logistic Regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="MCMC">MCMC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Optimisation">Optimisation <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Podcast">Podcast <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R">R <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Shiny">Shiny <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Stan">Stan <span class="quarto-category-count">(5)</span></div><div class="category" data-category="Uncertainty">Uncertainty <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Value of Information">Value of Information <span class="quarto-category-count">(1)</span></div><div class="category" data-category="analysis">analysis <span class="quarto-category-count">(3)</span></div><div class="category" data-category="decisions">decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="football">football <span class="quarto-category-count">(3)</span></div><div class="category" data-category="gaussian process">gaussian process <span class="quarto-category-count">(1)</span></div><div class="category" data-category="multi-level modelling">multi-level modelling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(1)</span></div><div class="category" data-category="partial pooling">partial pooling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="uncertainty">uncertainty <span class="quarto-category-count">(4)</span></div><div class="category" data-category="xg">xg <span class="quarto-category-count">(2)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(10)</span></div><div class="category" data-category="YW5hbHlzaXM=">analysis <span class="quarto-category-count">(3)</span></div><div class="category" data-category="QmF5ZXM=">Bayes <span class="quarto-category-count">(7)</span></div><div class="category" data-category="QmF5ZXNpYW4=">Bayesian <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGVjaXNpb24lMjBBbmFseXNpcw==">Decision Analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGVjaXNpb25z">Decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVjaXNpb25z">decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RG9ncw==">Dogs <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RW5naW5lZXJpbmc=">Engineering <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Rm9vdGJhbGw=">Football <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Zm9vdGJhbGw=">football <span class="quarto-category-count">(3)</span></div><div class="category" data-category="Z2F1c3NpYW4lMjBwcm9jZXNz">gaussian process <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SnVsaWE=">Julia <span class="quarto-category-count">(2)</span></div><div class="category" data-category="TG9naXN0aWMlMjBSZWdyZXNzaW9u">Logistic Regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TUNNQw==">MCMC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bXVsdGktbGV2ZWwlMjBtb2RlbGxpbmc=">multi-level modelling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="bmV3cw==">news <span class="quarto-category-count">(1)</span></div><div class="category" data-category="T3B0aW1pc2F0aW9u">Optimisation <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cGFydGlhbCUyMHBvb2xpbmc=">partial pooling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="UG9kY2FzdA==">Podcast <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Ug==">R <span class="quarto-category-count">(2)</span></div><div class="category" data-category="U2hpbnk=">Shiny <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U3Rhbg==">Stan <span class="quarto-category-count">(5)</span></div><div class="category" data-category="dW5jZXJ0YWludHk=">uncertainty <span class="quarto-category-count">(4)</span></div><div class="category" data-category="VW5jZXJ0YWludHk=">Uncertainty <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VmFsdWUlMjBvZiUyMEluZm9ybWF0aW9u">Value of Information <span class="quarto-category-count">(1)</span></div><div class="category" data-category="eGc=">xg <span class="quarto-category-count">(2)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -209,43 +410,40 @@ cookieconsent.run({
 
 
 
+
+
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="Podcast,Bayes,Engineering,Dogs" data-listing-date-sort="1706140800000" data-listing-file-modified-sort="1707325478651" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1">
-<div class="thumbnail">
-<p><a href="./posts/Turing_Podcast/index.html"> <img src="./posts/Turing_Podcast/alan_turing.png" class="thumbnail-image"> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="0" data-categories="UG9kY2FzdCUyQ0JheWVzJTJDRW5naW5lZXJpbmclMkNEb2dz" data-listing-date-sort="1706140800000" data-listing-file-modified-sort="1745848834945" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="70">
+<div class="thumbnail"><a href="./posts/Turing_Podcast/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/Turing_Podcast/alan_turing.png" class="thumbnail-image">
+
+</a></div>
 <div class="body">
-<a href="./posts/Turing_Podcast/index.html">
 <h3 class="no-anchor listing-title">
-The Turing Podcast
+<a href="./posts/Turing_Podcast/index.html" class="no-external">The Turing Podcast</a>
 </h3>
 <div class="listing-subtitle">
-My coffee pod episode
+<a href="./posts/Turing_Podcast/index.html" class="no-external">My coffee pod episode</a>
 </div>
-</a>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Podcast'); return false;">
-Podcast
+
+<div class="listing-category" onclick="window.quartoListingCategory('UG9kY2FzdA=='); return false;">Podcast</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RW5naW5lZXJpbmc='); return false;">Engineering</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RG9ncw=='); return false;">Dogs</div>
+
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Bayes'); return false;">
-Bayes
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Engineering'); return false;">
-Engineering
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Dogs'); return false;">
-Dogs
-</div>
-</div>
-<a href="./posts/Turing_Podcast/index.html">
-<div class="listing-description">
-Last year, I participated in an episode of the Alan Turing Institute’s Coffee Pod podcast. It was hosted by my friend Bea and we talked about my background in engineering, my PhD and transition into computational statistics and machine…
-</div>
-</a>
+<div class="delink listing-description"><a href="./posts/Turing_Podcast/index.html" class="no-external">
+Last year, I participated in an episode of the Alan Turing Institute’s Coffee Pod podcast. It was hosted by my friend Bea and we talked about my background in engineering…
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/Turing_Podcast/index.html">
+<a href="./posts/Turing_Podcast/index.html" class="no-external">
 <div class="listing-date">
 Jan 25, 2024
 </div>
@@ -255,38 +453,34 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="Football,R,Shiny" data-listing-date-sort="1679356800000" data-listing-file-modified-sort="1679472087770" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1">
-<div class="thumbnail">
-<p><a href="./posts/Who_Am_I/index.html"> <img src="./posts/Who_Am_I/game.png" class="thumbnail-image"> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="1" data-categories="Rm9vdGJhbGwlMkNSJTJDU2hpbnk=" data-listing-date-sort="1679356800000" data-listing-file-modified-sort="1751296890300" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="121">
+<div class="thumbnail"><a href="./posts/Who_Am_I/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/Who_Am_I/game.png" class="thumbnail-image">
+
+</a></div>
 <div class="body">
-<a href="./posts/Who_Am_I/index.html">
 <h3 class="no-anchor listing-title">
-Who Am I?
+<a href="./posts/Who_Am_I/index.html" class="no-external">Who Am I?</a>
 </h3>
 <div class="listing-subtitle">
-A football trivia guessing game
+<a href="./posts/Who_Am_I/index.html" class="no-external">A football trivia guessing game</a>
 </div>
-</a>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Football'); return false;">
-Football
+
+<div class="listing-category" onclick="window.quartoListingCategory('Rm9vdGJhbGw='); return false;">Football</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Ug=='); return false;">R</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2hpbnk='); return false;">Shiny</div>
+
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('R'); return false;">
-R
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Shiny'); return false;">
-Shiny
-</div>
-</div>
-<a href="./posts/Who_Am_I/index.html">
-<div class="listing-description">
-At a previous job, my colleagues and I would occasionally create football (soccer) quizzes for each other. The game I used to send them would…<code></code>
-</div>
-</a>
+<div class="delink listing-description"><a href="./posts/Who_Am_I/index.html" class="no-external">
+At a previous job, my colleagues and I would occasionally create football (soccer) quizzes for each other. The game I used to send them would involve me sequentially sending…<code></code>
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/Who_Am_I/index.html">
+<a href="./posts/Who_Am_I/index.html" class="no-external">
 <div class="listing-date">
 Mar 21, 2023
 </div>
@@ -296,44 +490,38 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="Bayes,Stan,Julia,Decisions,Value of Information" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1675936639147" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1">
-<div class="thumbnail">
-<p><a href="./posts/Bayes@Lund/index.html"> <img src="./posts/Bayes@Lund/VoPI.png" class="thumbnail-image"> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="2" data-categories="QmF5ZXMlMkNTdGFuJTJDSnVsaWElMkNEZWNpc2lvbnMlMkNWYWx1ZSUyMG9mJTIwSW5mb3JtYXRpb24=" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1745848834929" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="169">
+<div class="thumbnail"><a href="./posts/Bayes@Lund/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/Bayes@Lund/VoPI.png" class="thumbnail-image">
+
+</a></div>
 <div class="body">
-<a href="./posts/Bayes@Lund/index.html">
 <h3 class="no-anchor listing-title">
-Bayes@Lund2023
+<a href="./posts/Bayes@Lund/index.html" class="no-external">Bayes@Lund2023</a>
 </h3>
 <div class="listing-subtitle">
+<a href="./posts/Bayes@Lund/index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U3Rhbg=='); return false;">Stan</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SnVsaWE='); return false;">Julia</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVjaXNpb25z'); return false;">Decisions</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VmFsdWUlMjBvZiUyMEluZm9ybWF0aW9u'); return false;">Value of Information</div>
 
 </div>
-</a>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Bayes'); return false;">
-Bayes
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Stan'); return false;">
-Stan
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Julia'); return false;">
-Julia
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Decisions'); return false;">
-Decisions
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Value of Information'); return false;">
-Value of Information
-</div>
-</div>
-<a href="./posts/Bayes@Lund/index.html">
-<div class="listing-description">
+<div class="delink listing-description"><a href="./posts/Bayes@Lund/index.html" class="no-external">
 A recording of my presentation on value of information analysis at the Bayes@Lund2023 conference.
-</div>
-</a>
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/Bayes@Lund/index.html">
+<a href="./posts/Bayes@Lund/index.html" class="no-external">
 <div class="listing-date">
 Jan 23, 2023
 </div>
@@ -343,85 +531,74 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="news" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1674814990393" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1">
-<div class="thumbnail">
-<p><a href="./posts/welcome/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="3" data-categories="bmV3cw==" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1745848834973" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="20">
+<div class="thumbnail"><a href="./posts/welcome/index.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
 <div class="body">
-<a href="./posts/welcome/index.html">
 <h3 class="no-anchor listing-title">
-All Your Bayes 2.0
+<a href="./posts/welcome/index.html" class="no-external">All Your Bayes 2.0</a>
 </h3>
 <div class="listing-subtitle">
+<a href="./posts/welcome/index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('bmV3cw=='); return false;">news</div>
 
 </div>
-</a>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('news'); return false;">
-news
-</div>
-</div>
-<a href="./posts/welcome/index.html">
-<div class="listing-description">
+<div class="delink listing-description"><a href="./posts/welcome/index.html" class="no-external">
 I’ve recreated this site in quarto, and plan on writing more jargon-free articles on risk, uncertainty, decisions, statistics, and football.
-</div>
-</a>
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/welcome/index.html">
+<a href="./posts/welcome/index.html" class="no-external">
 <div class="listing-date">
 Jan 23, 2023
 </div>
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1609977600000" data-listing-file-modified-sort="1706529365089" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18">
-<div class="thumbnail">
-<p><a href="./posts/xg_pt2/index.html"> <img src="./posts/xg_pt2/xg2.png" class="thumbnail-image"> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="4" data-categories="Zm9vdGJhbGwlMkNhbmFseXNpcyUyQ3hnJTJDU3RhbiUyQ3VuY2VydGFpbnR5JTJDQmF5ZXMlMkNtdWx0aS1sZXZlbCUyMG1vZGVsbGluZyUyQ3BhcnRpYWwlMjBwb29saW5n" data-listing-date-sort="1609977600000" data-listing-file-modified-sort="1745848835137" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18" data-listing-word-count-sort="3498">
+<div class="thumbnail"><a href="./posts/xg_pt2/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/xg_pt2/xg2.png" class="thumbnail-image">
+
+</a></div>
 <div class="body">
-<a href="./posts/xg_pt2/index.html">
 <h3 class="no-anchor listing-title">
-Uncertainty in xG. Part 2
+<a href="./posts/xg_pt2/index.html" class="no-external">Uncertainty in xG. Part 2</a>
 </h3>
 <div class="listing-subtitle">
-Partially (Optimally) Pooling Hierarchical Data
+<a href="./posts/xg_pt2/index.html" class="no-external">Partially (Optimally) Pooling Hierarchical Data</a>
 </div>
-</a>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('football'); return false;">
-football
+
+<div class="listing-category" onclick="window.quartoListingCategory('Zm9vdGJhbGw='); return false;">football</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('YW5hbHlzaXM='); return false;">analysis</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('eGc='); return false;">xg</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U3Rhbg=='); return false;">Stan</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('dW5jZXJ0YWludHk='); return false;">uncertainty</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('bXVsdGktbGV2ZWwlMjBtb2RlbGxpbmc='); return false;">multi-level modelling</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('cGFydGlhbCUyMHBvb2xpbmc='); return false;">partial pooling</div>
+
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('analysis'); return false;">
-analysis
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('xg'); return false;">
-xg
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Stan'); return false;">
-Stan
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('uncertainty'); return false;">
-uncertainty
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Bayes'); return false;">
-Bayes
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('multi-level modelling'); return false;">
-multi-level modelling
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('partial pooling'); return false;">
-partial pooling
-</div>
-</div>
-<a href="./posts/xg_pt2/index.html">
-<div class="listing-description">
-This is part 2 of an article on fitting a Bayesian partial pooling model to predict expected goals. It has the benefits of (a) quantifying <em>aleatory and epistemic</em> uncertainty, and (b) making both group-level (player-specific) and population-level (team-specific) probabilistic predictions. If you are interested in these ideas but not…
-</div>
-</a>
+<div class="delink listing-description"><a href="./posts/xg_pt2/index.html" class="no-external">
+This is part 2 of an article on fitting a Bayesian partial pooling model to predict expected goals. It has the benefits of (a) quantifying <em>aleatory and epistemic</em> uncertainty…
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/xg_pt2/index.html">
+<a href="./posts/xg_pt2/index.html" class="no-external">
 <div class="listing-date">
 Jan 7, 2021
 </div>
@@ -431,53 +608,44 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="football,analysis,xg,Stan,uncertainty,Bayes,multi-level modelling,partial pooling" data-listing-date-sort="1607558400000" data-listing-file-modified-sort="1706781673786" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="22">
-<div class="thumbnail">
-<p><a href="./posts/xg_pt1/index.html"> <img src="./posts/xg_pt1/xg1.png" class="thumbnail-image"> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="5" data-categories="Zm9vdGJhbGwlMkNhbmFseXNpcyUyQ3hnJTJDU3RhbiUyQ3VuY2VydGFpbnR5JTJDQmF5ZXMlMkNtdWx0aS1sZXZlbCUyMG1vZGVsbGluZyUyQ3BhcnRpYWwlMjBwb29saW5n" data-listing-date-sort="1607558400000" data-listing-file-modified-sort="1745848834979" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="22" data-listing-word-count-sort="4293">
+<div class="thumbnail"><a href="./posts/xg_pt1/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/xg_pt1/xg1.png" class="thumbnail-image">
+
+</a></div>
 <div class="body">
-<a href="./posts/xg_pt1/index.html">
 <h3 class="no-anchor listing-title">
-Uncertainty in xG. Part 1
+<a href="./posts/xg_pt1/index.html" class="no-external">Uncertainty in xG. Part 1</a>
 </h3>
 <div class="listing-subtitle">
-An Overview
+<a href="./posts/xg_pt1/index.html" class="no-external">An Overview</a>
 </div>
-</a>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('football'); return false;">
-football
+
+<div class="listing-category" onclick="window.quartoListingCategory('Zm9vdGJhbGw='); return false;">football</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('YW5hbHlzaXM='); return false;">analysis</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('eGc='); return false;">xg</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U3Rhbg=='); return false;">Stan</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('dW5jZXJ0YWludHk='); return false;">uncertainty</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('bXVsdGktbGV2ZWwlMjBtb2RlbGxpbmc='); return false;">multi-level modelling</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('cGFydGlhbCUyMHBvb2xpbmc='); return false;">partial pooling</div>
+
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('analysis'); return false;">
-analysis
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('xg'); return false;">
-xg
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Stan'); return false;">
-Stan
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('uncertainty'); return false;">
-uncertainty
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Bayes'); return false;">
-Bayes
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('multi-level modelling'); return false;">
-multi-level modelling
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('partial pooling'); return false;">
-partial pooling
-</div>
-</div>
-<a href="./posts/xg_pt1/index.html">
-<div class="listing-description">
-The Expected Goals (xG) metric is now widely recognised as numerical measure of the <em>quality</em> of a goal scoring opportunity in a football (soccer) match. In this article we consider how to deal with uncertainty in predicting xG, and how each players individual…
-</div>
-</a>
+<div class="delink listing-description"><a href="./posts/xg_pt1/index.html" class="no-external">
+The Expected Goals (xG) metric is now widely recognised as numerical measure of the <em>quality</em> of a goal scoring opportunity in a football (soccer) match. In this article we…
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/xg_pt1/index.html">
+<a href="./posts/xg_pt1/index.html" class="no-external">
 <div class="listing-date">
 Dec 10, 2020
 </div>
@@ -487,44 +655,38 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="Decision Analysis,Uncertainty,Julia,Optimisation,Bayesian" data-listing-date-sort="NaN" data-listing-file-modified-sort="1707435448773" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5">
-<div class="thumbnail">
-<p><a href="./posts/BDA_pt1/index.html"> <img src="./posts/BDA_pt1/young_ada.png" class="thumbnail-image"> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="6" data-categories="RGVjaXNpb24lMjBBbmFseXNpcyUyQ1VuY2VydGFpbnR5JTJDSnVsaWElMkNPcHRpbWlzYXRpb24lMkNCYXllc2lhbg==" data-listing-date-sort="NaN" data-listing-file-modified-sort="1751296547771" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="841">
+<div class="thumbnail"><a href="./posts/BDA_pt1/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/BDA_pt1/young_ada.png" class="thumbnail-image">
+
+</a></div>
 <div class="body">
-<a href="./posts/BDA_pt1/index.html">
 <h3 class="no-anchor listing-title">
-Decisions under Uncertainty. Part 1
+<a href="./posts/BDA_pt1/index.html" class="no-external">Decisions under Uncertainty. Part 1</a>
 </h3>
 <div class="listing-subtitle">
-Connecting Modelling and Actions
+<a href="./posts/BDA_pt1/index.html" class="no-external">Connecting Modelling and Actions</a>
 </div>
-</a>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Decision Analysis'); return false;">
-Decision Analysis
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVjaXNpb24lMjBBbmFseXNpcw=='); return false;">Decision Analysis</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VW5jZXJ0YWludHk='); return false;">Uncertainty</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SnVsaWE='); return false;">Julia</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('T3B0aW1pc2F0aW9u'); return false;">Optimisation</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXNpYW4='); return false;">Bayesian</div>
+
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Uncertainty'); return false;">
-Uncertainty
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Julia'); return false;">
-Julia
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Optimisation'); return false;">
-Optimisation
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Bayesian'); return false;">
-Bayesian
-</div>
-</div>
-<a href="./posts/BDA_pt1/index.html">
-<div class="listing-description">
+<div class="delink listing-description"><a href="./posts/BDA_pt1/index.html" class="no-external">
 For many of you reading this, developing and testing predictive models will be a lot of fun - but my pragmatic, buzz-killing message here, is that we shouldn’t forget why…
-</div>
-</a>
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/BDA_pt1/index.html">
+<a href="./posts/BDA_pt1/index.html" class="no-external">
 <div class="listing-date">
 Invalid Date
 </div>
@@ -534,47 +696,40 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="7" data-categories="football,analysis,Stan,uncertainty,Bayes,gaussian process" data-listing-date-sort="1674086400000" data-listing-file-modified-sort="1707325149503" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="25">
-<div class="thumbnail">
-<p><a href="./posts/player_form/index.html"> <img src="./posts/player_form/plot.png" class="thumbnail-image"> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="7" data-categories="Zm9vdGJhbGwlMkNhbmFseXNpcyUyQ1N0YW4lMkN1bmNlcnRhaW50eSUyQ0JheWVzJTJDZ2F1c3NpYW4lMjBwcm9jZXNz" data-listing-date-sort="1674086400000" data-listing-file-modified-sort="1745848834965" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="25" data-listing-word-count-sort="4841">
+<div class="thumbnail"><a href="./posts/player_form/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/player_form/plot.png" class="thumbnail-image">
+
+</a></div>
 <div class="body">
-<a href="./posts/player_form/index.html">
 <h3 class="no-anchor listing-title">
-Player Form. Part 1
+<a href="./posts/player_form/index.html" class="no-external">Player Form. Part 1</a>
 </h3>
 <div class="listing-subtitle">
-An Overview
+<a href="./posts/player_form/index.html" class="no-external">An Overview</a>
 </div>
-</a>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('football'); return false;">
-football
+
+<div class="listing-category" onclick="window.quartoListingCategory('Zm9vdGJhbGw='); return false;">football</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('YW5hbHlzaXM='); return false;">analysis</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U3Rhbg=='); return false;">Stan</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('dW5jZXJ0YWludHk='); return false;">uncertainty</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Z2F1c3NpYW4lMjBwcm9jZXNz'); return false;">gaussian process</div>
+
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('analysis'); return false;">
-analysis
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Stan'); return false;">
-Stan
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('uncertainty'); return false;">
-uncertainty
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Bayes'); return false;">
-Bayes
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('gaussian process'); return false;">
-gaussian process
-</div>
-</div>
-<a href="./posts/player_form/index.html">
-<div class="listing-description">
-When is a player <strong>in form</strong> (over performing, or enjoying a hot streak) and how long does this last? If there is such an effect, I suspect it will be a result of some complicated system of personal…
-</div>
-</a>
+<div class="delink listing-description"><a href="./posts/player_form/index.html" class="no-external">
+When is a player <strong>in form</strong> (over performing, or enjoying a hot streak) and how long does this last? If there is such an effect, I suspect it will be a result of some…
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/player_form/index.html">
+<a href="./posts/player_form/index.html" class="no-external">
 <div class="listing-date">
 Jan 19, 2023
 </div>
@@ -584,38 +739,34 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="8" data-categories="Bayes,uncertainty,decisions" data-listing-date-sort="1585008000000" data-listing-file-modified-sort="1707322794557" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
-<div class="thumbnail">
-<p><a href="./posts/Why_Bayes/index.html"> <img src="./posts/Why_Bayes/gp.png" class="thumbnail-image"> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="8" data-categories="QmF5ZXMlMkN1bmNlcnRhaW50eSUyQ2RlY2lzaW9ucw==" data-listing-date-sort="1585008000000" data-listing-file-modified-sort="1745848834963" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1494">
+<div class="thumbnail"><a href="./posts/Why_Bayes/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/Why_Bayes/gp.png" class="thumbnail-image">
+
+</a></div>
 <div class="body">
-<a href="./posts/Why_Bayes/index.html">
 <h3 class="no-anchor listing-title">
-Why be Bayesian?
+<a href="./posts/Why_Bayes/index.html" class="no-external">Why be Bayesian?</a>
 </h3>
 <div class="listing-subtitle">
+<a href="./posts/Why_Bayes/index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('dW5jZXJ0YWludHk='); return false;">uncertainty</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZGVjaXNpb25z'); return false;">decisions</div>
 
 </div>
-</a>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Bayes'); return false;">
-Bayes
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('uncertainty'); return false;">
-uncertainty
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('decisions'); return false;">
-decisions
-</div>
-</div>
-<a href="./posts/Why_Bayes/index.html">
-<div class="listing-description">
+<div class="delink listing-description"><a href="./posts/Why_Bayes/index.html" class="no-external">
 This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: <em>Is it worth me…</em><em></em>
-</div>
-</a>
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/Why_Bayes/index.html">
+<a href="./posts/Why_Bayes/index.html" class="no-external">
 <div class="listing-date">
 Mar 24, 2020
 </div>
@@ -625,44 +776,38 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="9" data-categories="Bayes,Logistic Regression,MCMC,Stan,R" data-listing-date-sort="1581724800000" data-listing-file-modified-sort="1707384138060" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20">
-<div class="thumbnail">
-<p><a href="./posts/Logistic_Bayes/index.html"> <img src="./posts/Logistic_Bayes/logistic_priors.png" class="thumbnail-image"> </a></p>
-</div>
+<div class="quarto-post image-right" data-index="9" data-categories="QmF5ZXMlMkNMb2dpc3RpYyUyMFJlZ3Jlc3Npb24lMkNNQ01DJTJDU3RhbiUyQ1I=" data-listing-date-sort="1581724800000" data-listing-file-modified-sort="1745848834935" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3906">
+<div class="thumbnail"><a href="./posts/Logistic_Bayes/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/Logistic_Bayes/logistic_priors.png" class="thumbnail-image">
+
+</a></div>
 <div class="body">
-<a href="./posts/Logistic_Bayes/index.html">
 <h3 class="no-anchor listing-title">
-Bayesian Logistic Regression with Stan
+<a href="./posts/Logistic_Bayes/index.html" class="no-external">Bayesian Logistic Regression with Stan</a>
 </h3>
 <div class="listing-subtitle">
+<a href="./posts/Logistic_Bayes/index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TG9naXN0aWMlMjBSZWdyZXNzaW9u'); return false;">Logistic Regression</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TUNNQw=='); return false;">MCMC</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U3Rhbg=='); return false;">Stan</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Ug=='); return false;">R</div>
 
 </div>
-</a>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Bayes'); return false;">
-Bayes
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Logistic Regression'); return false;">
-Logistic Regression
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('MCMC'); return false;">
-MCMC
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Stan'); return false;">
-Stan
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('R'); return false;">
-R
-</div>
-</div>
-<a href="./posts/Logistic_Bayes/index.html">
-<div class="listing-description">
+<div class="delink listing-description"><a href="./posts/Logistic_Bayes/index.html" class="no-external">
 Logistic regression is a popular statistical model for making predictions on outcomes between zero and one - like probabilities. One application of it in an engineering…<code></code>
-</div>
-</a>
+</a></div>
 </div>
 <div class="metadata">
-<a href="./posts/Logistic_Bayes/index.html">
+<a href="./posts/Logistic_Bayes/index.html" class="no-external">
 <div class="listing-date">
 Feb 15, 2020
 </div>
@@ -673,370 +818,435 @@ Domenic Di Francesco
 </div>
 </div>
 </div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
+<div class="listing-no-matching d-none">No matching items</div>
 </div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
     }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const disableStylesheet = (stylesheets) => {
-    for (let i=0; i < stylesheets.length; i++) {
-      const stylesheet = stylesheets[i];
-      stylesheet.rel = 'prefetch';
-    }
-  }
-  const enableStylesheet = (stylesheets) => {
-    for (let i=0; i < stylesheets.length; i++) {
-      const stylesheet = stylesheets[i];
-      stylesheet.rel = 'stylesheet';
-    }
-  }
-  const manageTransitions = (selector, allowTransitions) => {
-    const els = window.document.querySelectorAll(selector);
-    for (let i=0; i < els.length; i++) {
-      const el = els[i];
-      if (allowTransitions) {
-        el.classList.remove('notransition');
-      } else {
-        el.classList.add('notransition');
-      }
-    }
-  }
-  const toggleColorMode = (alternate) => {
-    // Switch the stylesheets
-    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
-    manageTransitions('#quarto-margin-sidebar .nav-link', false);
-    if (alternate) {
-      enableStylesheet(alternateStylesheets);
-      for (const sheetNode of alternateStylesheets) {
-        if (sheetNode.id === "quarto-bootstrap") {
-          toggleBodyColorMode(sheetNode);
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
         }
       }
-    } else {
-      disableStylesheet(alternateStylesheets);
-      toggleBodyColorPrimary();
-    }
-    manageTransitions('#quarto-margin-sidebar .nav-link', true);
-    // Switch the toggles
-    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
-    for (let i=0; i < toggles.length; i++) {
-      const toggle = toggles[i];
-      if (toggle) {
-        if (alternate) {
-          toggle.classList.add("alternate");     
-        } else {
-          toggle.classList.remove("alternate");
-        }
-      }
-    }
-    // Hack to workaround the fact that safari doesn't
-    // properly recolor the scrollbar when toggling (#1455)
-    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
-      manageTransitions("body", false);
-      window.scrollTo(0, 1);
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-        manageTransitions("body", true);
-      }, 40);  
-    }
-  }
-  const isFileUrl = () => { 
-    return window.location.protocol === 'file:';
-  }
-  const hasAlternateSentinel = () => {  
-    let styleSentinel = getColorSchemeSentinel();
-    if (styleSentinel !== null) {
-      return styleSentinel === "alternate";
-    } else {
       return false;
     }
-  }
-  const setStyleSentinel = (alternate) => {
-    const value = alternate ? "alternate" : "default";
-    if (!isFileUrl()) {
-      window.localStorage.setItem("quarto-color-scheme", value);
-    } else {
-      localAlternateSentinel = value;
-    }
-  }
-  const getColorSchemeSentinel = () => {
-    if (!isFileUrl()) {
-      const storageValue = window.localStorage.getItem("quarto-color-scheme");
-      return storageValue != null ? storageValue : localAlternateSentinel;
-    } else {
-      return localAlternateSentinel;
-    }
-  }
-  let localAlternateSentinel = 'default';
-  // Dark / light mode switch
-  window.quartoToggleColorScheme = () => {
-    // Read the current dark / light value 
-    let toAlternate = !hasAlternateSentinel();
-    toggleColorMode(toAlternate);
-    setStyleSentinel(toAlternate);
-  };
-  // Ensure there is a toggle, if there isn't float one in the top right
-  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-    const a = window.document.createElement('a');
-    a.classList.add('top-right');
-    a.classList.add('quarto-color-scheme-toggle');
-    a.href = "";
-    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
-    const i = window.document.createElement("i");
-    i.classList.add('bi');
-    a.appendChild(i);
-    window.document.body.appendChild(a);
-  }
-  // Switch to dark mode if need be
-  if (hasAlternateSentinel()) {
-    toggleColorMode(true);
-  } else {
-    toggleColorMode(false);
-  }
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-    }
-    return false;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
         }
-      }
-      return codeEl.innerText;
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
     }
-  });
-  clipboard.on('success', function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
     }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  });
-  function tippyHover(el, contentFn) {
-    const config = {
-      allowHTML: true,
-      content: contentFn,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start'
-    };
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      return note.innerHTML;
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
     });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
     }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/allyourbayes\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
           }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
       });
     }
-  }
-});
-</script>
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
       &nbsp;
     </div>   
-    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-center">
+
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
   </div>
 </footer>
+
 
 
 
