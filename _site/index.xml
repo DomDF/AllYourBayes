@@ -10,7 +10,631 @@
 <atom:link href="https://allyourbayes.com/index.xml" rel="self" type="application/rss+xml"/>
 <description>thoughts on risk and uncertainty in decision support</description>
 <generator>quarto-1.7.30</generator>
-<lastBuildDate>Thu, 25 Jan 2024 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 09 Sep 2025 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>diff all the things</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
+  <link>https://allyourbayes.com/posts/gradients/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>Gradients guide us through high-dimensional parameter space to draw samples from posterior distributions, take steps towards loss minimising parameter values, identify model vulnerabilities using adversarial methods, and more. One (of many) fun features about the <code>Julia</code> programming language is it’s unique approach to autodiff. However, I personally found some documentation a little difficult to follow, so this is intended to be a practical guide, with a couple of example use cases.</p>
+<hr>
+<section id="autodiff-ad" class="level4">
+<h4 class="anchored" data-anchor-id="autodiff-ad">autodiff (AD)</h4>
+<p>Soooo much of computational statistics and machine learning is built on automatic (algorithmic) differentiation (AD). Dig into literature on Bayesian inference, or deep learning, and you will find parameters being nudged in a direction informed by a gradient. I’m sometimes suprised at the extent of the ‘gradient-based’ monopoly in scientific computing, but I don’t mean to trivialise! …getting gradients of complex functions, very quickly and without error, is a powerful tool and it’s great that people are ale to leverage this.</p>
+<p>AD achieves this by <em>“the relentless application of the chain rule”</em>, as I vaguely recall one of the <code>Stan</code> developers saying. Large functions are differentiated piece by piece (for which look-up rules can be applied), and the results are stitched together.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B%5Cpartial%20%5Cmathcal%7BL%7D%7D%7B%5Cpartial%20x_i%7D%20=%20%5Cfrac%7B%5Cpartial%20%5Cmathcal%7BL%7D%7D%7B%5Cpartial%20x_n%7D%20%5Ctimes%20%5Cfrac%7B%5Cpartial%20x_n%7D%7B%5Cpartial%20x_%7Bn-1%7D%7D%20%5Ctimes%20%5Ccdots%20%5Ctimes%20%5Cfrac%7B%5Cpartial%20x_%7Bi+1%7D%7D%7B%5Cpartial%20x_i%7D%0A"></p>
+</section>
+<section id="inter-operability-and-julia" class="level4">
+<h4 class="anchored" data-anchor-id="inter-operability-and-julia">inter-operability and <code>Julia</code> ♥️💚💜</h4>
+<p>Perhaps my favourite feature of <code>Julia</code> is it’s inter-operability. Look at a GitHub repo for a <code>Julia</code> package and you will generally find the following:</p>
+<p><img src="https://allyourbayes.com/posts/gradients/julia_repo.png" class="img-fluid"></p>
+<p><code>Julia</code> is so performant, that it’s libraries for scientific computing will work with normal variable types - without needing to package up their own types. So solvers from <code>DifferentialEquations</code>, or neural networks defined in <code>Flux</code> can be immediately combined with the <code>Julia</code> probabilistic programming language, <code>Turing</code>.</p>
+<p>If a new framework emerges in <code>Python</code>, an entirely new ecosystem may need to be developed to prop it up. This may invlolve duplicating existing but now incompatible functionality - think of <code>JAX</code> needing to implement it’s own <code>NumPy</code> module. …whereas if you write a new <code>Julia</code> library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.</p>
+<p>Here I am, impressed that the interoperability of the <code>Copulas</code> package:</p>
+<blockquote class="twitter-tweet blockquote" data-conversation="none">
+<p lang="en" dir="ltr">
+<a href="https://t.co/ySAg1SM98g">pic.twitter.com/ySAg1SM98g</a>
+</p>
+— Domenic Denicola (<span class="citation" data-cites="Domenic_DF">@Domenic_DF</span>) <a href="https://twitter.com/Domenic_DF/status/1620520031565275136?ref_src=twsrc%5Etfw">January 31, 2023</a>
+</blockquote>
+<script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</section>
+<section id="ad-in-julia" class="level4">
+<h4 class="anchored" data-anchor-id="ad-in-julia">AD in <code>Julia</code></h4>
+<p>ML frameworks in <code>Python</code> require you to work in their own syntax, with theit spcecific types, and use their own in-built AD methods. Locking into a framework is not ideal, as you are limited to the methods they support and you need to juggle types of inputs and outputs.</p>
+<p>Conversely, <code>Julia</code> works the other way around. You write your code, using whichever libraries, functions and types you want, <em>and then</em> you choose an AD library to get you the gradients you need.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://allyourbayes.com/posts/gradients/autodiff_joy.png" class="img-fluid figure-img"></p>
+<figcaption>the joy of gradients - image courtesy of Google Gemini</figcaption>
+</figure>
+</div>
+<p>Why does this feel so powerful? It’s the promise of gradient-based methods for your scientific problem, rather than a walled-off machine learning model. You can point an AD engine at the aspect of your analysis that you are interested in for more bespoke interrogation or optimisation.</p>
+<p>I recently completed a project, which had an element of adversarial AI (counterfactual analysis and saliency maps), which I wrote in <code>JAX</code>, mainly as an excuse to learn <code>JAX</code>. I used their <code>NNX</code> module for neural networks, and found this to be unexpectedly restrictive. I wasn’t able to run analysis that required gradients of outputs w.r.t. inputs, as I hit <code>NNX</code> errors/limitations that I wasn’t able to resolve. I ended up re-writing everything in <code>Julia</code>.</p>
+<p>Once upon a time there was <code>Zygote</code>: an AD library that powered ML in <code>Julia</code>. A great achievement, but limitations began to emerge. Because it operates on your high-level <code>Julia</code> code, it can struggle with certain features, similar to the so-called “sharp bits” of <code>JAX</code> …though I believe those limitations emerge for different reasons. I have also heard <code>Zygote</code> being described as “<em>too permissive</em>”“: it’s attempts to differentiate anything you throw at it can open the door to unidentified errors.</p>
+<p>And then came <code>Enzyme</code>: an AD library that works at the LLVM level (your code is compiled first, and then the gradients are computed). This led to improvements in both performance and flexibility - we can now differentiate through mutation and control flow. This more resilient library has a steeper learning curve (imo), but (also imo) requiring more explicit instructions ends up making things clearer.</p>
+<p>I hope the below examples will help get you started.</p>
+</section>
+<section id="exampe-1-a-bayesian-linear-regression" class="level4">
+<h4 class="anchored" data-anchor-id="exampe-1-a-bayesian-linear-regression">exampe 1: a Bayesian linear regression</h4>
+<p>How about computing the gradients we need for Hamiltonian Monte Carlo sampling. For a linear regression model, with inputs, <img src="https://latex.codecogs.com/png.latex?X"> and outputs, <img src="https://latex.codecogs.com/png.latex?y">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ay%20%5Csim%20N(%5Calpha%20+%20%5Cbeta%20X,%20%5Csigma)%0A"></p>
+<p>with priors:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Calpha%20%5Csim%20N(0,%203)%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbeta%20%5Csim%20N(0,%203)%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Csigma%20%5Csim%20%5Ctext%7BExponential%7D(1)%0A"></p>
+<p>Let’s put these in a tuple:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Distributions</span></span>
+<span id="cb1-2"></span>
+<span id="cb1-3">priors <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb1-4">    α_prior <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Normal</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>), </span>
+<span id="cb1-5">    β_prior <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Normal</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>), </span>
+<span id="cb1-6">    σ_prior <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Exponential</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb1-7">)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(α_prior = Normal{Float64}(μ=0.0, σ=3.0), β_prior = Normal{Float64}(μ=0.0, σ=3.0), σ_prior = Exponential{Float64}(θ=1.0))</code></pre>
+</div>
+</div>
+<p>For numerical stability reasons MCMC typically works in negative log space, so the below function finds the unnormalised negative log posterior for our model. This could of course be sped-up, but I’ve tried to keep it friendly 😊</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Random</span></span>
+<span id="cb3-2"></span>
+<span id="cb3-3"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">neg_log_posterior</span>(params<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">NamedTuple</span>, priors<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">NamedTuple</span>,</span>
+<span id="cb3-4">                          x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Vector</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Vector</span>)</span>
+<span id="cb3-5"></span>
+<span id="cb3-6">    α <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> params.α; β <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> params.β; σ <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> params.σ</span>
+<span id="cb3-7">    </span>
+<span id="cb3-8">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># mean of likelihood</span></span>
+<span id="cb3-9">    μ_pred <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> α <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.+</span> x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> β</span>
+<span id="cb3-10">    </span>
+<span id="cb3-11">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># increment the negative log likelihood for all observations</span></span>
+<span id="cb3-12">    neg_log_lik <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.0</span></span>
+<span id="cb3-13">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(y)</span>
+<span id="cb3-14">        neg_log_lik <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">-logpdf</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Normal</span>(μ_pred[i], σ), y[i])</span>
+<span id="cb3-15">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb3-16">    </span>
+<span id="cb3-17">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ...and for the priors</span></span>
+<span id="cb3-18">    neg_log_prior_α <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">-logpdf</span>(priors.α_prior, α)</span>
+<span id="cb3-19">    neg_log_prior_β <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">-logpdf</span>(priors.β_prior, β)</span>
+<span id="cb3-20">    neg_log_prior_σ <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">-logpdf</span>(priors.σ_prior, σ)</span>
+<span id="cb3-21">    </span>
+<span id="cb3-22">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># summing in log space is equivalent to multiplying priors and likelihoods 😉</span></span>
+<span id="cb3-23">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> neg_log_lik <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> neg_log_prior_α <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> neg_log_prior_β <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> neg_log_prior_σ</span>
+<span id="cb3-24"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>neg_log_posterior (generic function with 1 method)</code></pre>
+</div>
+</div>
+<p>To use this function, we need to define some inputs. Here, I’m just simulating some data, using “true” parameter values:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 20 data points because, why not?</span></span>
+<span id="cb5-2">n_samples <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span></span>
+<span id="cb5-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># define a PRNG for reproducibility</span></span>
+<span id="cb5-4">prng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">MersenneTwister</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">231123</span>)</span>
+<span id="cb5-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># inputs from a standard Gaussian</span></span>
+<span id="cb5-6">x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">randn</span>(prng, n_samples)</span>
+<span id="cb5-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># outputs by sending inputs through a "true" model</span></span>
+<span id="cb5-8">y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.+</span> x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">randn</span>(prng, n_samples)</span></code></pre></div>
+</div>
+<p>We can use <code>Enzyme</code> to get the gradients of the negative log posterior w.r.t. the model parameters - as required by Hamiltonian Monte Carlo.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># where do i want gradients?</span></span>
+<span id="cb6-2">params_init <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb6-3">    α <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rand</span>(prng, priors.α_prior),</span>
+<span id="cb6-4">    β <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rand</span>(prng, priors.β_prior),</span>
+<span id="cb6-5">    σ <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rand</span>(prng, priors.σ_prior)</span>
+<span id="cb6-6">)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(α = -6.290988779313054, β = 3.9183834605694834, σ = 1.6155587713748865)</code></pre>
+</div>
+</div>
+<p>I am giving the <code>gradient()</code> function three arguments:</p>
+<ul>
+<li><p><strong>the mode/direction to apply AD</strong>, <code>Reverse</code> Each pass of a reverse-mode AD computes gradients of all inputs w.r.t. a single output (as a vector-Jacobian product). In Forward mode, each pass computes gradients of a single input w.r.t. all outputs (as a Jacobian-vector product). Consequently, there are efficiency trade-offs associated with this selection, depending on the number of inputs and outputs of…</p></li>
+<li><p><strong>…the function we are differentiating</strong>, <code>params -&gt; neg_log_posterior(params, priors, x, y)</code> Here, an anonymous function that takes <code>params</code> as input and returns the negative log posterior, using <code>neg_log_posterior()</code>, which we defined above.</p></li>
+<li><p><strong>the point at which we want gradients</strong>, <code>params_init</code></p>
+<p>This is the current location of the Markov chain. In the first instance we need an initial guess, for which we have drawn from the priors.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Enzyme</span></span>
+<span id="cb8-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># computing the gradients</span></span>
+<span id="cb8-3">grads <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Enzyme.<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gradient</span>(</span>
+<span id="cb8-4">    Reverse, </span>
+<span id="cb8-5">    params <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">neg_log_posterior</span>(params, priors, x, y), </span>
+<span id="cb8-6">    params_init</span>
+<span id="cb8-7">)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>((α = -54.13440425830732, β = 25.990919631591435, σ = -323.2246379556173),)</code></pre>
+</div>
+</div>
+<p>We can then use these gradients to update the momentum of our Hamiltonian ‘particles’, generating proposals guided by the geometry of the posterior distribution. Unlike random walks or Gibbs samplers, this generation of samplers remain efficient in high dimensions 🥳</p>
+</section>
+<section id="example-2-an-mlp-simple-neural-network" class="level4">
+<h4 class="anchored" data-anchor-id="example-2-an-mlp-simple-neural-network">example 2: an MLP (simple neural network)</h4>
+<p>I defined a simple, densely connected neural network without anything clever (no layer normalisations, recurrent connections or attention mechanisms), sometimes referred to as a multi-layer perceptron (MLP).</p>
+<p>I’ll spare you this set-up code here as we are focussing on autodiff, but you can find the full code <a href="https://github.com/DomDF/autodiff_experiments">on GitHub</a>.</p>
+<p>Instead, let’s look at my training function. Notice that I am now using a different function, <code>Enzyme.autodiff()</code> for backpropagation. It has more arguments:</p>
+<ul>
+<li><strong>the mode/direction to apply AD</strong>, <code>set_runtime_activity(Reverse)</code> Similar to <code>gradient()</code>, but here we are specifying that we want to use reverse-mode AD, with runtime activity analysis. As a rule of 👍, I start with regular <code>Reverse</code> mode AD. If I get compilation errors about, for instance, type inference or broadcasting, then I add <code>set_runtime_activity()</code>.</li>
+<li><strong>the function we are differentiating</strong>, <code>(net, funs, inputs, targets) -&gt; find_loss(net, funs, inputs, targets)[1]</code> Here, an anonymous function that takes the neural network, its functions, inputs and targets as arguments, and returns the loss.</li>
+<li><strong>the activity of the function</strong> <code>Active</code> we need to make the output to the loss function active, because it is the starting point of the chain rule.</li>
+<li><strong>the activity of each argument</strong>, <code>Active</code>, <code>Const()</code>, or <code>Duplicated()</code> This is where things get more explicit. We need to tell <code>Enzyme</code> which arguments we want gradients for (<code>Active</code>), and which we don’t (<code>Const</code>) - the derivative of a constant is zero. Finally, we also want gradients for <code>Duplicated</code> variables, but they could be large. So we create a shadow copy of the neural network, <code>nn_shadow</code>, which we use to accumulate gradients in-place (without allocating new memory each time!)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">train</span>(nn<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">neural_network</span>, nn_funs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">neural_network_funs</span>, </span>
+<span id="cb10-2">               a<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Array{Float64}</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Array{Float64}</span>;</span>
+<span id="cb10-3">               a_test<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Array{Float64} </span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> a, y_test<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Array{Float64} </span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y, </span>
+<span id="cb10-4">               n_epochs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Int </span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, η<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Float64 </span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span>)</span>
+<span id="cb10-5">    <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">@assert</span> n_epochs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n_epochs must be greater than 0"</span></span>
+<span id="cb10-6"></span>
+<span id="cb10-7">    training_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">DataFrame</span>(epoch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Int</span>[], loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Float64</span>[], test_loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Float64</span>[])</span>
+<span id="cb10-8"></span>
+<span id="cb10-9">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>n_epochs</span>
+<span id="cb10-10"></span>
+<span id="cb10-11">        ∇nn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Enzyme.<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">make_zero</span>(nn)</span>
+<span id="cb10-12"></span>
+<span id="cb10-13">        Enzyme.<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">autodiff</span>(</span>
+<span id="cb10-14">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_runtime_activity</span>(Reverse),</span>
+<span id="cb10-15">            (net, funs, inputs, targets) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">find_loss</span>(net, funs, inputs, targets)[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>],</span>
+<span id="cb10-16">            Active,</span>
+<span id="cb10-17">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Duplicated</span>(nn, nn_shadow),</span>
+<span id="cb10-18">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Const</span>(nn_funs),</span>
+<span id="cb10-19">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Const</span>(a),</span>
+<span id="cb10-20">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Const</span>(y)</span>
+<span id="cb10-21">        )</span>
+<span id="cb10-22"></span>
+<span id="cb10-23">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> j <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(nn.Ws)</span>
+<span id="cb10-24">            nn.Ws[j] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-=</span> η <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> ∇nn.Ws[j]</span>
+<span id="cb10-25">            nn.bs[j] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-=</span> η <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> ∇nn.bs[j]</span>
+<span id="cb10-26">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb10-27">        </span>
+<span id="cb10-28">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Record losses</span></span>
+<span id="cb10-29">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">append!</span>(training_df, </span>
+<span id="cb10-30">                <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">DataFrame</span>(epoch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> i, </span>
+<span id="cb10-31">                          loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">find_loss</span>(nn, nn_funs, a, y)[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>],</span>
+<span id="cb10-32">                          test_loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">find_loss</span>(nn, nn_funs, a_test, y_test)[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]))</span>
+<span id="cb10-33"></span>
+<span id="cb10-34">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> n_epochs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb10-35">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">println</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Epoch: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>i<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">, Progress: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> n_epochs)<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">, %"</span>)</span>
+<span id="cb10-36">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb10-37">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb10-38">    </span>
+<span id="cb10-39">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> nn, training_df</span>
+<span id="cb10-40"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+</div>
+<p><code>Enzyme.make_zero(nn)</code> creates a structural copy of <code>nn</code> with the same type (neural_network), field names (Ws, bs), and dimensions …but with all numerical values set to zero. This memory-saving trick is important for large vectors of parameters, as we will generally have in deep learning.</p>
+<p>The example applications that I selected are already very well equipped with sophisticated <code>Julia</code> libraries. If you are interested in probabilistic modelling in <code>Julia</code>, use <code>Turing</code>, if you are interested in deep learning, use <code>Flux</code>. Both are Enzyme compatible, but the later has specific guidance on how to set this up, using the <code>Duplicated</code> method that we used above:</p>
+<p><img src="https://allyourbayes.com/posts/gradients/Flux_Enzyme.png" class="img-fluid"></p>
+</section>
+<section id="some-references" class="level4">
+<h4 class="anchored" data-anchor-id="some-references">some references</h4>
+<p>The <code>Julia</code> autodiff ecosystem, which is more vast than the examples covered in this blog post, <a href="https://juliadiff.org">link</a></p>
+<p>A summary of the key trade-offs accross various autodiff methods, <a href="https://www.stochasticlifestyle.com/engineering-trade-offs-in-automatic-differentiation-from-tensorflow-and-pytorch-to-jax-and-julia/">link</a></p>
+<p>Professor Simone Scardapone’s book, “Alice’s adventures in a differential wonderland” <a href="https://www.sscardapane.it/assets/alice/Alice_book_volume_1.pdf">link</a>.</p>
+<p><em>“As the name differentiable implies, gradients play a pivotal role”</em></p>
+<p><img src="https://allyourbayes.com/posts/gradients/alice.png" class="img-fluid"></p>
+<p>JuliaCon talk on <code>Julia</code>’s unique approach to autodiff: </p><div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/ww3ntpyxNtI" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div><p></p>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2025,
+  author = {Di Francesco, Domenic},
+  title = {Diff All the Things},
+  date = {2025-09-09},
+  url = {https://allyourbayes.com/posts/gradients/},
+  langid = {en}
+}
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2025. <span>“Diff All the Things.”</span>
+September 9, 2025. <a href="https://allyourbayes.com/posts/gradients/">https://allyourbayes.com/posts/gradients/</a>.
+</div></div></section></div> ]]></description>
+  <category>Automatic differentiation</category>
+  <category>Deep learning</category>
+  <category>Bayesian inference</category>
+  <category>Julia</category>
+  <category>Enzyme</category>
+  <guid>https://allyourbayes.com/posts/gradients/</guid>
+  <pubDate>Tue, 09 Sep 2025 04:00:00 GMT</pubDate>
+  <media:content url="https://allyourbayes.com/posts/gradients/meme.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>The Turing Podcast</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
@@ -49,7 +673,7 @@ Di Francesco, Domenic. 2024. <span>“The Turing Podcast.”</span> January
   <category>Engineering</category>
   <category>Dogs</category>
   <guid>https://allyourbayes.com/posts/Turing_Podcast/</guid>
-  <pubDate>Thu, 25 Jan 2024 00:00:00 GMT</pubDate>
+  <pubDate>Thu, 25 Jan 2024 05:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Turing_Podcast/alan_turing.png" medium="image" type="image/png" height="104" width="144"/>
 </item>
 <item>
@@ -89,7 +713,7 @@ Di Francesco, Domenic. 2023. <span>“Who Am I?”</span> March 21, 2023. <a hre
   <category>R</category>
   <category>Shiny</category>
   <guid>https://allyourbayes.com/posts/Who_Am_I/</guid>
-  <pubDate>Tue, 21 Mar 2023 00:00:00 GMT</pubDate>
+  <pubDate>Tue, 21 Mar 2023 04:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Who_Am_I/game.png" medium="image" type="image/png" height="77" width="144"/>
 </item>
 <item>
@@ -136,7 +760,7 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
   <category>Decisions</category>
   <category>Value of Information</category>
   <guid>https://allyourbayes.com/posts/Bayes@Lund/</guid>
-  <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
+  <pubDate>Mon, 23 Jan 2023 05:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
@@ -156,7 +780,159 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
  ]]></description>
   <category>news</category>
   <guid>https://allyourbayes.com/posts/welcome/</guid>
-  <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
+  <pubDate>Mon, 23 Jan 2023 05:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Player form. Part 1: Overview</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
+  <link>https://allyourbayes.com/posts/player_form/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>When is a player <strong>in form</strong> (over performing, or enjoying a hot streak) and how long does this last? If there is such an effect, I suspect it will be a result of some complicated system of personal circumstances. In this post I suggest a popular statistical model (Gaussian process) for approximating the dependencies (how many games back should we look?) and non-linearities (rise and fall of form) that we need. Again, I am suggesting that we should care about uncertainty when trying to model just about anything in football, and using probability is a helpful way of doing so.</p>
+<p>Ellen White’s data from the 2019-20 WSL season (courtesy of StatsBomb) is used as an example.</p>
+<p>Similarly to the <a href="https://allyourbayes.com/posts/xg_pt2/">posts on multi-level models</a>, this will also be split into 2 parts. Part 1 (here) will focus on the features of a Gaussian process that are well suited to approximating player form. Part 2 (in preparation) will include more technical details and more code.</p>
+<hr>
+</section>
+<section id="a-questionable-measure-of-player-form" class="level3">
+<h3 class="anchored" data-anchor-id="a-questionable-measure-of-player-form">A (Questionable) Measure of Player Form</h3>
+<p>As I alluded to in the TLDR above, I suspect a players form is somehow linked to their current mental state. When they are feeling confident they may be less likely to doubt their abilities, and more decisive. This could mean they act quicker and become more difficult to play against.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/STYcRDzNO6AYNmMgvA/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption>Confidence is key …probably</figcaption>
+</figure>
+</div>
+<p>I will not propose a detailed causal model here, just a statistical proxy. But, I will be assuming that form can rise and decay over time. For some players even a single good or bad performance may be enough to drastically impact their next game, and for others this process may be smoother and less volatile. More on this later.</p>
+<p>For the purposes of this post, goalscoring form on a given match day, <img src="https://latex.codecogs.com/png.latex?i">, is defined as the difference between the number of goals that were scored on that match day, minus the expected number of goals, <img src="https://latex.codecogs.com/png.latex?xG"> associated with the opportunities in that game.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AForm_%7B%5Bi%5D%7D%20=%20Goals_%7B%5Bi%5D%7D%20-%20xG_%7B%5Bi%5D%7D%0A"></p>
+<p>A nice feature of this is that, in principle, it is invariant to the quality of opposition. A striker may have a higher xG when performing against a weaker team, but will therefore need to score more goals in such a game to be considered in the same form. By the same token, it should also account for the fact that a player will generally get fewer scoring opportunities as a substitute.</p>
+<p>…As for the not so nice features, there are plenty! For instance, what good is a measure of form that only considers goals scored? Is xG not also conditional on how well a striker is paying? Would it be more useful to standardise the result?</p>
+<p>These are all fair questions, and with a little thought could all be integrated into a more comprehensive characterisation. However, the type of model that I will introduce will be equally compatible with alternative definitions, so let’s imagine we just care about whether a striker is scoring as many goals as they should be, and whether this will continue.</p>
+</section>
+<section id="ellen-white" class="level3">
+<h3 class="anchored" data-anchor-id="ellen-white">Ellen White</h3>
+<p>Ellen White is a clinical striker who, at the time of writing this, plays for Manchester City and England. She is a former winner of the Women’s Super League (WSL) golden boot, and is England’s all-time top scorer. So plenty of opportunities to see her distinctive celebration:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/SVlBW8O5jw3dtU17dv/giphy-downsized-large.gif" class="img-fluid figure-img"></p>
+<figcaption>Ellen’s goal goggles</figcaption>
+</figure>
+</div>
+<p>StatsBomb have kindly made data from the WSL (2019/20 season) freely available in <a href="https://github.com/statsbomb/StatsBombR">their R package</a>, and so we will consider this league season of Ellen White’s career here.</p>
+<p>Here is a plot of Ellen’s <strong>form</strong> (performance vs.&nbsp;xG) over the 12 league games that she featured in, during that season. Her biggest over performance vs.&nbsp;xG was when she scored in a <a href="https://womenscompetitions.thefa.com/Article/TottenhamManCity05012020">4-1 win away at Tottenham</a> despite a cumulative xG of 0.597. Her worst performance by the same measure was the following week, failing to score in the <a href="https://womenscompetitions.thefa.com/Article/Manchester-City-3-1-Everton-110120">3-1 win at home to Everton</a>. Although she only played the final <img src="https://latex.codecogs.com/png.latex?25"> minutes of this game, she accrued a match xG of 0.302. The fact that these games were back to back could be tricky for a form model to accommodate!</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="what-would-such-a-model-need-to-do" class="level3">
+<h3 class="anchored" data-anchor-id="what-would-such-a-model-need-to-do">What would such a model need to do?</h3>
+<p>Essentially, we are looking for are some numbers to help us understand the following:</p>
+<ul>
+<li>What form is a player currently in?</li>
+<li>How long will a player remain in good (or bad) form?</li>
+<li>What is the uncertainty in our predictions?</li>
+</ul>
+<p>Since players can enter good and bad patches of form over the course of a season, we need a model that is able to twist and turn accordingly. This means we need some <em>non-linearity</em>.</p>
+<p>We also want future predictions to be based on recent games - if a player has over performed for the last 3 games in a row, then we generally expect them to continue on this path, at least in the short-term. But how far back should we look? Does a single great performance from <img src="https://latex.codecogs.com/png.latex?3"> months ago have any impact on a players current form? We need to quantify this <em>dependency</em> in our model too.</p>
+<p>Finally, a probabilistic model has the benefit of <em>quantifying uncertainty</em>. I emphasise the importance of this in the ‘final thoughts’ at the end of this post and for anyone interested, here is <a href="https://www.allyourbayes.com/post/2020-03-24-why-go-bayesian/">more Bayesian statistics propaganda</a>. But, in summary we should not neglect uncertainty in this model because (a) We are not even sure what form is, and (b) we are estimating it from a small amount of indirect observations. So let’s not pretend we will end up with a single number. Enough preaching and back to the task at hand….</p>
+<p>One solution that checks the above requirements is the Gaussian Process (GP).</p>
+</section>
+<section id="what-does-it-look-like" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-it-look-like">What does it look like?</h3>
+<p>So we have this probabilistic model of smooth, non-linear functions. Let’s see what it looks like. In the below plot, the match days are the same as those presented in the above plot, we just have a new y-axis scale, and we have ‘days’ (rather than date) along the x-axis.</p>
+<p>There are multiple functions that are consistent with Ellen White’s form in the league that season, so let’s look at one example first:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Where there is a large gap between successive games (such as the 3 weeks between White’s first and second appearances of the season), there is less evidence to guide predictions of form. This is also true for the period around day 60 (late December). Here though, she was on an upward trajectory. In both cases, this lack of data results in higher uncertainty, as is apparent when we look at more samples, which are shown on top of the full predictive distribution below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="and-so-what" class="level3">
+<h3 class="anchored" data-anchor-id="and-so-what">And, so what?</h3>
+<p>Some squiggly lines that approximately go through some points? What is the value of this when you could scribble something similar without knowing anything about statistics?</p>
+<p>Well, underlying all of these lines is a model of dependency. We have quantified how similar (correlated) form should be in successive games, and how this correlation will decrease with time. I will talk about the parameters that do this and how they can be interpreted in part 2 (in preparation), but to summarise, the model quantifies how correlation in form decreases as time progresses and this can be seen in the smoothness of the lines.</p>
+<p>For example, if form was always shown to be very similar to that of the previous game, then transitioning from good to bad performances would be gradual, and the samples from the associated GP model would be very smooth. Conversely, in the case where performance in subsequent games were completely independent, even if very little time had passed, the GP regression lines would need to be able to change direction very sharply.</p>
+<p>Below are some predictions from the model in the period just after White’s last game of the season (to the right of the final match day on the above plots). She appeared to be on a slight upward trend at this point, over performing in her final game at home to Chelsea. This is shown in the uppermost histogram. As we move away from this game, into the off-season, we see the uncertainty gradually increase in our predictions and the average move towards zero. This is consistent with the considerations discussed above.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="some-final-thoughts" class="level3">
+<h3 class="anchored" data-anchor-id="some-final-thoughts">Some final thoughts…</h3>
+<section id="uncertainty" class="level4">
+<h4 class="anchored" data-anchor-id="uncertainty">Uncertainty</h4>
+<p>Any football models we propose will only vaguely resemble the ‘true’ data generating process and though we can incrementally add more parameters we do not automatically find more evidence for them. We can build big datasets by combining observations from multiple players, and leagues, but ignoring possible variation between such data is misleading. If your big football models need big data, why stop there? Feed it some Sunday league football, or some basketball, or some handwritten digits.</p>
+<p>Alternatively, we acknowledge that our system of parameters are not perfectly precise, and our predictions will span credible ranges. Quantifying this variability is a strength, not a weakness of our models, and is actually of more direct use in decision support.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/3otPoyudZ18xASX0rK/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption>Yes we can!</figcaption>
+</figure>
+</div>
+</section>
+<section id="sources-of-information" class="level4">
+<h4 class="anchored" data-anchor-id="sources-of-information">Sources of Information</h4>
+<p>What can we do about long periods in time where no competitive games are taking place?</p>
+<p>There may be other sources of information that could help, such as performances in other competitions or even in training. Given we are not sure of the extent that these should inform the model, there is an argument to use a multi-level (partial pooling) structure, as was used to improve <a href="https://allyourbayes.com/posts/xg_pt2/">player-specifc xG estimates</a>.</p>
+<p>Finally, the other source of information is that contained in the priors, which I have not included here. But don’t panic, some prior predictive sampling is on the way in part 2 (in preparation).</p>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2023,
+  author = {Di Francesco, Domenic},
+  title = {Player {Form.} {Part} 1},
+  date = {2023-01-19},
+  url = {https://allyourbayes.com/posts/player_form/},
+  langid = {en}
+}
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2023" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2023. <span>“Player Form. Part 1.”</span> January
+19, 2023. <a href="https://allyourbayes.com/posts/player_form/">https://allyourbayes.com/posts/player_form/</a>.
+</div></div></section></div> ]]></description>
+  <category>football</category>
+  <category>analysis</category>
+  <category>Stan</category>
+  <category>uncertainty</category>
+  <category>Bayes</category>
+  <category>gaussian process</category>
+  <guid>https://allyourbayes.com/posts/player_form/</guid>
+  <pubDate>Thu, 19 Jan 2023 05:00:00 GMT</pubDate>
+  <media:content url="https://allyourbayes.com/posts/player_form/plot.png" medium="image" type="image/png" height="96" width="144"/>
 </item>
 <item>
   <title>Uncertainty in xG. Part 2: Partial Pooling</title>
@@ -546,7 +1322,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
   <category>multi-level modelling</category>
   <category>partial pooling</category>
   <guid>https://allyourbayes.com/posts/xg_pt2/</guid>
-  <pubDate>Thu, 07 Jan 2021 00:00:00 GMT</pubDate>
+  <pubDate>Thu, 07 Jan 2021 05:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/xg_pt2/xg2.png" medium="image" type="image/png" height="104" width="144"/>
 </item>
 <item>
@@ -710,355 +1486,8 @@ December 10, 2020. <a href="https://allyourbayes.com/posts/xg_pt1/">https://ally
   <category>multi-level modelling</category>
   <category>partial pooling</category>
   <guid>https://allyourbayes.com/posts/xg_pt1/</guid>
-  <pubDate>Thu, 10 Dec 2020 00:00:00 GMT</pubDate>
+  <pubDate>Thu, 10 Dec 2020 05:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/xg_pt1/xg1.png" medium="image" type="image/png" height="99" width="144"/>
-</item>
-<item>
-  <title>Decisions under Uncertainty. Part 1</title>
-  <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/BDA_pt1/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-
-<section id="tldr" class="level3">
-<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>For many of you reading this, developing and testing predictive models will be a lot of fun - but my pragmatic, buzz-killing message here, is that we shouldn’t forget why we’re asked to do it. I suggest that the reason is (almost?) always, to help support decision-making. And yet, we often have this unhelpful disconnect between a calculation, and what the results imply for how we should act. An analyst hands over their work to a manager or budget holder, who then reinterprets everything and makes a call, which may or may not be consistent with the information they have been provided - sound familiar? It does to me.</p>
-<p>In this post (Part 1) these two domains are considered jointly, using an example. We see how this can allow for practioners to arrive at coherent (quantitiative) and reproducible (auditable) decisions. Part 2 will consider a specific application of this approach, known as value of information analysis.</p>
-<p>As ever, all code (in <code>Julia</code> today) is freely available!</p>
-<hr>
-</section>
-<section id="a-familiar-scenario" class="level3">
-<h3 class="anchored" data-anchor-id="a-familiar-scenario">A Familiar Scenario</h3>
-<p>When I worked as an engineer I would often be asked to perform calculations (using spreadsheets <span class="emoji" data-emoji="upside_down_face">🙃</span> ) to arrive at some number regarding a safe operating condition for a damaged structure.</p>
-<p>Models for the sake of themselves can be plenty of fun, but unless they are tied to the underlying decsions that they are supposed to inform, they are not necessarily fulfilling their purpose.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZngxNnN0YzE5eWdmNDJua3JwYmN3dGJza2Y5d3l5eXo3YTFyZTlvbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/miFGO0mIRDhf2/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption>So You’ve Fit a Predictive Model?</figcaption>
-</figure>
-</div>
-<p>How might we bridge this gap? How</p>
-<div class="cell" data-layout-align="default">
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-<pre class="mermaid mermaid-js">flowchart LR
-  d1[Decision] --&gt; o1((Uncertain \noutcome))
-  d1 --&gt; c1{Utility}
-  o1 --&gt; c1
-
-</pre>
-</div>
-<p></p><figcaption> Example influence diagram with decisions (square nodes), uncertain outcomes (circles) and utility (diamonds).</figcaption> </figure><p></p>
-</div>
-</div>
-</div>
-</section>
-<section id="analysis-vibes" class="level3">
-<h3 class="anchored" data-anchor-id="analysis-vibes">Analysis &gt; Vibes!</h3>
-<p>These (decision/influence/whatever!) diagrams provide a clear map of what factors we think we need to consider when making a decision. They also provide causal information, showing how intervening at one point can have downstream effects. They may seem trivial, but once you try and draw one for a problem you are working on, you will see they encourage you to think deeply about your area of expertise - no seriously, please try it!</p>
-<p>Their apparent simplicity also has the benefit of being able to communicate qualitative information with various stakeholders. An experienced engineer could map out complex relationships between variables so that a statistical model could be developed that was consistent with this information. This could then be used to inform decisions.</p>
-<p>But, is any of this ever required? If the goal is to arrive at a decision that aligns with subject matter knowledge, then can’t we just ask the expert to jump right to the decision?</p>
-<p>This will not always be a valid shortcut. If you have attended workshops that were organised to get a room of experts to agree on a strategy, there will not always be a clear agreement. This is not necessarily because of a lack of expertise, but because of a lack of a common language to communicate the information. Formalising the structure of the problem, the prior knowledge, and where data should be used to update parameters results in a quantitive, reproducible and (with a little extra work) explanaible decision-making process.</p>
-</section>
-<section id="promising-vs.-delivering-an-example" class="level3">
-<h3 class="anchored" data-anchor-id="promising-vs.-delivering-an-example">Promising vs.&nbsp;Delivering: An Example</h3>
-<section id="intro" class="level4">
-<h4 class="anchored" data-anchor-id="intro">Intro</h4>
-<p>Lets consider a simple example…</p>
-<p>An urn is filled with 10 balls, 5 red and 5 blue. As part of a lottery game, you are invited to draw a ball…nah, I’m just kidding. We’re not doing that. Let’s all please stop doing that.</p>
-<p>You’re starting a business and have a prototype handmade product that is gaining some interest. You’ve pitched to some retailers and you have a couple of contracts on the table. However, these big shops are covering their backs with a penalty clause - if you deliver the order on time, you’ll be paid, if you over-promise (under-deliver) you pay a penalty to cover their ‘downstream’ losses.</p>
-</section>
-<section id="some-data" class="level4">
-<h4 class="anchored" data-anchor-id="some-data">Some data</h4>
-<p>To help make this decision, lets draw it out. Below is a diagram where we have listed all of the factors that we would like to consider, and how they are related.</p>
-<div class="cell" data-layout-align="default">
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-<pre class="mermaid mermaid-js">flowchart LR
-  d1[Decision] --&gt; o1((Uncertain \noutcome))
-  d1 --&gt; c1{Utility}
-  o1 --&gt; c1
-</pre>
-</div>
-<p></p><figcaption> Small business decision problem: which contract should you accept?</figcaption> </figure><p></p>
-</div>
-</div>
-</div>
-<p>…or not.</p>
-<p>We may not necessarily have data on the rate at which you can produce your product. Focussing on decisions, rather than models reminds us of this. Sometimes a decision is required before we complete the experiments, trials, surveys etc. that we would like to.</p>
-<p>Maybe you’ve not been feeling confident in yourself lately, and are too worried to take on any risk. Perhaps some well meaning friends have tried to counter this by telling you that you can achieve anything. This may convince you to take whatever orders are available. It’s easy to be swayed either way by such circumstances, and anecdotes and intuition drive decisions at much larger companies too.</p>
-<div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># for working with data</span></span>
-<span id="cb1-2"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">using</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">CSV</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">DataFrames</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">DataFramesMeta</span></span>
-<span id="cb1-3"></span>
-<span id="cb1-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># for fitting probabilistic models</span></span>
-<span id="cb1-5"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">using</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Random</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Distributions</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Turing</span></span>
-<span id="cb1-6"></span>
-<span id="cb1-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># for optimisation and solving decision problems</span></span>
-<span id="cb1-8"></span>
-<span id="cb1-9"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">using</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">JuMP</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">HiGHS</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">DecisionProgramming</span></span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>[ Info: Precompiling LogDensityProblemsADForwardDiffBenchmarkToolsExt [501e9729-9453-5dfd-bf52-aa40e3634be9]</code></pre>
-</div>
-</div>
-<div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">MersenneTwister</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">231123</span>) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb3-2">  prng <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-&gt;</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rand</span>(prng, <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">Normal</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>), <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>)</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
-<pre><code>10-element Vector{Float64}:
- -0.4797047482429591
-  0.3492046160452603
-  1.9035942889710349
- -1.0599399228488406
- -0.05026230935484321
-  1.6159635845804887
-  0.46192798081799236
-  0.38816396593759556
- -1.4500821161955104
- -0.3667444519178413</code></pre>
-</div>
-</div>
-</section>
-</section>
-<section id="reproducibility" class="level3">
-<h3 class="anchored" data-anchor-id="reproducibility">Reproducibility</h3>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExajFkdTI0dnN6amt1cmZ5Y3UwaHFneG5xb3cybXVwZXcxYjN3bDdvbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/W1tZZhie5U7RYqjg7Z/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption>Might your decisions impact the safety of the public?</figcaption>
-</figure>
-</div>
-
-
-</section>
-
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco,
-  author = {Di Francesco, Domenic},
-  title = {Decisions Under {Uncertainty.} {Part} 1},
-  date = {},
-  url = {https://allyourbayes.com/posts/BDA_pt1/},
-  langid = {en}
-}
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco" class="csl-entry quarto-appendix-citeas">
-Di Francesco, Domenic. n.d. <span>“Decisions Under Uncertainty. Part
-1.”</span> <a href="https://allyourbayes.com/posts/BDA_pt1/">https://allyourbayes.com/posts/BDA_pt1/</a>.
-</div></div></section></div> ]]></description>
-  <category>Decision Analysis</category>
-  <category>Uncertainty</category>
-  <category>Julia</category>
-  <category>Optimisation</category>
-  <category>Bayesian</category>
-  <guid>https://allyourbayes.com/posts/BDA_pt1/</guid>
-  <pubDate>Invalid Date</pubDate>
-  <media:content url="https://allyourbayes.com/posts/BDA_pt1/young_ada.png" medium="image" type="image/png" height="148" width="144"/>
-</item>
-<item>
-  <title>Player form. Part 1: Overview</title>
-  <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/player_form/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-
-<section id="tldr" class="level3">
-<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>When is a player <strong>in form</strong> (over performing, or enjoying a hot streak) and how long does this last? If there is such an effect, I suspect it will be a result of some complicated system of personal circumstances. In this post I suggest a popular statistical model (Gaussian process) for approximating the dependencies (how many games back should we look?) and non-linearities (rise and fall of form) that we need. Again, I am suggesting that we should care about uncertainty when trying to model just about anything in football, and using probability is a helpful way of doing so.</p>
-<p>Ellen White’s data from the 2019-20 WSL season (courtesy of StatsBomb) is used as an example.</p>
-<p>Similarly to the <a href="https://allyourbayes.com/posts/xg_pt2/">posts on multi-level models</a>, this will also be split into 2 parts. Part 1 (here) will focus on the features of a Gaussian process that are well suited to approximating player form. Part 2 (in preparation) will include more technical details and more code.</p>
-<hr>
-</section>
-<section id="a-questionable-measure-of-player-form" class="level3">
-<h3 class="anchored" data-anchor-id="a-questionable-measure-of-player-form">A (Questionable) Measure of Player Form</h3>
-<p>As I alluded to in the TLDR above, I suspect a players form is somehow linked to their current mental state. When they are feeling confident they may be less likely to doubt their abilities, and more decisive. This could mean they act quicker and become more difficult to play against.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://media.giphy.com/media/STYcRDzNO6AYNmMgvA/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption>Confidence is key …probably</figcaption>
-</figure>
-</div>
-<p>I will not propose a detailed causal model here, just a statistical proxy. But, I will be assuming that form can rise and decay over time. For some players even a single good or bad performance may be enough to drastically impact their next game, and for others this process may be smoother and less volatile. More on this later.</p>
-<p>For the purposes of this post, goalscoring form on a given match day, <img src="https://latex.codecogs.com/png.latex?i">, is defined as the difference between the number of goals that were scored on that match day, minus the expected number of goals, <img src="https://latex.codecogs.com/png.latex?xG"> associated with the opportunities in that game.</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AForm_%7B%5Bi%5D%7D%20=%20Goals_%7B%5Bi%5D%7D%20-%20xG_%7B%5Bi%5D%7D%0A"></p>
-<p>A nice feature of this is that, in principle, it is invariant to the quality of opposition. A striker may have a higher xG when performing against a weaker team, but will therefore need to score more goals in such a game to be considered in the same form. By the same token, it should also account for the fact that a player will generally get fewer scoring opportunities as a substitute.</p>
-<p>…As for the not so nice features, there are plenty! For instance, what good is a measure of form that only considers goals scored? Is xG not also conditional on how well a striker is paying? Would it be more useful to standardise the result?</p>
-<p>These are all fair questions, and with a little thought could all be integrated into a more comprehensive characterisation. However, the type of model that I will introduce will be equally compatible with alternative definitions, so let’s imagine we just care about whether a striker is scoring as many goals as they should be, and whether this will continue.</p>
-</section>
-<section id="ellen-white" class="level3">
-<h3 class="anchored" data-anchor-id="ellen-white">Ellen White</h3>
-<p>Ellen White is a clinical striker who, at the time of writing this, plays for Manchester City and England. She is a former winner of the Women’s Super League (WSL) golden boot, and is England’s all-time top scorer. So plenty of opportunities to see her distinctive celebration:</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://media.giphy.com/media/SVlBW8O5jw3dtU17dv/giphy-downsized-large.gif" class="img-fluid figure-img"></p>
-<figcaption>Ellen’s goal goggles</figcaption>
-</figure>
-</div>
-<p>StatsBomb have kindly made data from the WSL (2019/20 season) freely available in <a href="https://github.com/statsbomb/StatsBombR">their R package</a>, and so we will consider this league season of Ellen White’s career here.</p>
-<p>Here is a plot of Ellen’s <strong>form</strong> (performance vs.&nbsp;xG) over the 12 league games that she featured in, during that season. Her biggest over performance vs.&nbsp;xG was when she scored in a <a href="https://womenscompetitions.thefa.com/Article/TottenhamManCity05012020">4-1 win away at Tottenham</a> despite a cumulative xG of 0.597. Her worst performance by the same measure was the following week, failing to score in the <a href="https://womenscompetitions.thefa.com/Article/Manchester-City-3-1-Everton-110120">3-1 win at home to Everton</a>. Although she only played the final <img src="https://latex.codecogs.com/png.latex?25"> minutes of this game, she accrued a match xG of 0.302. The fact that these games were back to back could be tricky for a form model to accommodate!</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="what-would-such-a-model-need-to-do" class="level3">
-<h3 class="anchored" data-anchor-id="what-would-such-a-model-need-to-do">What would such a model need to do?</h3>
-<p>Essentially, we are looking for are some numbers to help us understand the following:</p>
-<ul>
-<li>What form is a player currently in?</li>
-<li>How long will a player remain in good (or bad) form?</li>
-<li>What is the uncertainty in our predictions?</li>
-</ul>
-<p>Since players can enter good and bad patches of form over the course of a season, we need a model that is able to twist and turn accordingly. This means we need some <em>non-linearity</em>.</p>
-<p>We also want future predictions to be based on recent games - if a player has over performed for the last 3 games in a row, then we generally expect them to continue on this path, at least in the short-term. But how far back should we look? Does a single great performance from <img src="https://latex.codecogs.com/png.latex?3"> months ago have any impact on a players current form? We need to quantify this <em>dependency</em> in our model too.</p>
-<p>Finally, a probabilistic model has the benefit of <em>quantifying uncertainty</em>. I emphasise the importance of this in the ‘final thoughts’ at the end of this post and for anyone interested, here is <a href="https://www.allyourbayes.com/post/2020-03-24-why-go-bayesian/">more Bayesian statistics propaganda</a>. But, in summary we should not neglect uncertainty in this model because (a) We are not even sure what form is, and (b) we are estimating it from a small amount of indirect observations. So let’s not pretend we will end up with a single number. Enough preaching and back to the task at hand….</p>
-<p>One solution that checks the above requirements is the Gaussian Process (GP).</p>
-</section>
-<section id="what-does-it-look-like" class="level3">
-<h3 class="anchored" data-anchor-id="what-does-it-look-like">What does it look like?</h3>
-<p>So we have this probabilistic model of smooth, non-linear functions. Let’s see what it looks like. In the below plot, the match days are the same as those presented in the above plot, we just have a new y-axis scale, and we have ‘days’ (rather than date) along the x-axis.</p>
-<p>There are multiple functions that are consistent with Ellen White’s form in the league that season, so let’s look at one example first:</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Where there is a large gap between successive games (such as the 3 weeks between White’s first and second appearances of the season), there is less evidence to guide predictions of form. This is also true for the period around day 60 (late December). Here though, she was on an upward trajectory. In both cases, this lack of data results in higher uncertainty, as is apparent when we look at more samples, which are shown on top of the full predictive distribution below.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="and-so-what" class="level3">
-<h3 class="anchored" data-anchor-id="and-so-what">And, so what?</h3>
-<p>Some squiggly lines that approximately go through some points? What is the value of this when you could scribble something similar without knowing anything about statistics?</p>
-<p>Well, underlying all of these lines is a model of dependency. We have quantified how similar (correlated) form should be in successive games, and how this correlation will decrease with time. I will talk about the parameters that do this and how they can be interpreted in part 2 (in preparation), but to summarise, the model quantifies how correlation in form decreases as time progresses and this can be seen in the smoothness of the lines.</p>
-<p>For example, if form was always shown to be very similar to that of the previous game, then transitioning from good to bad performances would be gradual, and the samples from the associated GP model would be very smooth. Conversely, in the case where performance in subsequent games were completely independent, even if very little time had passed, the GP regression lines would need to be able to change direction very sharply.</p>
-<p>Below are some predictions from the model in the period just after White’s last game of the season (to the right of the final match day on the above plots). She appeared to be on a slight upward trend at this point, over performing in her final game at home to Chelsea. This is shown in the uppermost histogram. As we move away from this game, into the off-season, we see the uncertainty gradually increase in our predictions and the average move towards zero. This is consistent with the considerations discussed above.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="some-final-thoughts" class="level3">
-<h3 class="anchored" data-anchor-id="some-final-thoughts">Some final thoughts…</h3>
-<section id="uncertainty" class="level4">
-<h4 class="anchored" data-anchor-id="uncertainty">Uncertainty</h4>
-<p>Any football models we propose will only vaguely resemble the ‘true’ data generating process and though we can incrementally add more parameters we do not automatically find more evidence for them. We can build big datasets by combining observations from multiple players, and leagues, but ignoring possible variation between such data is misleading. If your big football models need big data, why stop there? Feed it some Sunday league football, or some basketball, or some handwritten digits.</p>
-<p>Alternatively, we acknowledge that our system of parameters are not perfectly precise, and our predictions will span credible ranges. Quantifying this variability is a strength, not a weakness of our models, and is actually of more direct use in decision support.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://media.giphy.com/media/3otPoyudZ18xASX0rK/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption>Yes we can!</figcaption>
-</figure>
-</div>
-</section>
-<section id="sources-of-information" class="level4">
-<h4 class="anchored" data-anchor-id="sources-of-information">Sources of Information</h4>
-<p>What can we do about long periods in time where no competitive games are taking place?</p>
-<p>There may be other sources of information that could help, such as performances in other competitions or even in training. Given we are not sure of the extent that these should inform the model, there is an argument to use a multi-level (partial pooling) structure, as was used to improve <a href="https://allyourbayes.com/posts/xg_pt2/">player-specifc xG estimates</a>.</p>
-<p>Finally, the other source of information is that contained in the priors, which I have not included here. But don’t panic, some prior predictive sampling is on the way in part 2 (in preparation).</p>
-
-
-</section>
-</section>
-
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2023,
-  author = {Di Francesco, Domenic},
-  title = {Player {Form.} {Part} 1},
-  date = {2023-01-19},
-  url = {https://allyourbayes.com/posts/player_form/},
-  langid = {en}
-}
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2023" class="csl-entry quarto-appendix-citeas">
-Di Francesco, Domenic. 2023. <span>“Player Form. Part 1.”</span> January
-19, 2023. <a href="https://allyourbayes.com/posts/player_form/">https://allyourbayes.com/posts/player_form/</a>.
-</div></div></section></div> ]]></description>
-  <category>football</category>
-  <category>analysis</category>
-  <category>Stan</category>
-  <category>uncertainty</category>
-  <category>Bayes</category>
-  <category>gaussian process</category>
-  <guid>https://allyourbayes.com/posts/player_form/</guid>
-  <pubDate>Thu, 19 Jan 2023 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/player_form/plot.png" medium="image" type="image/png" height="96" width="144"/>
 </item>
 <item>
   <title>Why be Bayesian?</title>
@@ -1173,7 +1602,7 @@ Di Francesco, Domenic. 2020. <span>“Why Be Bayesian?”</span> March 24,
   <category>uncertainty</category>
   <category>decisions</category>
   <guid>https://allyourbayes.com/posts/Why_Bayes/</guid>
-  <pubDate>Tue, 24 Mar 2020 00:00:00 GMT</pubDate>
+  <pubDate>Tue, 24 Mar 2020 04:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Why_Bayes/gp.png" medium="image" type="image/png" height="84" width="144"/>
 </item>
 <item>
@@ -1696,7 +2125,7 @@ Stan.”</span> February 15, 2020. <a href="https://allyourbayes.com/posts/Logis
   <category>Stan</category>
   <category>R</category>
   <guid>https://allyourbayes.com/posts/Logistic_Bayes/</guid>
-  <pubDate>Sat, 15 Feb 2020 00:00:00 GMT</pubDate>
+  <pubDate>Sat, 15 Feb 2020 05:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Logistic_Bayes/logistic_priors.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 </channel>
