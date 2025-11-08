@@ -3,10 +3,6 @@ title: "diff all the things"
 subtitle: "performant gradients on demand, courtesy of Julia"
 author: "Domenic Di Francesco"
 date: "2025-09-09"
-format:
-  html:
-    highlight-style: atom-one
-    theme: ../../styles.css
 categories: [Automatic differentiation, Deep learning, Bayesian inference, Julia, Enzyme]
 fields: [date, title, reading-time, description]
 citation: true
