@@ -1,5 +1,5 @@
 ---
-title: "Advent of code"
+title: "advent of code 2025"
 subtitle: "how far can I get in Julia?"
 author: "Domenic Di Francesco"
 date: today
@@ -46,6 +46,8 @@ We are asked:
  * part 1: how many times do we end up on zero after a turn?
  * part 2: how many times do we turn through zero in total?
 
+Floor division `fld()` will count how many times we lap around zero.
+
 ```{julia}
 function get_passwords(seq::Vector{String}, dial_start::Int = 50, dial_mod::Int = 100)
 
@@ -78,7 +80,7 @@ function get_passwords(seq::Vector{String}, dial_start::Int = 50, dial_mod::Int 
 end
 ```
 
-A nice opener, and I did make a mistake in my first geuss for part 2, forgetting to catch the case where the dial starts on zero and we turn left. We shouldn't count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.
+A nice opener, and I did make a mistake in my first guess for part 2, forgetting to catch the case where the dial starts on zero and we turn left. We shouldn't count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.
 
 ```{julia}
 seq |> get_passwords

@@ -3,7 +3,7 @@ title: "Who Am I?"
 subtitle: "A football trivia guessing game"
 author: "Domenic Di Francesco"
 date: "2023-03-21"
-categories: [Football, R, Shiny]
+categories: [football, R, Shiny]
 fields: [date, title, reading-time, description]
 citation: true
 image: "game.png"

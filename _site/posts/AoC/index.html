@@ -9,7 +9,7 @@
 <meta name="author" content="Domenic Di Francesco">
 <meta name="dcterms.date" content="2025-12-01">
 
-<title>Advent of code – All Your Bayes</title>
+<title>advent of code 2025 – All Your Bayes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -139,9 +139,9 @@ cookieconsent.run({
   
 
 
-<meta name="twitter:title" content="Advent of code – All Your Bayes">
+<meta name="twitter:title" content="advent of code 2025 – All Your Bayes">
 <meta name="twitter:description" content="how far can I get in Julia?">
-<meta name="twitter:image" content="https://allyourbayes.com/posts/AoC/santa.png">
+<meta name="twitter:image" content="https://www.allyourbayes.com/posts/AoC/santa.png">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image-height" content="1376">
@@ -358,7 +358,7 @@ cookieconsent.run({
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Advent of code</h1>
+      <h1 class="title">advent of code 2025</h1>
             <p class="subtitle lead">how far can I get in Julia?</p>
                                 <div class="quarto-categories">
                 <div class="quarto-category">Julia</div>
@@ -418,6 +418,7 @@ cookieconsent.run({
 <li>part 1: how many times do we end up on zero after a turn?</li>
 <li>part 2: how many times do we turn through zero in total?</li>
 </ul>
+<p>Floor division <code>fld()</code> will count how many times we lap around zero.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">get_passwords</span>(seq<span class="op">::</span><span class="dt">Vector{String}</span>, dial_start<span class="op">::</span><span class="dt">Int </span><span class="op">=</span> <span class="fl">50</span>, dial_mod<span class="op">::</span><span class="dt">Int </span><span class="op">=</span> <span class="fl">100</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -452,7 +453,7 @@ cookieconsent.run({
 <pre><code>get_passwords (generic function with 3 methods)</code></pre>
 </div>
 </div>
-<p>A nice opener, and I did make a mistake in my first geuss for part 2, forgetting to catch the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
+<p>A nice opener, and I did make a mistake in my first guess for part 2, forgetting to catch the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>seq <span class="op">|&gt;</span> get_passwords</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -469,14 +470,14 @@ cookieconsent.run({
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2025,
   author = {Di Francesco, Domenic},
-  title = {Advent of Code},
+  title = {Advent of Code 2025},
   date = {2025-12-01},
-  url = {https://allyourbayes.com/posts/AoC/},
+  url = {https://www.allyourbayes.com/posts/AoC/},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas" role="listitem">
-Di Francesco, Domenic. 2025. <span>“Advent of Code.”</span> December 1,
-2025. <a href="https://allyourbayes.com/posts/AoC/">https://allyourbayes.com/posts/AoC/</a>.
+Di Francesco, Domenic. 2025. <span>“Advent of Code 2025.”</span>
+December 1, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.allyourbayes.com/posts/AoC/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -563,7 +564,7 @@ Di Francesco, Domenic. 2025. <span>“Advent of Code.”</span> December 1,
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/allyourbayes\.com");
+        var filterRegex = new RegExp("https:\/\/www\.allyourbayes\.com\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

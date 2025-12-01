@@ -6,15 +6,15 @@
       version="2.0">
 <channel>
 <title>All Your Bayes</title>
-<link>https://allyourbayes.com/</link>
-<atom:link href="https://allyourbayes.com/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://www.allyourbayes.com/</link>
+<atom:link href="https://www.allyourbayes.com/index.xml" rel="self" type="application/rss+xml"/>
 <description>thoughts on risk and uncertainty in decision support</description>
 <generator>quarto-1.7.30</generator>
 <lastBuildDate>Mon, 01 Dec 2025 00:00:00 GMT</lastBuildDate>
 <item>
-  <title>Advent of code</title>
+  <title>advent of code 2025</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/AoC/</link>
+  <link>https://www.allyourbayes.com/posts/AoC/</link>
   <description><![CDATA[ 
 
 
@@ -62,6 +62,7 @@ font-style: inherit;">"L82"</span>]</span></code></pre></div>
 <li>part 1: how many times do we end up on zero after a turn?</li>
 <li>part 2: how many times do we turn through zero in total?</li>
 </ul>
+<p>Floor division <code>fld()</code> will count how many times we lap around zero.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -231,7 +232,7 @@ font-style: inherit;">end</span></span></code></pre></div>
 <pre><code>get_passwords (generic function with 3 methods)</code></pre>
 </div>
 </div>
-<p>A nice opener, and I did make a mistake in my first geuss for part 2, forgetting to catch the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
+<p>A nice opener, and I did make a mistake in my first guess for part 2, forgetting to catch the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1">seq <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -250,25 +251,25 @@ font-style: inherit;">|&gt;</span> get_passwords</span></code></pre></div>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2025,
   author = {Di Francesco, Domenic},
-  title = {Advent of Code},
+  title = {Advent of Code 2025},
   date = {2025-12-01},
-  url = {https://allyourbayes.com/posts/AoC/},
+  url = {https://www.allyourbayes.com/posts/AoC/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas">
-Di Francesco, Domenic. 2025. <span>“Advent of Code.”</span> December 1,
-2025. <a href="https://allyourbayes.com/posts/AoC/">https://allyourbayes.com/posts/AoC/</a>.
+Di Francesco, Domenic. 2025. <span>“Advent of Code 2025.”</span>
+December 1, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.allyourbayes.com/posts/AoC/</a>.
 </div></div></section></div> ]]></description>
   <category>Julia</category>
   <category>puzzles</category>
-  <guid>https://allyourbayes.com/posts/AoC/</guid>
+  <guid>https://www.allyourbayes.com/posts/AoC/</guid>
   <pubDate>Mon, 01 Dec 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/AoC/santa.png" medium="image" type="image/png" height="125" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/AoC/santa.png" medium="image" type="image/png" height="125" width="144"/>
 </item>
 <item>
   <title>diff all the things</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/gradients/</link>
+  <link>https://www.allyourbayes.com/posts/gradients/</link>
   <description><![CDATA[ 
 
 
@@ -289,7 +290,7 @@ Di Francesco, Domenic. 2025. <span>“Advent of Code.”</span> December 1,
 <section id="inter-operability-and-julia" class="level4">
 <h4 class="anchored" data-anchor-id="inter-operability-and-julia">inter-operability and <code>Julia</code> ♥️💚💜</h4>
 <p>Perhaps my favourite feature of <code>Julia</code> is it’s inter-operability. Look at a GitHub repo for a <code>Julia</code> package and you will generally find the following:</p>
-<p><img src="https://allyourbayes.com/posts/gradients/julia_repo.png" class="img-fluid"></p>
+<p><img src="https://www.allyourbayes.com/posts/gradients/julia_repo.png" class="img-fluid"></p>
 <p><code>Julia</code> is so performant, that it’s libraries for scientific computing will work with normal variables - without needing to package up their own types. So solvers from <code>DifferentialEquations</code>, or neural networks defined in <code>Flux</code> can be immediately combined with the <code>Julia</code> probabilistic programming language, <code>Turing</code>.</p>
 <p>If a new framework emerges in <code>Python</code>, an entirely new ecosystem may need to be developed to prop it up. This may involve duplicating existing but now incompatible functionality - think of <code>JAX</code> needing to implement it’s own <code>NumPy</code> module. …whereas if you write a new <code>Julia</code> library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.</p>
 <p>Here I am, impressed that the interoperability of the <code>Copulas</code> package:</p>
@@ -307,7 +308,7 @@ Di Francesco, Domenic. 2025. <span>“Advent of Code.”</span> December 1,
 <p>Conversely, <code>Julia</code> works the other way around. You write your code, using whichever libraries, functions and types you want, <em>and then</em> you choose an AD library to get you the gradients you need.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/gradients/autodiff_joy.png" class="img-fluid figure-img"></p>
+<p><img src="https://www.allyourbayes.com/posts/gradients/autodiff_joy.png" class="img-fluid figure-img"></p>
 <figcaption>the joy of gradients - image courtesy of Google Gemini</figcaption>
 </figure>
 </div>
@@ -830,7 +831,7 @@ font-style: inherit;">end</span></span></code></pre></div>
 </div>
 <p><code>Enzyme.make_zero(nn)</code> creates a structural copy of <code>nn</code> with the same type (neural_network), field names (Ws, bs), and dimensions …but with all numerical values set to zero. This memory-saving trick is important for large vectors of parameters, as we will generally have in deep learning.</p>
 <p>The example applications that I selected are already very well equipped with sophisticated <code>Julia</code> libraries. If you are interested in probabilistic modelling in <code>Julia</code>, use <code>Turing</code>, if you are interested in deep learning, use <code>Flux</code>. Both are Enzyme compatible, but the later has specific guidance on how to set this up, using the <code>Duplicated</code> method that we used above:</p>
-<p><img src="https://allyourbayes.com/posts/gradients/Flux_Enzyme.png" class="img-fluid"></p>
+<p><img src="https://www.allyourbayes.com/posts/gradients/Flux_Enzyme.png" class="img-fluid"></p>
 </section>
 <section id="some-references" class="level4">
 <h4 class="anchored" data-anchor-id="some-references">some references</h4>
@@ -838,7 +839,7 @@ font-style: inherit;">end</span></span></code></pre></div>
 <p>A summary of the key trade-offs accross various autodiff methods, <a href="https://www.stochasticlifestyle.com/engineering-trade-offs-in-automatic-differentiation-from-tensorflow-and-pytorch-to-jax-and-julia/">link</a></p>
 <p>Professor Simone Scardapone’s book, “Alice’s adventures in a differential wonderland” <a href="https://www.sscardapane.it/assets/alice/Alice_book_volume_1.pdf">link</a>.</p>
 <p><em>“As the name differentiable implies, gradients play a pivotal role”</em></p>
-<p><img src="https://allyourbayes.com/posts/gradients/alice.png" class="img-fluid"></p>
+<p><img src="https://www.allyourbayes.com/posts/gradients/alice.png" class="img-fluid"></p>
 <p>JuliaCon talk on <code>Julia</code>’s unique approach to autodiff: </p><div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/ww3ntpyxNtI" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div><p></p>
 
 
@@ -849,26 +850,26 @@ font-style: inherit;">end</span></span></code></pre></div>
   author = {Di Francesco, Domenic},
   title = {Diff All the Things},
   date = {2025-09-09},
-  url = {https://allyourbayes.com/posts/gradients/},
+  url = {https://www.allyourbayes.com/posts/gradients/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2025. <span>“Diff All the Things.”</span>
-September 9, 2025. <a href="https://allyourbayes.com/posts/gradients/">https://allyourbayes.com/posts/gradients/</a>.
+September 9, 2025. <a href="https://www.allyourbayes.com/posts/gradients/">https://www.allyourbayes.com/posts/gradients/</a>.
 </div></div></section></div> ]]></description>
   <category>Automatic differentiation</category>
   <category>Deep learning</category>
   <category>Bayesian inference</category>
   <category>Julia</category>
   <category>Enzyme</category>
-  <guid>https://allyourbayes.com/posts/gradients/</guid>
+  <guid>https://www.allyourbayes.com/posts/gradients/</guid>
   <pubDate>Mon, 08 Sep 2025 23:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/gradients/meme.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://www.allyourbayes.com/posts/gradients/meme.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
   <title>The Turing Podcast</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Turing_Podcast/</link>
+  <link>https://www.allyourbayes.com/posts/Turing_Podcast/</link>
   <description><![CDATA[ 
 
 
@@ -891,25 +892,25 @@ September 9, 2025. <a href="https://allyourbayes.com/posts/gradients/">https://a
   author = {Di Francesco, Domenic},
   title = {The {Turing} {Podcast}},
   date = {2024-01-25},
-  url = {https://allyourbayes.com/posts/Turing_Podcast/},
+  url = {https://www.allyourbayes.com/posts/Turing_Podcast/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2024" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2024. <span>“The Turing Podcast.”</span> January
-25, 2024. <a href="https://allyourbayes.com/posts/Turing_Podcast/">https://allyourbayes.com/posts/Turing_Podcast/</a>.
+25, 2024. <a href="https://www.allyourbayes.com/posts/Turing_Podcast/">https://www.allyourbayes.com/posts/Turing_Podcast/</a>.
 </div></div></section></div> ]]></description>
   <category>Podcast</category>
   <category>Bayes</category>
   <category>Engineering</category>
   <category>Dogs</category>
-  <guid>https://allyourbayes.com/posts/Turing_Podcast/</guid>
+  <guid>https://www.allyourbayes.com/posts/Turing_Podcast/</guid>
   <pubDate>Thu, 25 Jan 2024 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Turing_Podcast/alan_turing.png" medium="image" type="image/png" height="104" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Turing_Podcast/alan_turing.png" medium="image" type="image/png" height="104" width="144"/>
 </item>
 <item>
   <title>Who Am I?</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Who_Am_I/</link>
+  <link>https://www.allyourbayes.com/posts/Who_Am_I/</link>
   <description><![CDATA[ 
 
 
@@ -933,23 +934,23 @@ Di Francesco, Domenic. 2024. <span>“The Turing Podcast.”</span> January
   author = {Di Francesco, Domenic},
   title = {Who {Am} {I?}},
   date = {2023-03-21},
-  url = {https://allyourbayes.com/posts/Who_Am_I/},
+  url = {https://www.allyourbayes.com/posts/Who_Am_I/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2023" class="csl-entry quarto-appendix-citeas">
-Di Francesco, Domenic. 2023. <span>“Who Am I?”</span> March 21, 2023. <a href="https://allyourbayes.com/posts/Who_Am_I/">https://allyourbayes.com/posts/Who_Am_I/</a>.
+Di Francesco, Domenic. 2023. <span>“Who Am I?”</span> March 21, 2023. <a href="https://www.allyourbayes.com/posts/Who_Am_I/">https://www.allyourbayes.com/posts/Who_Am_I/</a>.
 </div></div></section></div> ]]></description>
   <category>Football</category>
   <category>R</category>
   <category>Shiny</category>
-  <guid>https://allyourbayes.com/posts/Who_Am_I/</guid>
+  <guid>https://www.allyourbayes.com/posts/Who_Am_I/</guid>
   <pubDate>Tue, 21 Mar 2023 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Who_Am_I/game.png" medium="image" type="image/png" height="77" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Who_Am_I/game.png" medium="image" type="image/png" height="77" width="144"/>
 </item>
 <item>
   <title>Bayes@Lund2023</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Bayes@Lund/</link>
+  <link>https://www.allyourbayes.com/posts/Bayes@Lund/</link>
   <description><![CDATA[ 
 
 
@@ -977,25 +978,25 @@ Di Francesco, Domenic. 2023. <span>“Who Am I?”</span> March 21, 2023. <a hre
   author = {Di Francesco, Domenic},
   title = {Bayes@Lund2023},
   date = {2023-01-23},
-  url = {https://allyourbayes.com/posts/Bayes@Lund/},
+  url = {https://www.allyourbayes.com/posts/Bayes@Lund/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2023" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
-2023. <a href="https://allyourbayes.com/posts/Bayes@Lund/">https://allyourbayes.com/posts/Bayes@Lund/</a>.
+2023. <a href="https://www.allyourbayes.com/posts/Bayes@Lund/">https://www.allyourbayes.com/posts/Bayes@Lund/</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>Stan</category>
   <category>Julia</category>
   <category>Decisions</category>
   <category>Value of Information</category>
-  <guid>https://allyourbayes.com/posts/Bayes@Lund/</guid>
+  <guid>https://www.allyourbayes.com/posts/Bayes@Lund/</guid>
   <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
   <title>All Your Bayes 2.0</title>
-  <link>https://allyourbayes.com/posts/welcome/</link>
+  <link>https://www.allyourbayes.com/posts/welcome/</link>
   <description><![CDATA[ 
 
 
@@ -1009,13 +1010,13 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
 
  ]]></description>
   <category>news</category>
-  <guid>https://allyourbayes.com/posts/welcome/</guid>
+  <guid>https://www.allyourbayes.com/posts/welcome/</guid>
   <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Player form. Part 1: Overview</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/player_form/</link>
+  <link>https://www.allyourbayes.com/posts/player_form/</link>
   <description><![CDATA[ 
 
 
@@ -1061,7 +1062,7 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1088,7 +1089,7 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1098,7 +1099,7 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1114,7 +1115,7 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/player_form/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1147,12 +1148,12 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
   author = {Di Francesco, Domenic},
   title = {Player {Form.} {Part} 1},
   date = {2023-01-19},
-  url = {https://allyourbayes.com/posts/player_form/},
+  url = {https://www.allyourbayes.com/posts/player_form/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2023" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2023. <span>“Player Form. Part 1.”</span> January
-19, 2023. <a href="https://allyourbayes.com/posts/player_form/">https://allyourbayes.com/posts/player_form/</a>.
+19, 2023. <a href="https://www.allyourbayes.com/posts/player_form/">https://www.allyourbayes.com/posts/player_form/</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -1160,14 +1161,14 @@ Di Francesco, Domenic. 2023. <span>“Player Form. Part 1.”</span> January
   <category>uncertainty</category>
   <category>Bayes</category>
   <category>gaussian process</category>
-  <guid>https://allyourbayes.com/posts/player_form/</guid>
+  <guid>https://www.allyourbayes.com/posts/player_form/</guid>
   <pubDate>Thu, 19 Jan 2023 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/player_form/plot.png" medium="image" type="image/png" height="96" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/player_form/plot.png" medium="image" type="image/png" height="96" width="144"/>
 </item>
 <item>
   <title>Uncertainty in xG. Part 2: Partial Pooling</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/xg_pt2/</link>
+  <link>https://www.allyourbayes.com/posts/xg_pt2/</link>
   <description><![CDATA[ 
 
 
@@ -1268,7 +1269,7 @@ font-style: inherit;">'Arsenal'</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1488,7 +1489,7 @@ font-style: inherit;">real</span> beta_dist_goal_pp = normal_rng(mu_beta_dist_go
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1500,7 +1501,7 @@ font-style: inherit;">real</span> beta_dist_goal_pp = normal_rng(mu_beta_dist_go
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1510,7 +1511,7 @@ font-style: inherit;">real</span> beta_dist_goal_pp = normal_rng(mu_beta_dist_go
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt2/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1536,12 +1537,12 @@ font-style: inherit;">real</span> beta_dist_goal_pp = normal_rng(mu_beta_dist_go
   author = {Di Francesco, Domenic},
   title = {Uncertainty in {xG.} {Part} 2},
   date = {2021-01-07},
-  url = {https://allyourbayes.com/posts/xg_pt2/},
+  url = {https://www.allyourbayes.com/posts/xg_pt2/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2021" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2021. <span>“Uncertainty in xG. Part 2.”</span>
-January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyourbayes.com/posts/xg_pt2/</a>.
+January 7, 2021. <a href="https://www.allyourbayes.com/posts/xg_pt2/">https://www.allyourbayes.com/posts/xg_pt2/</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -1551,14 +1552,14 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
   <category>Bayes</category>
   <category>multi-level modelling</category>
   <category>partial pooling</category>
-  <guid>https://allyourbayes.com/posts/xg_pt2/</guid>
+  <guid>https://www.allyourbayes.com/posts/xg_pt2/</guid>
   <pubDate>Thu, 07 Jan 2021 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/xg_pt2/xg2.png" medium="image" type="image/png" height="104" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/xg_pt2/xg2.png" medium="image" type="image/png" height="104" width="144"/>
 </item>
 <item>
   <title>Uncertainty in xG. Part 1: Overview</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/xg_pt1/</link>
+  <link>https://www.allyourbayes.com/posts/xg_pt1/</link>
   <description><![CDATA[ 
 
 
@@ -1592,7 +1593,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1602,7 +1603,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1627,7 +1628,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1637,7 +1638,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1647,7 +1648,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1656,7 +1657,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1667,7 +1668,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1677,7 +1678,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/xg_pt1/index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1700,12 +1701,12 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
   author = {Di Francesco, Domenic},
   title = {Uncertainty in {xG.} {Part} 1},
   date = {2020-12-10},
-  url = {https://allyourbayes.com/posts/xg_pt1/},
+  url = {https://www.allyourbayes.com/posts/xg_pt1/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2020" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2020. <span>“Uncertainty in xG. Part 1.”</span>
-December 10, 2020. <a href="https://allyourbayes.com/posts/xg_pt1/">https://allyourbayes.com/posts/xg_pt1/</a>.
+December 10, 2020. <a href="https://www.allyourbayes.com/posts/xg_pt1/">https://www.allyourbayes.com/posts/xg_pt1/</a>.
 </div></div></section></div> ]]></description>
   <category>football</category>
   <category>analysis</category>
@@ -1715,14 +1716,14 @@ December 10, 2020. <a href="https://allyourbayes.com/posts/xg_pt1/">https://ally
   <category>Bayes</category>
   <category>multi-level modelling</category>
   <category>partial pooling</category>
-  <guid>https://allyourbayes.com/posts/xg_pt1/</guid>
+  <guid>https://www.allyourbayes.com/posts/xg_pt1/</guid>
   <pubDate>Thu, 10 Dec 2020 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/xg_pt1/xg1.png" medium="image" type="image/png" height="99" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/xg_pt1/xg1.png" medium="image" type="image/png" height="99" width="144"/>
 </item>
 <item>
   <title>Why be Bayesian?</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Why_Bayes/</link>
+  <link>https://www.allyourbayes.com/posts/Why_Bayes/</link>
   <description><![CDATA[ 
 
 
@@ -1821,24 +1822,24 @@ December 10, 2020. <a href="https://allyourbayes.com/posts/xg_pt1/">https://ally
   author = {Di Francesco, Domenic},
   title = {Why Be {Bayesian?}},
   date = {2020-03-24},
-  url = {https://allyourbayes.com/posts/Why_Bayes/},
+  url = {https://www.allyourbayes.com/posts/Why_Bayes/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2020" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2020. <span>“Why Be Bayesian?”</span> March 24,
-2020. <a href="https://allyourbayes.com/posts/Why_Bayes/">https://allyourbayes.com/posts/Why_Bayes/</a>.
+2020. <a href="https://www.allyourbayes.com/posts/Why_Bayes/">https://www.allyourbayes.com/posts/Why_Bayes/</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>uncertainty</category>
   <category>decisions</category>
-  <guid>https://allyourbayes.com/posts/Why_Bayes/</guid>
+  <guid>https://www.allyourbayes.com/posts/Why_Bayes/</guid>
   <pubDate>Tue, 24 Mar 2020 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Why_Bayes/gp.png" medium="image" type="image/png" height="84" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Why_Bayes/gp.png" medium="image" type="image/png" height="84" width="144"/>
 </item>
 <item>
   <title>Bayesian Logistic Regression with Stan</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Logistic_Bayes/</link>
+  <link>https://www.allyourbayes.com/posts/Logistic_Bayes/</link>
   <description><![CDATA[ 
 
 
@@ -1878,7 +1879,7 @@ Di Francesco, Domenic. 2020. <span>“Why Be Bayesian?”</span> March 24,
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2101,7 +2102,7 @@ font-style: inherit;">beta_1D =</span> beta_true))</span>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2273,7 +2274,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2284,7 +2285,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2315,7 +2316,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2328,7 +2329,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://www.allyourbayes.com/posts/Logistic_Bayes/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2342,21 +2343,21 @@ font-style: inherit;">5</span>)</span></code></pre></div>
   author = {Di Francesco, Domenic},
   title = {Bayesian {Logistic} {Regression} with {Stan}},
   date = {2020-02-15},
-  url = {https://allyourbayes.com/posts/Logistic_Bayes/},
+  url = {https://www.allyourbayes.com/posts/Logistic_Bayes/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2020" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2020. <span>“Bayesian Logistic Regression with
-Stan.”</span> February 15, 2020. <a href="https://allyourbayes.com/posts/Logistic_Bayes/">https://allyourbayes.com/posts/Logistic_Bayes/</a>.
+Stan.”</span> February 15, 2020. <a href="https://www.allyourbayes.com/posts/Logistic_Bayes/">https://www.allyourbayes.com/posts/Logistic_Bayes/</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>Logistic Regression</category>
   <category>MCMC</category>
   <category>Stan</category>
   <category>R</category>
-  <guid>https://allyourbayes.com/posts/Logistic_Bayes/</guid>
+  <guid>https://www.allyourbayes.com/posts/Logistic_Bayes/</guid>
   <pubDate>Sat, 15 Feb 2020 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Logistic_Bayes/logistic_priors.png" medium="image" type="image/png" height="108" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Logistic_Bayes/logistic_priors.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 </channel>
 </rss>

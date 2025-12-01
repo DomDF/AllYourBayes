@@ -3,7 +3,7 @@ title: "The Turing Podcast"
 subtitle: "My coffee pod episode"
 author: "Domenic Di Francesco"
 date: "2024-01-25"
-categories: [Podcast, Bayes, Engineering, Dogs]
+categories: [podcast, Bayes, engineering, dogs]
 fields: [date, title, reading-time, description]
 citation: true
 image: "alan_turing.png"

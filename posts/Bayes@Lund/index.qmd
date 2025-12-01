@@ -2,7 +2,7 @@
 title: "Bayes@Lund2023"
 author: "Domenic Di Francesco"
 date: "2023-01-23"
-categories: [Bayes, Stan, Julia, Decisions, Value of Information]
+categories: [Bayes, Stan, Julia, decisions, value of information]
 fields: [date, title, reading-time, description]
 citation: true
 image: "VoPI.png"
