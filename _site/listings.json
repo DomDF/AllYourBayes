@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/AoC/index.html",
       "/posts/gradients/index.html",
       "/posts/Turing_Podcast/index.html",
       "/posts/Who_Am_I/index.html",

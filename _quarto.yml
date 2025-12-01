@@ -24,10 +24,9 @@ website:
       creator: "@Domenic_DF"
 format:
   html:
-    theme: 
-      light: flatly
-      dark: darkly
-    css: styles.css
+    theme:
+      light: [flatly, styles.scss]
+      dark: [darkly, styles.scss]
   
   
 

@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Domenic Di Francesco">
-<meta name="dcterms.date" content="2020-03-24">
+<meta name="dcterms.date" content="2025-12-01">
 
-<title>Why be Bayesian? – All Your Bayes</title>
+<title>Advent of code – All Your Bayes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,6 +21,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -104,13 +139,13 @@ cookieconsent.run({
   
 
 
-<meta name="twitter:title" content="Why be Bayesian? – All Your Bayes">
-<meta name="twitter:description" content="thoughts on risk and uncertainty in decision support">
-<meta name="twitter:image" content="https://allyourbayes.com/posts/Why_Bayes/gp.png">
+<meta name="twitter:title" content="Advent of code – All Your Bayes">
+<meta name="twitter:description" content="how far can I get in Julia?">
+<meta name="twitter:image" content="https://allyourbayes.com/posts/AoC/santa.png">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image-height" content="913">
-<meta name="twitter:image-width" content="1571">
+<meta name="twitter:image-height" content="1376">
+<meta name="twitter:image-width" content="1586">
 </head>
 
 <body class="nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -323,11 +358,11 @@ cookieconsent.run({
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Why be Bayesian?</h1>
+      <h1 class="title">Advent of code</h1>
+            <p class="subtitle lead">how far can I get in Julia?</p>
                                 <div class="quarto-categories">
-                <div class="quarto-category">Bayes</div>
-                <div class="quarto-category">uncertainty</div>
-                <div class="quarto-category">decisions</div>
+                <div class="quarto-category">Julia</div>
+                <div class="quarto-category">puzzles</div>
               </div>
                   </div>
   </div>
@@ -345,7 +380,7 @@ cookieconsent.run({
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">March 24, 2020</p>
+        <p class="date">December 1, 2025</p>
       </div>
     </div>
     
@@ -367,101 +402,81 @@ cookieconsent.run({
 
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: <em>Is it worth me learning Bayesian statistics?</em> or <em>Should I look into using Bayesian statistics in my project?</em> No maths or code in this post.</p>
+<p>Advent of code is a website created by Eric Wastl, releasing a (increasingly challenging) programming puzzle each day. This year we will not be receiving the usual 25 days worth (I have never made it that far anyway), but it will instead be finishing on 12th December <a href="https://www.reddit.com/r/adventofcode/comments/1ocwh04/changes_to_advent_of_code_starting_this_december/">(see announcement on Reddit)</a>. This is welcome change of pace for me.</p>
+<p>Spoiler alert: super un-optimised, but hopefully readable Julia solutions ahead, so you may only want to look after you have had a go yourself. Let’s see how we go…</p>
+<p>Play along: <a href="https://adventofcode.com">https://adventofcode.com</a></p>
 <hr>
-<section id="bayes" class="level4">
-<h4 class="anchored" data-anchor-id="bayes">Bayes</h4>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://media.giphy.com/media/TJBbXQooivUNq/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption>Bayes</figcaption>
-</figure>
+<section id="day-1-a-password-from-a-decoy-safe" class="level4">
+<h4 class="anchored" data-anchor-id="day-1-a-password-from-a-decoy-safe">Day 1: a password from a decoy safe 🔓</h4>
+<p>So we have this safe, with a dial set to <code>50</code>, and a sequence of turns to make, see below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>seq <span class="op">=</span> [<span class="st">"L68"</span>, <span class="st">"L30"</span>, <span class="st">"R48"</span>, <span class="st">"L5"</span>, <span class="st">"R60"</span>, <span class="st">"L55"</span>, <span class="st">"L1"</span>, <span class="st">"L99"</span>, <span class="st">"R14"</span>, <span class="st">"L82"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-</section>
-<section id="introduction" class="level3">
-<h3 class="anchored" data-anchor-id="introduction">Introduction</h3>
-<p>Firstly, Bayesian…</p>
+<p>Here an “R” means we are turning the dial to the right, and an “L” means we are turning it to the left, followed by the number indicating how many turns. “L68” means turn the dial left 68 times. The dial wraps around, so if we turn left from 0, we go to 99, 98, and so on.</p>
+<p>We are asked:</p>
 <ul>
-<li>Statistics</li>
-<li>Inference</li>
-<li>Modelling</li>
-<li>Updating</li>
-<li>Data Analysis</li>
+<li>part 1: how many times do we end up on zero after a turn?</li>
+<li>part 2: how many times do we turn through zero in total?</li>
 </ul>
-<p>…can boradly be considered the same thing (certainly for the purposes of this post): <strong>the application of Bayes theorem to quantify uncertainty</strong>.</p>
-<p>Depending on your background, you may have preconceptions about Bayesian methods being specialist or complicated. However, analysts and researchers in many domains are increasingly experimenting with the growing catalogue of open source software and resources that is making probabilistic programming more accessible.</p>
-</section>
-<section id="what-does-a-bayesian-approach-provide" class="level3">
-<h3 class="anchored" data-anchor-id="what-does-a-bayesian-approach-provide">What does a Bayesian approach provide?</h3>
-<p>Bayesian statistics is not the only way to account for uncertainty in calculations. The below points describe what a Bayesian approach offers, that others don’t. Note that I am only really discussing methods involving probability here, though <a href="https://www.springer.com/gp/book/9783540402947">alternative approaches are available</a>.</p>
-<section id="intuitive-interpretation-of-results" class="level4">
-<h4 class="anchored" data-anchor-id="intuitive-interpretation-of-results">Intuitive Interpretation of Results</h4>
-<p>Bayesian methods give you distributions. Your parameters (and so also your predictions) are all described as distributions. A single, joint distribution in fact, which is aligned with the evidence that you provide your model. This allows you to propagate all the uncertainties and inter-dependencies when making predictions for some new input data. By comparison, alternative (frequentist) methods typically describes uncertainty in predictions using confidence intervals, which are widely used but easy to misinterpret.</p>
-<p>Confidence intervals are calculated so that they will contain the <em>true</em> value of whatever you are trying to predict with some desired frequency. They provide no information (in the absence of additional assumptions) on how credible various possible results are. The Bayesian equivalent (sometimes called credible intervals) can be drawn anywhere on a predictive distribution. In <a href="https://mitpress.mit.edu/books/introduction-statistical-decision-theory">Pratt, Raiffa and Schlaiffer’s textbook</a> an example is used to highlight this difference:</p>
-<p><em>Imagine the plight of the manager who exclaims, ‘I understand [does he?] the meaning that the demand for XYZ will lie in the interval 973 to 1374 with confidence .90. However, I am particularly interested in the interval 1300 to 1500. What confidence can I place on that interval?’</em> <em>Unfortunately, this question cannot be answered. Of course, however, it is possible to give a posterior probability to that particular interval - or any other - based on the sample data and on a codification of the manager’s prior judgements.</em></p>
-<p>This is a nice example (aside from assuming the manager is a male) of a simple question that we need a Bayesian posterior distribution to answer. A more succinct description of the same view from <a href="https://www.weirdfishes.blog/">Dan Ovando’s fishery statistics blog</a>:</p>
-<p><em>Bayesian credible intervals mean what we’d like Frequentist confidence intervals to mean.</em></p>
-</section>
-<section id="seamless-integration-with-decision-analysis" class="level4">
-<h4 class="anchored" data-anchor-id="seamless-integration-with-decision-analysis">Seamless Integration with Decision Analysis</h4>
-<p>Following on from the previous point, an analysis that directly describes the probability of any outcome is fully compatible with a decision analysis. After completing a Bayesian analysis, identifying the optimal strategy implied by your model becomes simpler and more understandable.</p>
-<p>As stated in <a href="https://www.springer.com/gp/book/9780387960982">James Berger’s (quite theoretical) book on Bayesian statistics</a>:</p>
-<p><em>Bayesian analysis and decision theory go rather naturally together, partly because of their common goal of utilizing non-experimental sources of information, and partly because of deep theoretical ties.</em></p>
-</section>
-<section id="flexible-modelling" class="level4">
-<h4 class="anchored" data-anchor-id="flexible-modelling">Flexible Modelling</h4>
-<p>So this one is based on a point made in <a href="https://uk.sagepub.com/en-gb/eur/a-student%E2%80%99s-guide-to-bayesian-statistics/book245409">Ben Lambert’s book on Bayesian statistics</a>. It is regarding how modern Bayesian statistics is achieved in practice. The computational methods may require some effort to pick up, especially if you do not have experience with programming (though Ben’s book gives a nice introduction to <a href="https://mc-stan.org/">Stan</a>). However, they can be readily extended to larger and more complex models.</p>
-<p>Essentially, we can propose weird and bespoke model structures, and then use the same approach to fit them.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://media.giphy.com/media/WiyczarN2XMm4/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption>Some Compelling Arguments</figcaption>
-</figure>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">get_passwords</span>(seq<span class="op">::</span><span class="dt">Vector{String}</span>, dial_start<span class="op">::</span><span class="dt">Int </span><span class="op">=</span> <span class="fl">50</span>, dial_mod<span class="op">::</span><span class="dt">Int </span><span class="op">=</span> <span class="fl">100</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    dial <span class="op">=</span> dial_start; pass_zeros <span class="op">=</span> <span class="fl">0</span>; end_zeros <span class="op">=</span> <span class="fl">0</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> turn <span class="op">∈</span> seq</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        direction <span class="op">=</span> turn[<span class="fl">1</span>]; turns <span class="op">=</span> <span class="fu">parse</span>(<span class="dt">Int</span>, turn[<span class="fl">2</span><span class="op">:</span><span class="kw">end</span>])</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> direction <span class="op">==</span> <span class="ch">'R'</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            pass_zeros <span class="op">+=</span> <span class="fu">fld</span>(dial <span class="op">+</span> turns, dial_mod)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>            dial <span class="op">+=</span> turns</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elseif</span> direction <span class="op">==</span> <span class="ch">'L'</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="co"># we need to catch the case where the dial starts at 0 and not count that first turn</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            pass_zeros <span class="op">+=</span> <span class="fu">fld</span>(dial <span class="op">-</span> <span class="fl">1</span>, dial_mod) <span class="op">-</span> <span class="fu">fld</span>(dial <span class="op">-</span> turns <span class="op">-</span> <span class="fl">1</span>, dial_mod)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            dial <span class="op">-=</span> turns</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        dial <span class="op">=</span> <span class="fu">mod</span>(dial, dial_mod)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> dial <span class="op">==</span> <span class="fl">0</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            end_zeros <span class="op">+=</span> <span class="fl">1</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (end_zeros<span class="op">=</span>end_zeros, pass_zeros<span class="op">=</span>pass_zeros)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>get_passwords (generic function with 3 methods)</code></pre>
+</div>
+</div>
+<p>A nice opener, and I did make a mistake in my first geuss for part 2, forgetting to catch the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>seq <span class="op">|&gt;</span> get_passwords</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(end_zeros = 3, pass_zeros = 6)</code></pre>
+</div>
 </div>
 </section>
-</section>
-<section id="challenges-difficulties" class="level3">
-<h3 class="anchored" data-anchor-id="challenges-difficulties">Challenges &amp; Difficulties</h3>
-<p>So why would anyone ever <em>not</em> use Bayesian models when making predictions?</p>
-<section id="subjectivity" class="level4">
-<h4 class="anchored" data-anchor-id="subjectivity">Subjectivity</h4>
-<p>Perhaps the most common criticism of Bayesian statistics is the requirement for priors - i.e.&nbsp;a starting point for your model. This initial estimate of uncertainty is a term in Bayes’ theorem - but how can you estimate the extent of variability before you see it in your data? This will surely be completely subjective, so the results will vary depending on who is doing the analysis. This, understandably, doesn’t seem right with a lot of casual enquirers.</p>
-<p>A common response to this accusation is that subjectivity is not an exclusive feature of Bayesian analysis (how about the whole approach you are taking to solving your problem !) <em>…but</em> at least Bayesians are required to be explicit about it. Priors mean that any subjective inputs have no-where to hide (in the code or the reporting) and so they are open to criticism. This point is discussed in <strong>much</strong> more detail in this paper from <a href="http://www.stat.columbia.edu/~gelman/research/published/gelman_hennig_full_discussion.pdf">Colombia University</a>.</p>
-<p>Priors can contain, as much or as little, information as desired. However, even in instances where you may feel you don’t have any upfront knowledge of a problem, they represent a valuable opportunity for introducing regularisation (which protects against bad predictions due to overfitting). This idea is discussed in detail in <a href="https://www.crcpress.com/Statistical-Rethinking-A-Bayesian-Course-with-Examples-in-R-and-STAN/McElreath/p/book/9780367139919">Richard McElreath’s textbook</a>. I would suggest that in plenty of cases, we often have a fair idea of what is happening even before we collect and analyse data, and starting from zero everytime is just not sensible. Will a doctor who has just evaluated you base their diagnosis entirely on a test outcome, or will they incorporate that eveidence into their existing understanding of your circumstances and symptoms? Bayesian statistics is the means by which this can be done mathematically.</p>
-</section>
-<section id="computational-requirements" class="level4">
-<h4 class="anchored" data-anchor-id="computational-requirements">Computational Requirements</h4>
-<p>In practice, statisticians estimate Bayesian posterior distributions using very clever Markov Chain Monte Carlo (MCMC) sampling algorithms, that are run by their favourite probabilistic programming software. The models that I have worked with during my PhD have taken several hours to finish sampling from, but I have met statisticians whose models run for days or even weeks. Following this, there are checks that need to be completed as there are plenty of things that can go wrong with MCMC. There is a nice discussion of a recommended Bayesian workflow to make sure you are checking what you need to <a href="https://arxiv.org/abs/2011.01808">here</a>.</p>
-<p>My background is in mechanical and civil engineering. In discussions with engineering researchers at conferences I have often been told that the errors and complications they encountered when playing around with Bayesian software caused them to abandon the approach in favour of more established, less informative analysis. These are challenges that I imagine everyone who has attempted modern Bayesian statistics will have encountered and resolving them can require a deep understanding of your model, and perhaps some formal training. In addition some programming <em>tricks</em> like reparameterisation (describing your model in a seemingly equivalent way, but one that is much friendlier to your software) can also help.</p>
-</section>
-</section>
-<section id="conclusions" class="level3">
-<h3 class="anchored" data-anchor-id="conclusions">Conclusions</h3>
-<p>Regardless of whether you believe we exist in a deterministic universe or not, you will never have perfect state of knowledge describing your problem: uncertainty exists, so we need a sensible and safe way of accounting for it. It’s difficult to escape the implications of the Maths - for instance, in avoiding quantifying uncertainty, we are often making some implicit assumptions (the implications of which can be difficult to justify) that we may not want to propagate into our decision-making. There is generally a trade-off for apparent conveniences.</p>
-<p>I believe that Bayesian statistics is actually well suited to traditional engineering problems, which are concerned with managing risk when confronted with small, messy datasets and models with plenty of uncertainty. As suggested in the earlier description of confidence intervals, frequentist statistics defines probability based on occurrences of events following a large number of trials or samples. When trying to understand the behaviour of small datasets (or even unique structural systems), Bayesian statistics can shine by comparison.</p>
-<p>Very large datasets may contain enough information to precisely estimate parameters in a model using conventional machine learning methods, and so it becomes less worthwhile running simulations to characterise variability. But how common are these big data problems in science and engineering? Sometimes large populations of data are better described as multiple smaller constituent groups, after accounting for key differences between them. Bayesian statistics has a very useful way of managing such problems by structuring models hierarchically. This method allows for <strong>partial pooling of information</strong> between groups, so that predictions account for the variability and commonality between groups. I will provide a detailed example of this in a future post.</p>
-<p>Bayesian inference requires (computational and personal) effort to apply. But it provides results that are generally more interpretable and closely related to the actual questions we want to answer. Whether or not these methods are worth learning will of course depend on personal circumstances. I encountered this field during my PhD, and so had plenty of time to read and play with them, which I appreicate is a privelidged position to be in.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://media.giphy.com/media/WPLPEu0GUp41W/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption>Boring, isn’t it? Writing, Fitting and Evaluating Bayesian Models All Day….</figcaption>
-</figure>
-</div>
+<section id="day-2" class="level4">
+<h4 class="anchored" data-anchor-id="day-2">Day 2: ⏳</h4>
 
 
 </section>
+</section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2020,
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2025,
   author = {Di Francesco, Domenic},
-  title = {Why Be {Bayesian?}},
-  date = {2020-03-24},
-  url = {https://allyourbayes.com/posts/Why_Bayes/},
+  title = {Advent of Code},
+  date = {2025-12-01},
+  url = {https://allyourbayes.com/posts/AoC/},
   langid = {en}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2020" class="csl-entry quarto-appendix-citeas" role="listitem">
-Di Francesco, Domenic. 2020. <span>“Why Be Bayesian?”</span> March 24,
-2020. <a href="https://allyourbayes.com/posts/Why_Bayes/">https://allyourbayes.com/posts/Why_Bayes/</a>.
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas" role="listitem">
+Di Francesco, Domenic. 2025. <span>“Advent of Code.”</span> December 1,
+2025. <a href="https://allyourbayes.com/posts/AoC/">https://allyourbayes.com/posts/AoC/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {

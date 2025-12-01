@@ -61,5 +61,11 @@
   },
   "posts/gradients/index.qmd": {
     "index.html": "ebad989f"
+  },
+  "posts/gradients/index1.knit.md": {
+    "index1.knit.html": "2501555b"
+  },
+  "posts/AoC/index.qmd": {
+    "index.html": "d6ca5d24"
   }
 }

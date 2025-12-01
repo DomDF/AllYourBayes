@@ -10,12 +10,267 @@
 <atom:link href="https://allyourbayes.com/index.xml" rel="self" type="application/rss+xml"/>
 <description>thoughts on risk and uncertainty in decision support</description>
 <generator>quarto-1.7.30</generator>
-<lastBuildDate>Tue, 09 Sep 2025 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 01 Dec 2025 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Advent of code</title>
+  <dc:creator>Domenic Di Francesco</dc:creator>
+  <link>https://allyourbayes.com/posts/AoC/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+
+<section id="tldr" class="level3">
+<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
+<p>Advent of code is a website created by Eric Wastl, releasing a (increasingly challenging) programming puzzle each day. This year we will not be receiving the usual 25 days worth (I have never made it that far anyway), but it will instead be finishing on 12th December <a href="https://www.reddit.com/r/adventofcode/comments/1ocwh04/changes_to_advent_of_code_starting_this_december/">(see announcement on Reddit)</a>. This is welcome change of pace for me.</p>
+<p>Spoiler alert: super un-optimised, but hopefully readable Julia solutions ahead, so you may only want to look after you have had a go yourself. Let’s see how we go…</p>
+<p>Play along: <a href="https://adventofcode.com">https://adventofcode.com</a></p>
+<hr>
+<section id="day-1-a-password-from-a-decoy-safe" class="level4">
+<h4 class="anchored" data-anchor-id="day-1-a-password-from-a-decoy-safe">Day 1: a password from a decoy safe 🔓</h4>
+<p>So we have this safe, with a dial set to <code>50</code>, and a sequence of turns to make, see below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1">seq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"L68"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"L30"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R48"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"L5"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R60"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"L55"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"L1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"L99"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R14"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"L82"</span>]</span></code></pre></div>
+</div>
+<p>Here an “R” means we are turning the dial to the right, and an “L” means we are turning it to the left, followed by the number indicating how many turns. “L68” means turn the dial left 68 times. The dial wraps around, so if we turn left from 0, we go to 99, 98, and so on.</p>
+<p>We are asked:</p>
+<ul>
+<li>part 1: how many times do we end up on zero after a turn?</li>
+<li>part 2: how many times do we turn through zero in total?</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_passwords</span>(seq<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Vector{String}</span>, dial_start<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Int </span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>, dial_mod<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Int </span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span>
+<span id="cb2-2"></span>
+<span id="cb2-3">    dial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dial_start; pass_zeros <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>; end_zeros <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb2-4"></span>
+<span id="cb2-5">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> turn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">∈</span> seq</span>
+<span id="cb2-6">        direction <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> turn[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]; turns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">parse</span>(<span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Int</span>, turn[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span>])</span>
+<span id="cb2-7">        </span>
+<span id="cb2-8">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> direction <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'R'</span></span>
+<span id="cb2-9"></span>
+<span id="cb2-10">            pass_zeros <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fld</span>(dial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> turns, dial_mod)</span>
+<span id="cb2-11">            dial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> turns</span>
+<span id="cb2-12"></span>
+<span id="cb2-13">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elseif</span> direction <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'L'</span></span>
+<span id="cb2-14"></span>
+<span id="cb2-15">            <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># we need to catch the case where the dial starts at 0 and not count that first turn</span></span>
+<span id="cb2-16">            pass_zeros <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fld</span>(dial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, dial_mod) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fld</span>(dial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> turns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, dial_mod)</span>
+<span id="cb2-17">            dial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-=</span> turns</span>
+<span id="cb2-18">            </span>
+<span id="cb2-19">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb2-20"></span>
+<span id="cb2-21">        dial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mod</span>(dial, dial_mod)</span>
+<span id="cb2-22"></span>
+<span id="cb2-23">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> dial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb2-24">            end_zeros <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb2-25">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb2-26">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb2-27"></span>
+<span id="cb2-28">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> (end_zeros<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>end_zeros, pass_zeros<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>pass_zeros)</span>
+<span id="cb2-29"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>get_passwords (generic function with 3 methods)</code></pre>
+</div>
+</div>
+<p>A nice opener, and I did make a mistake in my first geuss for part 2, forgetting to catch the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1">seq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> get_passwords</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(end_zeros = 3, pass_zeros = 6)</code></pre>
+</div>
+</div>
+</section>
+<section id="day-2" class="level4">
+<h4 class="anchored" data-anchor-id="day-2">Day 2: ⏳</h4>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2025,
+  author = {Di Francesco, Domenic},
+  title = {Advent of Code},
+  date = {2025-12-01},
+  url = {https://allyourbayes.com/posts/AoC/},
+  langid = {en}
+}
+</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas">
+Di Francesco, Domenic. 2025. <span>“Advent of Code.”</span> December 1,
+2025. <a href="https://allyourbayes.com/posts/AoC/">https://allyourbayes.com/posts/AoC/</a>.
+</div></div></section></div> ]]></description>
+  <category>Julia</category>
+  <category>puzzles</category>
+  <guid>https://allyourbayes.com/posts/AoC/</guid>
+  <pubDate>Mon, 01 Dec 2025 00:00:00 GMT</pubDate>
+  <media:content url="https://allyourbayes.com/posts/AoC/santa.png" medium="image" type="image/png" height="125" width="144"/>
+</item>
 <item>
   <title>diff all the things</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
   <link>https://allyourbayes.com/posts/gradients/</link>
   <description><![CDATA[ 
+
 
 
 
@@ -27,7 +282,7 @@
 <hr>
 <section id="autodiff-ad" class="level4">
 <h4 class="anchored" data-anchor-id="autodiff-ad">autodiff (AD)</h4>
-<p>Soooo much of computational statistics and machine learning is built on automatic (algorithmic) differentiation (AD). Dig into literature on Bayesian inference, or deep learning, and you will find parameters being nudged in a direction informed by a gradient. I’m sometimes suprised at the extent of the ‘gradient-based’ monopoly in scientific computing, but I don’t mean to trivialise! …getting gradients of complex functions, very quickly and without error, is a powerful tool and it’s great that people are ale to leverage this.</p>
+<p>Soooo much of computational statistics and machine learning is built on automatic (algorithmic) differentiation (AD). Dig into literature on Bayesian inference, or deep learning, and you will find parameters being nudged in a direction informed by a gradient. I’m sometimes suprised at the extent of the ‘gradient-based’ monopoly in scientific computing, but I don’t mean to trivialise! …getting gradients of complex functions, very quickly and without error, is a powerful tool and it’s great that people are able to leverage this.</p>
 <p>AD achieves this by <em>“the relentless application of the chain rule”</em>, as I vaguely recall one of the <code>Stan</code> developers saying. Large functions are differentiated piece by piece (for which look-up rules can be applied), and the results are stitched together.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B%5Cpartial%20%5Cmathcal%7BL%7D%7D%7B%5Cpartial%20x_i%7D%20=%20%5Cfrac%7B%5Cpartial%20%5Cmathcal%7BL%7D%7D%7B%5Cpartial%20x_n%7D%20%5Ctimes%20%5Cfrac%7B%5Cpartial%20x_n%7D%7B%5Cpartial%20x_%7Bn-1%7D%7D%20%5Ctimes%20%5Ccdots%20%5Ctimes%20%5Cfrac%7B%5Cpartial%20x_%7Bi+1%7D%7D%7B%5Cpartial%20x_i%7D%0A"></p>
 </section>
@@ -35,8 +290,8 @@
 <h4 class="anchored" data-anchor-id="inter-operability-and-julia">inter-operability and <code>Julia</code> ♥️💚💜</h4>
 <p>Perhaps my favourite feature of <code>Julia</code> is it’s inter-operability. Look at a GitHub repo for a <code>Julia</code> package and you will generally find the following:</p>
 <p><img src="https://allyourbayes.com/posts/gradients/julia_repo.png" class="img-fluid"></p>
-<p><code>Julia</code> is so performant, that it’s libraries for scientific computing will work with normal variable types - without needing to package up their own types. So solvers from <code>DifferentialEquations</code>, or neural networks defined in <code>Flux</code> can be immediately combined with the <code>Julia</code> probabilistic programming language, <code>Turing</code>.</p>
-<p>If a new framework emerges in <code>Python</code>, an entirely new ecosystem may need to be developed to prop it up. This may invlolve duplicating existing but now incompatible functionality - think of <code>JAX</code> needing to implement it’s own <code>NumPy</code> module. …whereas if you write a new <code>Julia</code> library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.</p>
+<p><code>Julia</code> is so performant, that it’s libraries for scientific computing will work with normal variables - without needing to package up their own types. So solvers from <code>DifferentialEquations</code>, or neural networks defined in <code>Flux</code> can be immediately combined with the <code>Julia</code> probabilistic programming language, <code>Turing</code>.</p>
+<p>If a new framework emerges in <code>Python</code>, an entirely new ecosystem may need to be developed to prop it up. This may involve duplicating existing but now incompatible functionality - think of <code>JAX</code> needing to implement it’s own <code>NumPy</code> module. …whereas if you write a new <code>Julia</code> library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.</p>
 <p>Here I am, impressed that the interoperability of the <code>Copulas</code> package:</p>
 <blockquote class="twitter-tweet blockquote" data-conversation="none">
 <p lang="en" dir="ltr">
@@ -48,7 +303,7 @@
 </section>
 <section id="ad-in-julia" class="level4">
 <h4 class="anchored" data-anchor-id="ad-in-julia">AD in <code>Julia</code></h4>
-<p>ML frameworks in <code>Python</code> require you to work in their own syntax, with theit spcecific types, and use their own in-built AD methods. Locking into a framework is not ideal, as you are limited to the methods they support and you need to juggle types of inputs and outputs.</p>
+<p>ML frameworks in <code>Python</code> require you to work in their own syntax, with theit specific types, and use their own in-built AD methods. Locking into a framework is not ideal, as you are limited to the methods they support and you need to juggle types of inputs and outputs.</p>
 <p>Conversely, <code>Julia</code> works the other way around. You write your code, using whichever libraries, functions and types you want, <em>and then</em> you choose an AD library to get you the gradients you need.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -62,8 +317,8 @@
 <p>And then came <code>Enzyme</code>: an AD library that works at the LLVM level (your code is compiled first, and then the gradients are computed). This led to improvements in both performance and flexibility - we can now differentiate through mutation and control flow. This more resilient library has a steeper learning curve (imo), but (also imo) requiring more explicit instructions ends up making things clearer.</p>
 <p>I hope the below examples will help get you started.</p>
 </section>
-<section id="exampe-1-a-bayesian-linear-regression" class="level4">
-<h4 class="anchored" data-anchor-id="exampe-1-a-bayesian-linear-regression">exampe 1: a Bayesian linear regression</h4>
+<section id="example-1-a-bayesian-linear-regression" class="level4">
+<h4 class="anchored" data-anchor-id="example-1-a-bayesian-linear-regression">example 1: a Bayesian linear regression</h4>
 <p>How about computing the gradients we need for Hamiltonian Monte Carlo sampling. For a linear regression model, with inputs, <img src="https://latex.codecogs.com/png.latex?X"> and outputs, <img src="https://latex.codecogs.com/png.latex?y">:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0Ay%20%5Csim%20N(%5Calpha%20+%20%5Cbeta%20X,%20%5Csigma)%0A"></p>
 <p>with priors:</p>
@@ -326,10 +581,9 @@ font-style: inherit;">rand</span>(prng, priors.σ_prior)</span>
 </div>
 <p>I am giving the <code>gradient()</code> function three arguments:</p>
 <ul>
-<li><p><strong>the mode/direction to apply AD</strong>, <code>Reverse</code> Each pass of a reverse-mode AD computes gradients of all inputs w.r.t. a single output (as a vector-Jacobian product). In Forward mode, each pass computes gradients of a single input w.r.t. all outputs (as a Jacobian-vector product). Consequently, there are efficiency trade-offs associated with this selection, depending on the number of inputs and outputs of…</p></li>
-<li><p><strong>…the function we are differentiating</strong>, <code>params -&gt; neg_log_posterior(params, priors, x, y)</code> Here, an anonymous function that takes <code>params</code> as input and returns the negative log posterior, using <code>neg_log_posterior()</code>, which we defined above.</p></li>
-<li><p><strong>the point at which we want gradients</strong>, <code>params_init</code></p>
-<p>This is the current location of the Markov chain. In the first instance we need an initial guess, for which we have drawn from the priors.</p></li>
+<li><p><strong>the mode/direction to apply AD</strong>, <code>Reverse</code>. Each pass of a reverse-mode AD computes gradients of all inputs w.r.t. a single output (as a vector-Jacobian product). In Forward mode, each pass computes gradients of a single input w.r.t. all outputs (as a Jacobian-vector product). Consequently, there are efficiency trade-offs associated with this selection, depending on the number of inputs and outputs of…</p></li>
+<li><p><strong>…the function we are differentiating</strong>, <code>params -&gt; neg_log_posterior(params, priors, x, y)</code>. Here, an anonymous function that takes <code>params</code> as input and returns the negative log posterior, using <code>neg_log_posterior()</code>, which we defined above.</p></li>
+<li><p><strong>the point at which we want gradients</strong>, <code>params_init</code>. This is the current location of the Markov chain. In the first instance we need an initial guess, for which we have drawn from the priors.</p></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><span class="im" style="color: #00769E;
@@ -365,10 +619,10 @@ font-style: inherit;">neg_log_posterior</span>(params, priors, x, y), </span>
 <p>I’ll spare you this set-up code here as we are focussing on autodiff, but you can find the full code <a href="https://github.com/DomDF/autodiff_experiments">on GitHub</a>.</p>
 <p>Instead, let’s look at my training function. Notice that I am now using a different function, <code>Enzyme.autodiff()</code> for backpropagation. It has more arguments:</p>
 <ul>
-<li><strong>the mode/direction to apply AD</strong>, <code>set_runtime_activity(Reverse)</code> Similar to <code>gradient()</code>, but here we are specifying that we want to use reverse-mode AD, with runtime activity analysis. As a rule of 👍, I start with regular <code>Reverse</code> mode AD. If I get compilation errors about, for instance, type inference or broadcasting, then I add <code>set_runtime_activity()</code>.</li>
-<li><strong>the function we are differentiating</strong>, <code>(net, funs, inputs, targets) -&gt; find_loss(net, funs, inputs, targets)[1]</code> Here, an anonymous function that takes the neural network, its functions, inputs and targets as arguments, and returns the loss.</li>
-<li><strong>the activity of the function</strong> <code>Active</code> we need to make the output to the loss function active, because it is the starting point of the chain rule.</li>
-<li><strong>the activity of each argument</strong>, <code>Active</code>, <code>Const()</code>, or <code>Duplicated()</code> This is where things get more explicit. We need to tell <code>Enzyme</code> which arguments we want gradients for (<code>Active</code>), and which we don’t (<code>Const</code>) - the derivative of a constant is zero. Finally, we also want gradients for <code>Duplicated</code> variables, but they could be large. So we create a shadow copy of the neural network, <code>nn_shadow</code>, which we use to accumulate gradients in-place (without allocating new memory each time!)</li>
+<li><strong>the mode/direction to apply AD</strong>, <code>set_runtime_activity(Reverse)</code>. Similar to <code>gradient()</code>, but here we are specifying that we want to use reverse-mode AD, with runtime activity analysis. As a rule of 👍, I start with regular <code>Reverse</code> mode AD. If I get compilation errors about, for instance, type inference or broadcasting, then I add <code>set_runtime_activity()</code>.</li>
+<li><strong>the function we are differentiating</strong>, <code>(net, funs, inputs, targets) -&gt; find_loss(net, funs, inputs, targets)</code>. Here, an anonymous function that takes the neural network, its functions, inputs and targets as arguments, and returns the loss.</li>
+<li><strong>the activity of the function</strong> <code>Active</code>. we need to make the output to the loss function active, because it is the starting point of the chain rule.</li>
+<li><strong>the activity of each argument</strong>, <code>Active</code>, <code>Const()</code>, or <code>Duplicated()</code>. This is where things get more explicit. We need to tell <code>Enzyme</code> which arguments we want gradients for (<code>Active</code>), and which we don’t (<code>Const</code>) - the derivative of a constant is zero. Finally, we also want gradients for <code>Duplicated</code> variables, but they could be large. So we create a shadow copy of the neural network, <code>nn_shadow</code>, which we use to accumulate gradients in-place (without allocating new memory each time!)</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="kw" style="color: #003B4F;
@@ -464,41 +718,50 @@ font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span>n_epochs</span>
 <span id="cb10-10"></span>
-<span id="cb10-11">        ∇nn <span class="op" style="color: #5E5E5E;
+<span id="cb10-11">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># initiate our memory-saving shadow</span></span>
+<span id="cb10-12">        ∇nn <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> Enzyme.<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">make_zero</span>(nn)</span>
-<span id="cb10-12"></span>
-<span id="cb10-13">        Enzyme.<span class="fu" style="color: #4758AB;
+<span id="cb10-13"></span>
+<span id="cb10-14">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># find ∂ℒ/∂θ</span></span>
+<span id="cb10-15">        Enzyme.<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">autodiff</span>(</span>
-<span id="cb10-14">            <span class="fu" style="color: #4758AB;
+<span id="cb10-16">            <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">set_runtime_activity</span>(Reverse),</span>
-<span id="cb10-15">            (net, funs, inputs, targets) <span class="op" style="color: #5E5E5E;
+<span id="cb10-17">            (net, funs, inputs, targets) <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-&gt;</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">find_loss</span>(net, funs, inputs, targets)[<span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>],</span>
-<span id="cb10-16">            Active,</span>
-<span id="cb10-17">            <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">Duplicated</span>(nn, nn_shadow),</span>
-<span id="cb10-18">            <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">Const</span>(nn_funs),</span>
+<span id="cb10-18">            Active,</span>
 <span id="cb10-19">            <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">Const</span>(a),</span>
+font-style: inherit;">Duplicated</span>(nn, ∇nn),</span>
 <span id="cb10-20">            <span class="fu" style="color: #4758AB;
 background-color: null;
+font-style: inherit;">Const</span>(nn_funs),</span>
+<span id="cb10-21">            <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Const</span>(a),</span>
+<span id="cb10-22">            <span class="fu" style="color: #4758AB;
+background-color: null;
 font-style: inherit;">Const</span>(y)</span>
-<span id="cb10-21">        )</span>
-<span id="cb10-22"></span>
-<span id="cb10-23">        <span class="cf" style="color: #003B4F;
+<span id="cb10-23">        )</span>
+<span id="cb10-24"></span>
+<span id="cb10-25">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># nudge all weights and biases towards a lower loss, using learning rate, η</span></span>
+<span id="cb10-26">        <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> j <span class="op" style="color: #5E5E5E;
@@ -510,80 +773,47 @@ background-color: null;
 font-style: inherit;">:</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">length</span>(nn.Ws)</span>
-<span id="cb10-24">            nn.Ws[j] <span class="op" style="color: #5E5E5E;
+<span id="cb10-27">            nn.Ws[j] <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-=</span> η <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*</span> ∇nn.Ws[j]</span>
-<span id="cb10-25">            nn.bs[j] <span class="op" style="color: #5E5E5E;
+<span id="cb10-28">            nn.bs[j] <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-=</span> η <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*</span> ∇nn.bs[j]</span>
-<span id="cb10-26">        <span class="cf" style="color: #003B4F;
+<span id="cb10-29">        <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">end</span></span>
-<span id="cb10-27">        </span>
-<span id="cb10-28">        <span class="co" style="color: #5E5E5E;
+<span id="cb10-30">        </span>
+<span id="cb10-31">        <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Record losses</span></span>
-<span id="cb10-29">        <span class="fu" style="color: #4758AB;
+font-style: inherit;"># record losses</span></span>
+<span id="cb10-32">        <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">append!</span>(training_df, </span>
-<span id="cb10-30">                <span class="fu" style="color: #4758AB;
+<span id="cb10-33">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">DataFrame</span>(epoch <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> i, </span>
-<span id="cb10-31">                          loss <span class="op" style="color: #5E5E5E;
+<span id="cb10-34">                          loss <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">find_loss</span>(nn, nn_funs, a, y)[<span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>],</span>
-<span id="cb10-32">                          test_loss <span class="op" style="color: #5E5E5E;
+<span id="cb10-35">                          test_loss <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">find_loss</span>(nn, nn_funs, a_test, y_test)[<span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>]))</span>
-<span id="cb10-33"></span>
-<span id="cb10-34">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">if</span> n_epochs <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">%</span> i <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span></span>
-<span id="cb10-35">            <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">println</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Epoch: </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>i<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">, Progress: </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">100</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> i <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> n_epochs)<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">, %"</span>)</span>
-<span id="cb10-36">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span></span>
+<span id="cb10-36"></span>
 <span id="cb10-37">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
@@ -632,7 +862,7 @@ September 9, 2025. <a href="https://allyourbayes.com/posts/gradients/">https://a
   <category>Julia</category>
   <category>Enzyme</category>
   <guid>https://allyourbayes.com/posts/gradients/</guid>
-  <pubDate>Tue, 09 Sep 2025 04:00:00 GMT</pubDate>
+  <pubDate>Mon, 08 Sep 2025 23:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/gradients/meme.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
@@ -673,7 +903,7 @@ Di Francesco, Domenic. 2024. <span>“The Turing Podcast.”</span> January
   <category>Engineering</category>
   <category>Dogs</category>
   <guid>https://allyourbayes.com/posts/Turing_Podcast/</guid>
-  <pubDate>Thu, 25 Jan 2024 05:00:00 GMT</pubDate>
+  <pubDate>Thu, 25 Jan 2024 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Turing_Podcast/alan_turing.png" medium="image" type="image/png" height="104" width="144"/>
 </item>
 <item>
@@ -713,7 +943,7 @@ Di Francesco, Domenic. 2023. <span>“Who Am I?”</span> March 21, 2023. <a hre
   <category>R</category>
   <category>Shiny</category>
   <guid>https://allyourbayes.com/posts/Who_Am_I/</guid>
-  <pubDate>Tue, 21 Mar 2023 04:00:00 GMT</pubDate>
+  <pubDate>Tue, 21 Mar 2023 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Who_Am_I/game.png" medium="image" type="image/png" height="77" width="144"/>
 </item>
 <item>
@@ -760,7 +990,7 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
   <category>Decisions</category>
   <category>Value of Information</category>
   <guid>https://allyourbayes.com/posts/Bayes@Lund/</guid>
-  <pubDate>Mon, 23 Jan 2023 05:00:00 GMT</pubDate>
+  <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
@@ -780,7 +1010,7 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
  ]]></description>
   <category>news</category>
   <guid>https://allyourbayes.com/posts/welcome/</guid>
-  <pubDate>Mon, 23 Jan 2023 05:00:00 GMT</pubDate>
+  <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Player form. Part 1: Overview</title>
@@ -931,7 +1161,7 @@ Di Francesco, Domenic. 2023. <span>“Player Form. Part 1.”</span> January
   <category>Bayes</category>
   <category>gaussian process</category>
   <guid>https://allyourbayes.com/posts/player_form/</guid>
-  <pubDate>Thu, 19 Jan 2023 05:00:00 GMT</pubDate>
+  <pubDate>Thu, 19 Jan 2023 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/player_form/plot.png" medium="image" type="image/png" height="96" width="144"/>
 </item>
 <item>
@@ -1322,7 +1552,7 @@ January 7, 2021. <a href="https://allyourbayes.com/posts/xg_pt2/">https://allyou
   <category>multi-level modelling</category>
   <category>partial pooling</category>
   <guid>https://allyourbayes.com/posts/xg_pt2/</guid>
-  <pubDate>Thu, 07 Jan 2021 05:00:00 GMT</pubDate>
+  <pubDate>Thu, 07 Jan 2021 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/xg_pt2/xg2.png" medium="image" type="image/png" height="104" width="144"/>
 </item>
 <item>
@@ -1486,7 +1716,7 @@ December 10, 2020. <a href="https://allyourbayes.com/posts/xg_pt1/">https://ally
   <category>multi-level modelling</category>
   <category>partial pooling</category>
   <guid>https://allyourbayes.com/posts/xg_pt1/</guid>
-  <pubDate>Thu, 10 Dec 2020 05:00:00 GMT</pubDate>
+  <pubDate>Thu, 10 Dec 2020 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/xg_pt1/xg1.png" medium="image" type="image/png" height="99" width="144"/>
 </item>
 <item>
@@ -1602,7 +1832,7 @@ Di Francesco, Domenic. 2020. <span>“Why Be Bayesian?”</span> March 24,
   <category>uncertainty</category>
   <category>decisions</category>
   <guid>https://allyourbayes.com/posts/Why_Bayes/</guid>
-  <pubDate>Tue, 24 Mar 2020 04:00:00 GMT</pubDate>
+  <pubDate>Tue, 24 Mar 2020 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Why_Bayes/gp.png" medium="image" type="image/png" height="84" width="144"/>
 </item>
 <item>
@@ -2125,7 +2355,7 @@ Stan.”</span> February 15, 2020. <a href="https://allyourbayes.com/posts/Logis
   <category>Stan</category>
   <category>R</category>
   <guid>https://allyourbayes.com/posts/Logistic_Bayes/</guid>
-  <pubDate>Sat, 15 Feb 2020 05:00:00 GMT</pubDate>
+  <pubDate>Sat, 15 Feb 2020 00:00:00 GMT</pubDate>
   <media:content url="https://allyourbayes.com/posts/Logistic_Bayes/logistic_priors.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 </channel>

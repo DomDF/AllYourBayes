@@ -75,10 +75,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c3e974e0756fe2ffefea3b4a8f4a889f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4c07829bb613a292a3e4732ec5a2b79c.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c76693b9f41230112889a724e2769aa.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4c07829bb613a292a3e4732ec5a2b79c.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-7420f67b45df3a9afc8820450e835f62.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-a11e2fd5f706ed60ba98271903170b44.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-cd31f8dce7435b9c7fafa4796e11904a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-a11e2fd5f706ed60ba98271903170b44.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -164,7 +168,6 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="../../styles.css">
 <meta name="twitter:title" content="diff all the things – All Your Bayes">
 <meta name="twitter:description" content="performant gradients on demand, courtesy of Julia">
 <meta name="twitter:image" content="https://allyourbayes.com/posts/gradients/meme.jpg">
@@ -172,7 +175,169 @@ window.Quarto = {
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
@@ -264,13 +429,14 @@ window.Quarto = {
 
 
 
+
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
 <p>Gradients guide us through high-dimensional parameter space to draw samples from posterior distributions, take steps towards loss minimising parameter values, identify model vulnerabilities using adversarial methods, and more. One (of many) fun features about the <code>Julia</code> programming language is it’s unique approach to autodiff. However, I personally found some documentation a little difficult to follow, so this is intended to be a practical guide, with a couple of example use cases.</p>
 <hr>
 <section id="autodiff-ad" class="level4">
 <h4 class="anchored" data-anchor-id="autodiff-ad">autodiff (AD)</h4>
-<p>Soooo much of computational statistics and machine learning is built on automatic (algorithmic) differentiation (AD). Dig into literature on Bayesian inference, or deep learning, and you will find parameters being nudged in a direction informed by a gradient. I’m sometimes suprised at the extent of the ‘gradient-based’ monopoly in scientific computing, but I don’t mean to trivialise! …getting gradients of complex functions, very quickly and without error, is a powerful tool and it’s great that people are ale to leverage this.</p>
+<p>Soooo much of computational statistics and machine learning is built on automatic (algorithmic) differentiation (AD). Dig into literature on Bayesian inference, or deep learning, and you will find parameters being nudged in a direction informed by a gradient. I’m sometimes suprised at the extent of the ‘gradient-based’ monopoly in scientific computing, but I don’t mean to trivialise! …getting gradients of complex functions, very quickly and without error, is a powerful tool and it’s great that people are able to leverage this.</p>
 <p>AD achieves this by <em>“the relentless application of the chain rule”</em>, as I vaguely recall one of the <code>Stan</code> developers saying. Large functions are differentiated piece by piece (for which look-up rules can be applied), and the results are stitched together.</p>
 <p><span class="math display">\[
 \frac{\partial \mathcal{L}}{\partial x_i} = \frac{\partial \mathcal{L}}{\partial x_n} \times \frac{\partial x_n}{\partial x_{n-1}} \times \cdots \times \frac{\partial x_{i+1}}{\partial x_i}
@@ -280,8 +446,8 @@ window.Quarto = {
 <h4 class="anchored" data-anchor-id="inter-operability-and-julia">inter-operability and <code>Julia</code> ♥️💚💜</h4>
 <p>Perhaps my favourite feature of <code>Julia</code> is it’s inter-operability. Look at a GitHub repo for a <code>Julia</code> package and you will generally find the following:</p>
 <p><img src="julia_repo.png" class="img-fluid"></p>
-<p><code>Julia</code> is so performant, that it’s libraries for scientific computing will work with normal variable types - without needing to package up their own types. So solvers from <code>DifferentialEquations</code>, or neural networks defined in <code>Flux</code> can be immediately combined with the <code>Julia</code> probabilistic programming language, <code>Turing</code>.</p>
-<p>If a new framework emerges in <code>Python</code>, an entirely new ecosystem may need to be developed to prop it up. This may invlolve duplicating existing but now incompatible functionality - think of <code>JAX</code> needing to implement it’s own <code>NumPy</code> module. …whereas if you write a new <code>Julia</code> library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.</p>
+<p><code>Julia</code> is so performant, that it’s libraries for scientific computing will work with normal variables - without needing to package up their own types. So solvers from <code>DifferentialEquations</code>, or neural networks defined in <code>Flux</code> can be immediately combined with the <code>Julia</code> probabilistic programming language, <code>Turing</code>.</p>
+<p>If a new framework emerges in <code>Python</code>, an entirely new ecosystem may need to be developed to prop it up. This may involve duplicating existing but now incompatible functionality - think of <code>JAX</code> needing to implement it’s own <code>NumPy</code> module. …whereas if you write a new <code>Julia</code> library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.</p>
 <p>Here I am, impressed that the interoperability of the <code>Copulas</code> package:</p>
 <blockquote class="twitter-tweet blockquote" data-conversation="none">
 <p lang="en" dir="ltr">
@@ -293,7 +459,7 @@ window.Quarto = {
 </section>
 <section id="ad-in-julia" class="level4">
 <h4 class="anchored" data-anchor-id="ad-in-julia">AD in <code>Julia</code></h4>
-<p>ML frameworks in <code>Python</code> require you to work in their own syntax, with theit spcecific types, and use their own in-built AD methods. Locking into a framework is not ideal, as you are limited to the methods they support and you need to juggle types of inputs and outputs.</p>
+<p>ML frameworks in <code>Python</code> require you to work in their own syntax, with theit specific types, and use their own in-built AD methods. Locking into a framework is not ideal, as you are limited to the methods they support and you need to juggle types of inputs and outputs.</p>
 <p>Conversely, <code>Julia</code> works the other way around. You write your code, using whichever libraries, functions and types you want, <em>and then</em> you choose an AD library to get you the gradients you need.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -307,8 +473,8 @@ window.Quarto = {
 <p>And then came <code>Enzyme</code>: an AD library that works at the LLVM level (your code is compiled first, and then the gradients are computed). This led to improvements in both performance and flexibility - we can now differentiate through mutation and control flow. This more resilient library has a steeper learning curve (imo), but (also imo) requiring more explicit instructions ends up making things clearer.</p>
 <p>I hope the below examples will help get you started.</p>
 </section>
-<section id="exampe-1-a-bayesian-linear-regression" class="level4">
-<h4 class="anchored" data-anchor-id="exampe-1-a-bayesian-linear-regression">exampe 1: a Bayesian linear regression</h4>
+<section id="example-1-a-bayesian-linear-regression" class="level4">
+<h4 class="anchored" data-anchor-id="example-1-a-bayesian-linear-regression">example 1: a Bayesian linear regression</h4>
 <p>How about computing the gradients we need for Hamiltonian Monte Carlo sampling. For a linear regression model, with inputs, <span class="math inline">\(X\)</span> and outputs, <span class="math inline">\(y\)</span>:</p>
 <p><span class="math display">\[
 y \sim N(\alpha + \beta X, \sigma)
@@ -391,10 +557,9 @@ y \sim N(\alpha + \beta X, \sigma)
 </div>
 <p>I am giving the <code>gradient()</code> function three arguments:</p>
 <ul>
-<li><p><strong>the mode/direction to apply AD</strong>, <code>Reverse</code> Each pass of a reverse-mode AD computes gradients of all inputs w.r.t. a single output (as a vector-Jacobian product). In Forward mode, each pass computes gradients of a single input w.r.t. all outputs (as a Jacobian-vector product). Consequently, there are efficiency trade-offs associated with this selection, depending on the number of inputs and outputs of…</p></li>
-<li><p><strong>…the function we are differentiating</strong>, <code>params -&gt; neg_log_posterior(params, priors, x, y)</code> Here, an anonymous function that takes <code>params</code> as input and returns the negative log posterior, using <code>neg_log_posterior()</code>, which we defined above.</p></li>
-<li><p><strong>the point at which we want gradients</strong>, <code>params_init</code></p>
-<p>This is the current location of the Markov chain. In the first instance we need an initial guess, for which we have drawn from the priors.</p></li>
+<li><p><strong>the mode/direction to apply AD</strong>, <code>Reverse</code>. Each pass of a reverse-mode AD computes gradients of all inputs w.r.t. a single output (as a vector-Jacobian product). In Forward mode, each pass computes gradients of a single input w.r.t. all outputs (as a Jacobian-vector product). Consequently, there are efficiency trade-offs associated with this selection, depending on the number of inputs and outputs of…</p></li>
+<li><p><strong>…the function we are differentiating</strong>, <code>params -&gt; neg_log_posterior(params, priors, x, y)</code>. Here, an anonymous function that takes <code>params</code> as input and returns the negative log posterior, using <code>neg_log_posterior()</code>, which we defined above.</p></li>
+<li><p><strong>the point at which we want gradients</strong>, <code>params_init</code>. This is the current location of the Markov chain. In the first instance we need an initial guess, for which we have drawn from the priors.</p></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Enzyme</span></span>
@@ -416,10 +581,10 @@ y \sim N(\alpha + \beta X, \sigma)
 <p>I’ll spare you this set-up code here as we are focussing on autodiff, but you can find the full code <a href="https://github.com/DomDF/autodiff_experiments">on GitHub</a>.</p>
 <p>Instead, let’s look at my training function. Notice that I am now using a different function, <code>Enzyme.autodiff()</code> for backpropagation. It has more arguments:</p>
 <ul>
-<li><strong>the mode/direction to apply AD</strong>, <code>set_runtime_activity(Reverse)</code> Similar to <code>gradient()</code>, but here we are specifying that we want to use reverse-mode AD, with runtime activity analysis. As a rule of 👍, I start with regular <code>Reverse</code> mode AD. If I get compilation errors about, for instance, type inference or broadcasting, then I add <code>set_runtime_activity()</code>.</li>
-<li><strong>the function we are differentiating</strong>, <code>(net, funs, inputs, targets) -&gt; find_loss(net, funs, inputs, targets)[1]</code> Here, an anonymous function that takes the neural network, its functions, inputs and targets as arguments, and returns the loss.</li>
-<li><strong>the activity of the function</strong> <code>Active</code> we need to make the output to the loss function active, because it is the starting point of the chain rule.</li>
-<li><strong>the activity of each argument</strong>, <code>Active</code>, <code>Const()</code>, or <code>Duplicated()</code> This is where things get more explicit. We need to tell <code>Enzyme</code> which arguments we want gradients for (<code>Active</code>), and which we don’t (<code>Const</code>) - the derivative of a constant is zero. Finally, we also want gradients for <code>Duplicated</code> variables, but they could be large. So we create a shadow copy of the neural network, <code>nn_shadow</code>, which we use to accumulate gradients in-place (without allocating new memory each time!)</li>
+<li><strong>the mode/direction to apply AD</strong>, <code>set_runtime_activity(Reverse)</code>. Similar to <code>gradient()</code>, but here we are specifying that we want to use reverse-mode AD, with runtime activity analysis. As a rule of 👍, I start with regular <code>Reverse</code> mode AD. If I get compilation errors about, for instance, type inference or broadcasting, then I add <code>set_runtime_activity()</code>.</li>
+<li><strong>the function we are differentiating</strong>, <code>(net, funs, inputs, targets) -&gt; find_loss(net, funs, inputs, targets)</code>. Here, an anonymous function that takes the neural network, its functions, inputs and targets as arguments, and returns the loss.</li>
+<li><strong>the activity of the function</strong> <code>Active</code>. we need to make the output to the loss function active, because it is the starting point of the chain rule.</li>
+<li><strong>the activity of each argument</strong>, <code>Active</code>, <code>Const()</code>, or <code>Duplicated()</code>. This is where things get more explicit. We need to tell <code>Enzyme</code> which arguments we want gradients for (<code>Active</code>), and which we don’t (<code>Const</code>) - the derivative of a constant is zero. Finally, we also want gradients for <code>Duplicated</code> variables, but they could be large. So we create a shadow copy of the neural network, <code>nn_shadow</code>, which we use to accumulate gradients in-place (without allocating new memory each time!)</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">train</span>(nn<span class="op">::</span><span class="dt">neural_network</span>, nn_funs<span class="op">::</span><span class="dt">neural_network_funs</span>, </span>
@@ -432,32 +597,32 @@ y \sim N(\alpha + \beta X, \sigma)
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n_epochs</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        ∇nn <span class="op">=</span> Enzyme.<span class="fu">make_zero</span>(nn)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        Enzyme.<span class="fu">autodiff</span>(</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">set_runtime_activity</span>(Reverse),</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            (net, funs, inputs, targets) <span class="op">-&gt;</span> <span class="fu">find_loss</span>(net, funs, inputs, targets)[<span class="fl">1</span>],</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>            Active,</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>            <span class="fu">Duplicated</span>(nn, nn_shadow),</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">Const</span>(nn_funs),</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>            <span class="fu">Const</span>(a),</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>            <span class="fu">Const</span>(y)</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(nn.Ws)</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>            nn.Ws[j] <span class="op">-=</span> η <span class="op">*</span> ∇nn.Ws[j]</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>            nn.bs[j] <span class="op">-=</span> η <span class="op">*</span> ∇nn.bs[j]</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Record losses</span></span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">append!</span>(training_df, </span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>                <span class="fu">DataFrame</span>(epoch <span class="op">=</span> i, </span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>                          loss <span class="op">=</span> <span class="fu">find_loss</span>(nn, nn_funs, a, y)[<span class="fl">1</span>],</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>                          test_loss <span class="op">=</span> <span class="fu">find_loss</span>(nn, nn_funs, a_test, y_test)[<span class="fl">1</span>]))</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> n_epochs <span class="op">%</span> i <span class="op">==</span> <span class="fl">0</span></span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>            <span class="fu">println</span>(<span class="st">"Epoch: </span><span class="sc">$</span>i<span class="st">, Progress: </span><span class="sc">$</span>(<span class="fl">100</span> <span class="op">*</span> i <span class="op">/</span> n_epochs)<span class="st">, %"</span>)</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># initiate our memory-saving shadow</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        ∇nn <span class="op">=</span> Enzyme.<span class="fu">make_zero</span>(nn)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># find ∂ℒ/∂θ</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        Enzyme.<span class="fu">autodiff</span>(</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>            <span class="fu">set_runtime_activity</span>(Reverse),</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>            (net, funs, inputs, targets) <span class="op">-&gt;</span> <span class="fu">find_loss</span>(net, funs, inputs, targets)[<span class="fl">1</span>],</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>            Active,</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>            <span class="fu">Duplicated</span>(nn, ∇nn),</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>            <span class="fu">Const</span>(nn_funs),</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>            <span class="fu">Const</span>(a),</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>            <span class="fu">Const</span>(y)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># nudge all weights and biases towards a lower loss, using learning rate, η</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(nn.Ws)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>            nn.Ws[j] <span class="op">-=</span> η <span class="op">*</span> ∇nn.Ws[j]</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>            nn.bs[j] <span class="op">-=</span> η <span class="op">*</span> ∇nn.bs[j]</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># record losses</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>        <span class="fu">append!</span>(training_df, </span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>                <span class="fu">DataFrame</span>(epoch <span class="op">=</span> i, </span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>                          loss <span class="op">=</span> <span class="fu">find_loss</span>(nn, nn_funs, a, y)[<span class="fl">1</span>],</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>                          test_loss <span class="op">=</span> <span class="fu">find_loss</span>(nn, nn_funs, a_test, y_test)[<span class="fl">1</span>]))</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
 <span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nn, training_df</span>
@@ -493,6 +658,19 @@ September 9, 2025. <a href="https://allyourbayes.com/posts/gradients/">https://a
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {

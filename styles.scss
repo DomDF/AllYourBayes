@@ -8,3 +8,11 @@
 $font-family-sans-serif: "Atkinson Hyperlegible";
 $font-family-monospace: "Fira Code";
 
+/*-- scss:rules --*/
+
+ // enable ligatures in code blocks
+
+code, pre, .sourceCode {
+  font-feature-settings: "liga" 1, "calt" 1;
+  font-variant-ligatures: contextual;
+}

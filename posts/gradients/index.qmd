@@ -42,7 +42,7 @@ Perhaps my favourite feature of `Julia` is it's inter-operability. Look at a Git
 
 ![](julia_repo.png)
 
-`Julia` is so performant, that it's libraries for scientific computing will work with normal variable types - without needing to package up their own types. So solvers from `DifferentialEquations`, or neural networks defined in `Flux` can be immediately combined with the `Julia` probabilistic programming language, `Turing`.
+`Julia` is so performant, that it's libraries for scientific computing will work with normal variables - without needing to package up their own types. So solvers from `DifferentialEquations`, or neural networks defined in `Flux` can be immediately combined with the `Julia` probabilistic programming language, `Turing`.
 
 If a new framework emerges in `Python`, an entirely new ecosystem may need to be developed to prop it up. This may involve duplicating existing but now incompatible functionality - think of `JAX` needing to implement it's own `NumPy` module. ...whereas if you write a new `Julia` library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.
 
@@ -165,14 +165,13 @@ params_init = (
 
 I am giving the `gradient()` function three arguments:
 
-* **the mode/direction to apply AD**, `Reverse` 
+* **the mode/direction to apply AD**, `Reverse`.
   Each pass of a reverse-mode AD computes gradients of all inputs w.r.t. a single output (as a vector-Jacobian product). In Forward mode, each pass computes gradients of a single input w.r.t. all outputs (as a Jacobian-vector product). Consequently, there are efficiency trade-offs associated with this selection, depending on the number of inputs and outputs of...
 
-* **...the function we are differentiating**, `params -> neg_log_posterior(params, priors, x, y)`
+* **...the function we are differentiating**, `params -> neg_log_posterior(params, priors, x, y)`.
   Here, an anonymous function that takes `params` as input and returns the negative log posterior, using `neg_log_posterior()`, which we defined above.
 
-* **the point at which we want gradients**, `params_init`
-  
+* **the point at which we want gradients**, `params_init`.
   This is the current location of the Markov chain. In the first instance we need an initial guess, for which we have drawn from the priors.
 
 ```{julia}
@@ -195,13 +194,13 @@ I'll spare you this set-up code here as we are focussing on autodiff, but you ca
 
 Instead, let's look at my training function. Notice that I am now using a different function, `Enzyme.autodiff()` for backpropagation. It has more arguments:
 
-* **the mode/direction to apply AD**, `set_runtime_activity(Reverse)`
+* **the mode/direction to apply AD**, `set_runtime_activity(Reverse)`.
   Similar to `gradient()`, but here we are specifying that we want to use reverse-mode AD, with runtime activity analysis. As a rule of 👍, I start with regular `Reverse` mode AD. If I get compilation errors about, for instance, type inference or broadcasting, then I add `set_runtime_activity()`.
-* **the function we are differentiating**, `(net, funs, inputs, targets) -> find_loss(net, funs, inputs, targets)[1]`
+* **the function we are differentiating**, `(net, funs, inputs, targets) -> find_loss(net, funs, inputs, targets)`.
   Here, an anonymous function that takes the neural network, its functions, inputs and targets as arguments, and returns the loss.
-* **the activity of the function** `Active`
+* **the activity of the function** `Active`.
   we need to make the output to the loss function active, because it is the starting point of the chain rule. 
-* **the activity of each argument**, `Active`, `Const()`, or `Duplicated()`
+* **the activity of each argument**, `Active`, `Const()`, or `Duplicated()`.
   This is where things get more explicit. We need to tell `Enzyme` which arguments we want gradients for (`Active`), and which we don't (`Const`) - the derivative of a constant is zero.
   Finally, we also want gradients for `Duplicated` variables, but they could be large. So we create a shadow copy of the neural network, `nn_shadow`, which we use to accumulate gradients in-place (without allocating new memory each time!)
 
@@ -255,9 +254,6 @@ end
 The example applications that I selected are already very well equipped with sophisticated `Julia` libraries. If you are interested in probabilistic modelling in `Julia`, use `Turing`, if you are interested in deep learning, use `Flux`. Both are Enzyme compatible, but the later has specific guidance on how to set this up, using the `Duplicated` method that we used above:
 
 ![](Flux_Enzyme.png)
-
-
-
 
 
 #### some references
