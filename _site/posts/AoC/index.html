@@ -141,7 +141,7 @@ cookieconsent.run({
 
 <meta name="twitter:title" content="advent of code 2025 – All Your Bayes">
 <meta name="twitter:description" content="how far can I get in Julia?">
-<meta name="twitter:image" content="https://www.allyourbayes.com/posts/AoC/santa.png">
+<meta name="twitter:image" content="https://allyourbayes.com/posts/AoC/santa.png">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image-height" content="1376">
@@ -418,7 +418,7 @@ cookieconsent.run({
 <li>part 1: how many times do we end up on zero after a turn?</li>
 <li>part 2: how many times do we turn through zero in total?</li>
 </ul>
-<p>Floor division <code>fld()</code> will count how many times we lap around zero.</p>
+<p>Floor division <code>fld()</code> will count how many times we lap around zero (and in which direction).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">get_passwords</span>(seq<span class="op">::</span><span class="dt">Vector{String}</span>, dial_start<span class="op">::</span><span class="dt">Int </span><span class="op">=</span> <span class="fl">50</span>, dial_mod<span class="op">::</span><span class="dt">Int </span><span class="op">=</span> <span class="fl">100</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -435,7 +435,7 @@ cookieconsent.run({
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elseif</span> direction <span class="op">==</span> <span class="ch">'L'</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="co"># we need to catch the case where the dial starts at 0 and not count that first turn</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            pass_zeros <span class="op">+=</span> <span class="fu">fld</span>(dial <span class="op">-</span> <span class="fl">1</span>, dial_mod) <span class="op">-</span> <span class="fu">fld</span>(dial <span class="op">-</span> turns <span class="op">-</span> <span class="fl">1</span>, dial_mod)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            pass_zeros <span class="op">-=</span> <span class="fu">fld</span>(dial <span class="op">-</span> turns <span class="op">-</span> <span class="fl">1</span>, dial_mod) <span class="op">-</span> <span class="fu">fld</span>(dial <span class="op">-</span> <span class="fl">1</span>, dial_mod)</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            dial <span class="op">-=</span> turns</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            </span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
@@ -453,7 +453,7 @@ cookieconsent.run({
 <pre><code>get_passwords (generic function with 3 methods)</code></pre>
 </div>
 </div>
-<p>A nice opener, and I did make a mistake in my first guess for part 2, forgetting to catch the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
+<p>A nice opener, and I did make a mistake in my first guess for part 2, forgetting the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>seq <span class="op">|&gt;</span> get_passwords</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -463,6 +463,7 @@ cookieconsent.run({
 </section>
 <section id="day-2" class="level4">
 <h4 class="anchored" data-anchor-id="day-2">Day 2: ⏳</h4>
+<p>to be revealed…</p>
 
 
 </section>
@@ -472,12 +473,12 @@ cookieconsent.run({
   author = {Di Francesco, Domenic},
   title = {Advent of Code 2025},
   date = {2025-12-01},
-  url = {https://www.allyourbayes.com/posts/AoC/},
+  url = {https://allyourbayes.com/posts/AoC/},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas" role="listitem">
 Di Francesco, Domenic. 2025. <span>“Advent of Code 2025.”</span>
-December 1, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.allyourbayes.com/posts/AoC/</a>.
+December 1, 2025. <a href="https://allyourbayes.com/posts/AoC/">https://allyourbayes.com/posts/AoC/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -564,7 +565,7 @@ December 1, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/www\.allyourbayes\.com\/");
+        var filterRegex = new RegExp("https:\/\/allyourbayes\.com");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

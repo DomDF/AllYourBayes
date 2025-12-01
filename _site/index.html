@@ -78,7 +78,7 @@ ul.task-list li input[type="checkbox"] {
 <script>
 
   window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    const listingTargetEl = window.document.querySelector('#listing-recent .list');
     if (!listingTargetEl) {
       // No listing discovered, do not attach.
       return; 
@@ -91,7 +91,35 @@ ul.task-list li input[type="checkbox"] {
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+    window['quarto-listings']['listing-recent'] = new List('listing-recent', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-all-posts .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-title','listing-author','listing-date','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description","listing-categories"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-all-posts'] = new List('listing-all-posts', options);
 
     if (window['quarto-listing-loaded']) {
       window['quarto-listing-loaded']();
@@ -162,9 +190,9 @@ window.Quarto = {
 };
 </script>
 
-<link rel="alternate" type="application/rss+xml" title="All Your Bayes" href="index.xml" data-external="1"><meta name="twitter:title" content="Dom Di Francesco, PhD, CEng – All Your Bayes">
+<meta name="twitter:title" content="Dom Di Francesco, PhD, CEng – All Your Bayes">
 <meta name="twitter:description" content="thoughts on risk, uncertainty, statistics and decisions">
-<meta name="twitter:image" content="https://www.allyourbayes.com/DomDF.jpg">
+<meta name="twitter:image" content="https://allyourbayes.com/DomDF.jpg">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -398,7 +426,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(11)</span></div><div class="category" data-category="YW5hbHlzaXM=">analysis <span class="quarto-category-count">(3)</span></div><div class="category" data-category="QXV0b21hdGljJTIwZGlmZmVyZW50aWF0aW9u">Automatic differentiation <span class="quarto-category-count">(1)</span></div><div class="category" data-category="QmF5ZXM=">Bayes <span class="quarto-category-count">(7)</span></div><div class="category" data-category="QmF5ZXNpYW4lMjBpbmZlcmVuY2U=">Bayesian inference <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGVjaXNpb25z">Decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVjaXNpb25z">decisions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGVlcCUyMGxlYXJuaW5n">Deep learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RG9ncw==">Dogs <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RW5naW5lZXJpbmc=">Engineering <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RW56eW1l">Enzyme <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Rm9vdGJhbGw=">Football <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Zm9vdGJhbGw=">football <span class="quarto-category-count">(3)</span></div><div class="category" data-category="Z2F1c3NpYW4lMjBwcm9jZXNz">gaussian process <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SnVsaWE=">Julia <span class="quarto-category-count">(3)</span></div><div class="category" data-category="TG9naXN0aWMlMjBSZWdyZXNzaW9u">Logistic Regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TUNNQw==">MCMC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bXVsdGktbGV2ZWwlMjBtb2RlbGxpbmc=">multi-level modelling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="bmV3cw==">news <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cGFydGlhbCUyMHBvb2xpbmc=">partial pooling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="UG9kY2FzdA==">Podcast <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cHV6emxlcw==">puzzles <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Ug==">R <span class="quarto-category-count">(2)</span></div><div class="category" data-category="U2hpbnk=">Shiny <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U3Rhbg==">Stan <span class="quarto-category-count">(5)</span></div><div class="category" data-category="dW5jZXJ0YWludHk=">uncertainty <span class="quarto-category-count">(4)</span></div><div class="category" data-category="VmFsdWUlMjBvZiUyMEluZm9ybWF0aW9u">Value of Information <span class="quarto-category-count">(1)</span></div><div class="category" data-category="eGc=">xg <span class="quarto-category-count">(2)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(22)</span></div><div class="category" data-category="YW5hbHlzaXM=">analysis <span class="quarto-category-count">(6)</span></div><div class="category" data-category="YXV0b21hdGljJTIwZGlmZmVyZW50aWF0aW9u">automatic differentiation <span class="quarto-category-count">(2)</span></div><div class="category" data-category="QmF5ZXM=">Bayes <span class="quarto-category-count">(14)</span></div><div class="category" data-category="QmF5ZXNpYW4lMjBpbmZlcmVuY2U=">Bayesian inference <span class="quarto-category-count">(2)</span></div><div class="category" data-category="ZGVjaXNpb25z">decisions <span class="quarto-category-count">(4)</span></div><div class="category" data-category="ZGVlcCUyMGxlYXJuaW5n">deep learning <span class="quarto-category-count">(2)</span></div><div class="category" data-category="ZG9ncw==">dogs <span class="quarto-category-count">(2)</span></div><div class="category" data-category="ZW5naW5lZXJpbmc=">engineering <span class="quarto-category-count">(2)</span></div><div class="category" data-category="RW56eW1l">Enzyme <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Zm9vdGJhbGw=">football <span class="quarto-category-count">(8)</span></div><div class="category" data-category="Z2F1c3NpYW4lMjBwcm9jZXNz">gaussian process <span class="quarto-category-count">(2)</span></div><div class="category" data-category="SnVsaWE=">Julia <span class="quarto-category-count">(6)</span></div><div class="category" data-category="bG9naXN0aWMlMjByZWdyZXNzaW9u">logistic regression <span class="quarto-category-count">(2)</span></div><div class="category" data-category="TUNNQw==">MCMC <span class="quarto-category-count">(2)</span></div><div class="category" data-category="bXVsdGktbGV2ZWwlMjBtb2RlbGxpbmc=">multi-level modelling <span class="quarto-category-count">(4)</span></div><div class="category" data-category="bmV3cw==">news <span class="quarto-category-count">(2)</span></div><div class="category" data-category="cGFydGlhbCUyMHBvb2xpbmc=">partial pooling <span class="quarto-category-count">(4)</span></div><div class="category" data-category="cG9kY2FzdA==">podcast <span class="quarto-category-count">(2)</span></div><div class="category" data-category="cHV6emxlcw==">puzzles <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Ug==">R <span class="quarto-category-count">(4)</span></div><div class="category" data-category="U2hpbnk=">Shiny <span class="quarto-category-count">(2)</span></div><div class="category" data-category="U3Rhbg==">Stan <span class="quarto-category-count">(10)</span></div><div class="category" data-category="dW5jZXJ0YWludHk=">uncertainty <span class="quarto-category-count">(8)</span></div><div class="category" data-category="dmFsdWUlMjBvZiUyMGluZm9ybWF0aW9u">value of information <span class="quarto-category-count">(2)</span></div><div class="category" data-category="eGc=">xg <span class="quarto-category-count">(4)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -407,13 +435,11 @@ window.Quarto = {
 
 
 
-
-
-
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<section id="recent-posts" class="level2">
+<h2 class="anchored" data-anchor-id="recent-posts">Recent Posts</h2>
+<div id="listing-recent" class="quarto-listing quarto-listing-container-default">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="SnVsaWElMkNwdXp6bGVz" data-listing-date-sort="1764547200000" data-listing-file-modified-sort="1764595849111" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="540">
+<div class="quarto-post image-right" data-index="0" data-categories="SnVsaWElMkNwdXp6bGVz" data-listing-date-sort="1764547200000" data-listing-file-modified-sort="1764602510845" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="544">
 <div class="thumbnail"><a href="./posts/AoC/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/AoC/santa.png" class="thumbnail-image">
@@ -448,7 +474,7 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="QXV0b21hdGljJTIwZGlmZmVyZW50aWF0aW9uJTJDRGVlcCUyMGxlYXJuaW5nJTJDQmF5ZXNpYW4lMjBpbmZlcmVuY2UlMkNKdWxpYSUyQ0VuenltZQ==" data-listing-date-sort="1757372400000" data-listing-file-modified-sort="1764586476699" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2215">
+<div class="quarto-post image-right" data-index="1" data-categories="YXV0b21hdGljJTIwZGlmZmVyZW50aWF0aW9uJTJDZGVlcCUyMGxlYXJuaW5nJTJDQmF5ZXNpYW4lMjBpbmZlcmVuY2UlMkNKdWxpYSUyQ0VuenltZQ==" data-listing-date-sort="1757372400000" data-listing-file-modified-sort="1764598828255" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2215">
 <div class="thumbnail"><a href="./posts/gradients/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/gradients/meme.jpg" class="thumbnail-image">
@@ -463,9 +489,9 @@ Domenic Di Francesco
 </div>
 <div class="listing-categories">
 
-<div class="listing-category" onclick="window.quartoListingCategory('QXV0b21hdGljJTIwZGlmZmVyZW50aWF0aW9u'); return false;">Automatic differentiation</div>
+<div class="listing-category" onclick="window.quartoListingCategory('YXV0b21hdGljJTIwZGlmZmVyZW50aWF0aW9u'); return false;">automatic differentiation</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMGxlYXJuaW5n'); return false;">Deep learning</div>
+<div class="listing-category" onclick="window.quartoListingCategory('ZGVlcCUyMGxlYXJuaW5n'); return false;">deep learning</div>
 
 <div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXNpYW4lMjBpbmZlcmVuY2U='); return false;">Bayesian inference</div>
 
@@ -489,7 +515,7 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="UG9kY2FzdCUyQ0JheWVzJTJDRW5naW5lZXJpbmclMkNEb2dz" data-listing-date-sort="1706140800000" data-listing-file-modified-sort="1745848834945" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="70">
+<div class="quarto-post image-right" data-index="2" data-categories="cG9kY2FzdCUyQ0JheWVzJTJDZW5naW5lZXJpbmclMkNkb2dz" data-listing-date-sort="1706140800000" data-listing-file-modified-sort="1764598828267" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="70">
 <div class="thumbnail"><a href="./posts/Turing_Podcast/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/Turing_Podcast/alan_turing.png" class="thumbnail-image">
@@ -504,13 +530,13 @@ Domenic Di Francesco
 </div>
 <div class="listing-categories">
 
-<div class="listing-category" onclick="window.quartoListingCategory('UG9kY2FzdA=='); return false;">Podcast</div>
+<div class="listing-category" onclick="window.quartoListingCategory('cG9kY2FzdA=='); return false;">podcast</div>
 
 <div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('RW5naW5lZXJpbmc='); return false;">Engineering</div>
+<div class="listing-category" onclick="window.quartoListingCategory('ZW5naW5lZXJpbmc='); return false;">engineering</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('RG9ncw=='); return false;">Dogs</div>
+<div class="listing-category" onclick="window.quartoListingCategory('ZG9ncw=='); return false;">dogs</div>
 
 </div>
 <div class="delink listing-description"><a href="./posts/Turing_Podcast/index.html" class="no-external">
@@ -528,7 +554,7 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="Rm9vdGJhbGwlMkNSJTJDU2hpbnk=" data-listing-date-sort="1679356800000" data-listing-file-modified-sort="1754324737579" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="121">
+<div class="quarto-post image-right" data-index="3" data-categories="Zm9vdGJhbGwlMkNSJTJDU2hpbnk=" data-listing-date-sort="1679356800000" data-listing-file-modified-sort="1764598828261" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="121">
 <div class="thumbnail"><a href="./posts/Who_Am_I/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/Who_Am_I/game.png" class="thumbnail-image">
@@ -543,7 +569,7 @@ Domenic Di Francesco
 </div>
 <div class="listing-categories">
 
-<div class="listing-category" onclick="window.quartoListingCategory('Rm9vdGJhbGw='); return false;">Football</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Zm9vdGJhbGw='); return false;">football</div>
 
 <div class="listing-category" onclick="window.quartoListingCategory('Ug=='); return false;">R</div>
 
@@ -565,19 +591,185 @@ Domenic Di Francesco
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="QmF5ZXMlMkNTdGFuJTJDSnVsaWElMkNEZWNpc2lvbnMlMkNWYWx1ZSUyMG9mJTIwSW5mb3JtYXRpb24=" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1745848834929" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="169">
-<div class="thumbnail"><a href="./posts/Bayes@Lund/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/Bayes@Lund/VoPI.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/Bayes@Lund/index.html" class="no-external">Bayes@Lund2023</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/Bayes@Lund/index.html" class="no-external"></a>
 </div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div>
+</section>
+<section id="all-posts" class="level2">
+<h2 class="anchored" data-anchor-id="all-posts">All Posts</h2>
+<div id="listing-all-posts" class="quarto-listing quarto-listing-container-grid">
+<div class="listing-actions-group">
+   <div class="input-group input-group-sm quarto-listing-sort">
+    <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
+    <select id="listing-all-posts-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-all-posts'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
+      <option value="" disabled="" selected="" hidden="">Order By</option>
+      <option value="index" data-direction="asc">Default</option>
+      <option value="listing-title" data-direction="asc">
+        Title
+      </option>
+      <option value="listing-date-sort" data-direction="asc">
+        Date - Oldest
+      </option>
+      <option value="listing-date-sort" data-direction="desc">
+        Date - Newest
+      </option>
+      <option value="listing-author" data-direction="asc">
+        Author
+      </option>
+    </select>
+  </div>
+    <div class="input-group input-group-sm quarto-listing-filter">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input type="text" class="search form-control" placeholder="Filter">
+    </div>
+</div>
+<div class="list grid quarto-listing-cols-3">
+<div class="g-col-1" data-index="0" data-categories="SnVsaWElMkNwdXp6bGVz" data-listing-date-sort="1764547200000" data-listing-file-modified-sort="1764602510845" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="544">
+<a href="./posts/AoC/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/AoC/santa.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+advent of code 2025
+</h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('SnVsaWE='); return false;">Julia</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('cHV6emxlcw=='); return false;">puzzles</div>
+
+</div>
+<div class="card-text listing-description delink">
+Advent of code is a website created by Eric Wastl, releasing a (increasingly challenging) programming puzzle each day. This year we will not be receiving the usual 25 days…
+</div>
+<div class="card-attribution card-text-small justify">
+<div class="listing-author">
+Domenic Di Francesco
+</div>
+<div class="listing-date">
+Dec 1, 2025
+</div>
+</div>
+</div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="1" data-categories="YXV0b21hdGljJTIwZGlmZmVyZW50aWF0aW9uJTJDZGVlcCUyMGxlYXJuaW5nJTJDQmF5ZXNpYW4lMjBpbmZlcmVuY2UlMkNKdWxpYSUyQ0VuenltZQ==" data-listing-date-sort="1757372400000" data-listing-file-modified-sort="1764598828255" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2215">
+<a href="./posts/gradients/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/gradients/meme.jpg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+diff all the things
+</h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('YXV0b21hdGljJTIwZGlmZmVyZW50aWF0aW9u'); return false;">automatic differentiation</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZGVlcCUyMGxlYXJuaW5n'); return false;">deep learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXNpYW4lMjBpbmZlcmVuY2U='); return false;">Bayesian inference</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SnVsaWE='); return false;">Julia</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RW56eW1l'); return false;">Enzyme</div>
+
+</div>
+<div class="card-text listing-description delink">
+Gradients guide us through high-dimensional parameter space to draw samples from posterior distributions, take steps towards loss minimising parameter values, identify model…<code></code>
+</div>
+<div class="card-attribution card-text-small justify">
+<div class="listing-author">
+Domenic Di Francesco
+</div>
+<div class="listing-date">
+Sep 9, 2025
+</div>
+</div>
+</div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="2" data-categories="cG9kY2FzdCUyQ0JheWVzJTJDZW5naW5lZXJpbmclMkNkb2dz" data-listing-date-sort="1706140800000" data-listing-file-modified-sort="1764598828267" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="70">
+<a href="./posts/Turing_Podcast/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/Turing_Podcast/alan_turing.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+The Turing Podcast
+</h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('cG9kY2FzdA=='); return false;">podcast</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZW5naW5lZXJpbmc='); return false;">engineering</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZG9ncw=='); return false;">dogs</div>
+
+</div>
+<div class="card-text listing-description delink">
+Last year, I participated in an episode of the Alan Turing Institute’s Coffee Pod podcast. It was hosted by my friend Bea and we talked about my background in engineering…
+</div>
+<div class="card-attribution card-text-small justify">
+<div class="listing-author">
+Domenic Di Francesco
+</div>
+<div class="listing-date">
+Jan 25, 2024
+</div>
+</div>
+</div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="3" data-categories="Zm9vdGJhbGwlMkNSJTJDU2hpbnk=" data-listing-date-sort="1679356800000" data-listing-file-modified-sort="1764598828261" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="121">
+<a href="./posts/Who_Am_I/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/Who_Am_I/game.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Who Am I?
+</h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('Zm9vdGJhbGw='); return false;">football</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Ug=='); return false;">R</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2hpbnk='); return false;">Shiny</div>
+
+</div>
+<div class="card-text listing-description delink">
+At a previous job, my colleagues and I would occasionally create football (soccer) quizzes for each other. The game I used to send them would involve me sequentially sending…<code></code>
+</div>
+<div class="card-attribution card-text-small justify">
+<div class="listing-author">
+Domenic Di Francesco
+</div>
+<div class="listing-date">
+Mar 21, 2023
+</div>
+</div>
+</div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="4" data-categories="QmF5ZXMlMkNTdGFuJTJDSnVsaWElMkNkZWNpc2lvbnMlMkN2YWx1ZSUyMG9mJTIwaW5mb3JtYXRpb24=" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1764598828255" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="169">
+<a href="./posts/Bayes@Lund/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/Bayes@Lund/VoPI.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Bayes@Lund2023
+</h5>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
@@ -586,69 +778,62 @@ Domenic Di Francesco
 
 <div class="listing-category" onclick="window.quartoListingCategory('SnVsaWE='); return false;">Julia</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('RGVjaXNpb25z'); return false;">Decisions</div>
+<div class="listing-category" onclick="window.quartoListingCategory('ZGVjaXNpb25z'); return false;">decisions</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('VmFsdWUlMjBvZiUyMEluZm9ybWF0aW9u'); return false;">Value of Information</div>
+<div class="listing-category" onclick="window.quartoListingCategory('dmFsdWUlMjBvZiUyMGluZm9ybWF0aW9u'); return false;">value of information</div>
 
 </div>
-<div class="delink listing-description"><a href="./posts/Bayes@Lund/index.html" class="no-external">
+<div class="card-text listing-description delink">
 A recording of my presentation on value of information analysis at the Bayes@Lund2023 conference.
-</a></div>
 </div>
-<div class="metadata">
-<a href="./posts/Bayes@Lund/index.html" class="no-external">
-<div class="listing-date">
-Jan 23, 2023
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 Domenic Di Francesco
 </div>
-</a>
+<div class="listing-date">
+Jan 23, 2023
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="bmV3cw==" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1745848834973" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="20">
-<div class="thumbnail"><a href="./posts/welcome/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/welcome/index.html" class="no-external">All Your Bayes 2.0</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/welcome/index.html" class="no-external"></a>
 </div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="5" data-categories="bmV3cw==" data-listing-date-sort="1674432000000" data-listing-file-modified-sort="1745848834973" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="20">
+<a href="./posts/welcome/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+All Your Bayes 2.0
+</h5>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('bmV3cw=='); return false;">news</div>
 
 </div>
-<div class="delink listing-description"><a href="./posts/welcome/index.html" class="no-external">
+<div class="card-text listing-description delink">
 I’ve recreated this site in quarto, and plan on writing more jargon-free articles on risk, uncertainty, decisions, statistics, and football.
-</a></div>
 </div>
-<div class="metadata">
-<a href="./posts/welcome/index.html" class="no-external">
+<div class="card-attribution card-text-small justify">
+<div class="listing-author">
+
+</div>
 <div class="listing-date">
 Jan 23, 2023
 </div>
-</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="Zm9vdGJhbGwlMkNhbmFseXNpcyUyQ1N0YW4lMkN1bmNlcnRhaW50eSUyQ0JheWVzJTJDZ2F1c3NpYW4lMjBwcm9jZXNz" data-listing-date-sort="1674086400000" data-listing-file-modified-sort="1745848834965" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="25" data-listing-word-count-sort="4841">
-<div class="thumbnail"><a href="./posts/player_form/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/player_form/plot.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/player_form/index.html" class="no-external">Player Form. Part 1</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/player_form/index.html" class="no-external">An Overview</a>
+</div></a>
 </div>
+<div class="g-col-1" data-index="6" data-categories="Zm9vdGJhbGwlMkNhbmFseXNpcyUyQ1N0YW4lMkN1bmNlcnRhaW50eSUyQ0JheWVzJTJDZ2F1c3NpYW4lMjBwcm9jZXNz" data-listing-date-sort="1674086400000" data-listing-file-modified-sort="1745848834965" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="25" data-listing-word-count-sort="4841">
+<a href="./posts/player_form/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/player_form/plot.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Player Form. Part 1
+</h5>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('Zm9vdGJhbGw='); return false;">football</div>
@@ -664,34 +849,30 @@ Jan 23, 2023
 <div class="listing-category" onclick="window.quartoListingCategory('Z2F1c3NpYW4lMjBwcm9jZXNz'); return false;">gaussian process</div>
 
 </div>
-<div class="delink listing-description"><a href="./posts/player_form/index.html" class="no-external">
+<div class="card-text listing-description delink">
 When is a player <strong>in form</strong> (over performing, or enjoying a hot streak) and how long does this last? If there is such an effect, I suspect it will be a result of some…
-</a></div>
 </div>
-<div class="metadata">
-<a href="./posts/player_form/index.html" class="no-external">
+<div class="card-attribution card-text-small justify">
+<div class="listing-author">
+Domenic Di Francesco
+</div>
 <div class="listing-date">
 Jan 19, 2023
 </div>
-<div class="listing-author">
-Domenic Di Francesco
-</div>
-</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="7" data-categories="Zm9vdGJhbGwlMkNhbmFseXNpcyUyQ3hnJTJDU3RhbiUyQ3VuY2VydGFpbnR5JTJDQmF5ZXMlMkNtdWx0aS1sZXZlbCUyMG1vZGVsbGluZyUyQ3BhcnRpYWwlMjBwb29saW5n" data-listing-date-sort="1609977600000" data-listing-file-modified-sort="1745848835137" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18" data-listing-word-count-sort="3498">
-<div class="thumbnail"><a href="./posts/xg_pt2/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/xg_pt2/xg2.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/xg_pt2/index.html" class="no-external">Uncertainty in xG. Part 2</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/xg_pt2/index.html" class="no-external">Partially (Optimally) Pooling Hierarchical Data</a>
+</div></a>
 </div>
+<div class="g-col-1" data-index="7" data-categories="Zm9vdGJhbGwlMkNhbmFseXNpcyUyQ3hnJTJDU3RhbiUyQ3VuY2VydGFpbnR5JTJDQmF5ZXMlMkNtdWx0aS1sZXZlbCUyMG1vZGVsbGluZyUyQ3BhcnRpYWwlMjBwb29saW5n" data-listing-date-sort="1609977600000" data-listing-file-modified-sort="1745848835137" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18" data-listing-word-count-sort="3498">
+<a href="./posts/xg_pt2/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/xg_pt2/xg2.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Uncertainty in xG. Part 2
+</h5>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('Zm9vdGJhbGw='); return false;">football</div>
@@ -711,34 +892,30 @@ Domenic Di Francesco
 <div class="listing-category" onclick="window.quartoListingCategory('cGFydGlhbCUyMHBvb2xpbmc='); return false;">partial pooling</div>
 
 </div>
-<div class="delink listing-description"><a href="./posts/xg_pt2/index.html" class="no-external">
+<div class="card-text listing-description delink">
 This is part 2 of an article on fitting a Bayesian partial pooling model to predict expected goals. It has the benefits of (a) quantifying <em>aleatory and epistemic</em> uncertainty…
-</a></div>
 </div>
-<div class="metadata">
-<a href="./posts/xg_pt2/index.html" class="no-external">
+<div class="card-attribution card-text-small justify">
+<div class="listing-author">
+Domenic Di Francesco
+</div>
 <div class="listing-date">
 Jan 7, 2021
 </div>
-<div class="listing-author">
-Domenic Di Francesco
-</div>
-</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="8" data-categories="Zm9vdGJhbGwlMkNhbmFseXNpcyUyQ3hnJTJDU3RhbiUyQ3VuY2VydGFpbnR5JTJDQmF5ZXMlMkNtdWx0aS1sZXZlbCUyMG1vZGVsbGluZyUyQ3BhcnRpYWwlMjBwb29saW5n" data-listing-date-sort="1607558400000" data-listing-file-modified-sort="1745848834979" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="22" data-listing-word-count-sort="4293">
-<div class="thumbnail"><a href="./posts/xg_pt1/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/xg_pt1/xg1.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/xg_pt1/index.html" class="no-external">Uncertainty in xG. Part 1</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/xg_pt1/index.html" class="no-external">An Overview</a>
+</div></a>
 </div>
+<div class="g-col-1" data-index="8" data-categories="Zm9vdGJhbGwlMkNhbmFseXNpcyUyQ3hnJTJDU3RhbiUyQ3VuY2VydGFpbnR5JTJDQmF5ZXMlMkNtdWx0aS1sZXZlbCUyMG1vZGVsbGluZyUyQ3BhcnRpYWwlMjBwb29saW5n" data-listing-date-sort="1607558400000" data-listing-file-modified-sort="1745848834979" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="22" data-listing-word-count-sort="4293">
+<a href="./posts/xg_pt1/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/xg_pt1/xg1.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Uncertainty in xG. Part 1
+</h5>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('Zm9vdGJhbGw='); return false;">football</div>
@@ -758,34 +935,30 @@ Domenic Di Francesco
 <div class="listing-category" onclick="window.quartoListingCategory('cGFydGlhbCUyMHBvb2xpbmc='); return false;">partial pooling</div>
 
 </div>
-<div class="delink listing-description"><a href="./posts/xg_pt1/index.html" class="no-external">
+<div class="card-text listing-description delink">
 The Expected Goals (xG) metric is now widely recognised as numerical measure of the <em>quality</em> of a goal scoring opportunity in a football (soccer) match. In this article we…
-</a></div>
 </div>
-<div class="metadata">
-<a href="./posts/xg_pt1/index.html" class="no-external">
-<div class="listing-date">
-Dec 10, 2020
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 Domenic Di Francesco
 </div>
-</a>
+<div class="listing-date">
+Dec 10, 2020
 </div>
 </div>
-<div class="quarto-post image-right" data-index="9" data-categories="QmF5ZXMlMkN1bmNlcnRhaW50eSUyQ2RlY2lzaW9ucw==" data-listing-date-sort="1585008000000" data-listing-file-modified-sort="1745848834963" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1494">
-<div class="thumbnail"><a href="./posts/Why_Bayes/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/Why_Bayes/gp.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/Why_Bayes/index.html" class="no-external">Why be Bayesian?</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/Why_Bayes/index.html" class="no-external"></a>
 </div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="9" data-categories="QmF5ZXMlMkN1bmNlcnRhaW50eSUyQ2RlY2lzaW9ucw==" data-listing-date-sort="1585008000000" data-listing-file-modified-sort="1745848834963" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1494">
+<a href="./posts/Why_Bayes/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/Why_Bayes/gp.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Why be Bayesian?
+</h5>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
@@ -795,39 +968,35 @@ Domenic Di Francesco
 <div class="listing-category" onclick="window.quartoListingCategory('ZGVjaXNpb25z'); return false;">decisions</div>
 
 </div>
-<div class="delink listing-description"><a href="./posts/Why_Bayes/index.html" class="no-external">
+<div class="card-text listing-description delink">
 This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: <em>Is it worth me…</em><em></em>
-</a></div>
 </div>
-<div class="metadata">
-<a href="./posts/Why_Bayes/index.html" class="no-external">
-<div class="listing-date">
-Mar 24, 2020
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 Domenic Di Francesco
 </div>
-</a>
+<div class="listing-date">
+Mar 24, 2020
 </div>
 </div>
-<div class="quarto-post image-right" data-index="10" data-categories="QmF5ZXMlMkNMb2dpc3RpYyUyMFJlZ3Jlc3Npb24lMkNNQ01DJTJDU3RhbiUyQ1I=" data-listing-date-sort="1581724800000" data-listing-file-modified-sort="1745848834935" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3906">
-<div class="thumbnail"><a href="./posts/Logistic_Bayes/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/Logistic_Bayes/logistic_priors.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/Logistic_Bayes/index.html" class="no-external">Bayesian Logistic Regression with Stan</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/Logistic_Bayes/index.html" class="no-external"></a>
 </div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="10" data-categories="QmF5ZXMlMkNsb2dpc3RpYyUyMHJlZ3Jlc3Npb24lMkNNQ01DJTJDU3RhbiUyQ1I=" data-listing-date-sort="1581724800000" data-listing-file-modified-sort="1764598828255" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3906">
+<a href="./posts/Logistic_Bayes/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./posts/Logistic_Bayes/logistic_priors.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Bayesian Logistic Regression with Stan
+</h5>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('QmF5ZXM='); return false;">Bayes</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('TG9naXN0aWMlMjBSZWdyZXNzaW9u'); return false;">Logistic Regression</div>
+<div class="listing-category" onclick="window.quartoListingCategory('bG9naXN0aWMlMjByZWdyZXNzaW9u'); return false;">logistic regression</div>
 
 <div class="listing-category" onclick="window.quartoListingCategory('TUNNQw=='); return false;">MCMC</div>
 
@@ -836,24 +1005,29 @@ Domenic Di Francesco
 <div class="listing-category" onclick="window.quartoListingCategory('Ug=='); return false;">R</div>
 
 </div>
-<div class="delink listing-description"><a href="./posts/Logistic_Bayes/index.html" class="no-external">
+<div class="card-text listing-description delink">
 Logistic regression is a popular statistical model for making predictions on outcomes between zero and one - like probabilities. One application of it in an engineering…<code></code>
-</a></div>
 </div>
-<div class="metadata">
-<a href="./posts/Logistic_Bayes/index.html" class="no-external">
-<div class="listing-date">
-Feb 15, 2020
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 Domenic Di Francesco
 </div>
-</a>
+<div class="listing-date">
+Feb 15, 2020
 </div>
+</div>
+</div>
+</div></a>
 </div>
 </div>
 <div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</div>
+
+
+
+</section>
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
@@ -939,7 +1113,7 @@ Domenic Di Francesco
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/www\.allyourbayes\.com\/");
+        var filterRegex = new RegExp("https:\/\/allyourbayes\.com");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
