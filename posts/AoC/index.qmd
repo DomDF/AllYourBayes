@@ -86,10 +86,73 @@ A nice opener, and I did make a mistake in my first guess for part 2, forgetting
 seq |> get_passwords
 ```
 
-#### Day 2: ⏳
+#### Day 2: fake IDs at the gift shop 🎁
 
-to be revealed...
+We're given these sequences of 'product IDs' from the gift shop, and we need to sort through them to find which ones are invalid. Problematic IDs that we are looking for are made up *exclusively* of repeating sequences of numbers. 
 
 ```{julia}
+#| output: false
 
+product_ids = ["11-22", "95-115", "998-1012", "1188511880-1188511890", "222220-222224",
+        "1698522-1698528","446443-446449","38593856-38593862","565653-565659",
+        "824824821-824824827","2121212118-2121212124"]
 ```
+
+In part 1, we were looking for a single repeated sequence, so the first half of the ID is the same as the second half. Then in part 2, the length of that sequence could change. Here's my solution:
+
+```{julia}
+function is_invalid(id::Int; part_1::Bool = false)
+    
+    id_string = string(id); n_digits = length(id_string)
+
+    if part_1
+        midpoint = length(id_string) ÷ 2
+        return id_string[begin:midpoint] == id_string[midpoint+1:end]
+    end
+
+    for pattern_length ∈ 1:(n_digits ÷ 2) # a pattern more than half the length can't repeat
+
+        if id_string == id_string[1:pattern_length] ^ (length(id_string) ÷ pattern_length)
+        # is the id made *only* of this repeated pattern?
+            return true
+        end
+
+    end
+
+    return false
+end
+```
+
+The puzzle itself felt simpler than yesterday, but only after I read the description a few times. I initially thought that we were going to be asking to find IDs that contained *some* (any) repeated sequence, but knowing that the entire ID had to be a repetition simplified things.
+
+```{julia}
+#| output: false
+
+invalid_ids = Int[]
+for id ∈ product_ids
+
+    parts = split(id, "-")
+    id_start = parse(Int, parts[1]); id_end = parse(Int, parts[2])
+
+    for id ∈ id_start:id_end
+        if is_invalid(id)
+            push!(invalid_ids, id)
+        end
+    end
+
+end 
+
+invalid_ids |> sum
+```
+
+```{julia}
+#| echo: false
+invalid_ids |> sum
+```
+
+My young children happened to wake me up super early today, so I will have scored highly on the leaderboard, but I'm in it for the puzzles, not the glory.
+
+#### Day 3: ⏳
+
+...
+

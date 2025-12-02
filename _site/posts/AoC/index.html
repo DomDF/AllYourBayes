@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Domenic Di Francesco">
-<meta name="dcterms.date" content="2025-12-01">
+<meta name="dcterms.date" content="2025-12-02">
 
 <title>advent of code 2025 – All Your Bayes</title>
 <style>
@@ -141,7 +141,7 @@ cookieconsent.run({
 
 <meta name="twitter:title" content="advent of code 2025 – All Your Bayes">
 <meta name="twitter:description" content="how far can I get in Julia?">
-<meta name="twitter:image" content="https://allyourbayes.com/posts/AoC/santa.png">
+<meta name="twitter:image" content="https://www.allyourbayes.com/posts/AoC/santa.png">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image-height" content="1376">
@@ -380,7 +380,7 @@ cookieconsent.run({
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">December 1, 2025</p>
+        <p class="date">December 2, 2025</p>
       </div>
     </div>
     
@@ -461,9 +461,68 @@ cookieconsent.run({
 </div>
 </div>
 </section>
-<section id="day-2" class="level4">
-<h4 class="anchored" data-anchor-id="day-2">Day 2: ⏳</h4>
-<p>to be revealed…</p>
+<section id="day-2-fake-ids-at-the-gift-shop" class="level4">
+<h4 class="anchored" data-anchor-id="day-2-fake-ids-at-the-gift-shop">Day 2: fake IDs at the gift shop 🎁</h4>
+<p>We’re given these sequences of ‘product IDs’ from the gift shop, and we need to sort through them to find which ones are invalid. Problematic IDs that we are looking for are made up <em>exclusively</em> of repeating sequences of numbers.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>product_ids <span class="op">=</span> [<span class="st">"11-22"</span>, <span class="st">"95-115"</span>, <span class="st">"998-1012"</span>, <span class="st">"1188511880-1188511890"</span>, <span class="st">"222220-222224"</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">"1698522-1698528"</span>,<span class="st">"446443-446449"</span>,<span class="st">"38593856-38593862"</span>,<span class="st">"565653-565659"</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"824824821-824824827"</span>,<span class="st">"2121212118-2121212124"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In part 1, we were looking for a single repeated sequence, so the first half of the ID is the same as the second half. Then in part 2, the length of that sequence could change. Here’s my solution:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">is_invalid</span>(id<span class="op">::</span><span class="dt">Int</span>; part_1<span class="op">::</span><span class="dt">Bool </span><span class="op">=</span> <span class="cn">false</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    id_string <span class="op">=</span> <span class="fu">string</span>(id); n_digits <span class="op">=</span> <span class="fu">length</span>(id_string)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> part_1</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        midpoint <span class="op">=</span> <span class="fu">length</span>(id_string) <span class="op">÷</span> <span class="fl">2</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> id_string[begin<span class="op">:</span>midpoint] <span class="op">==</span> id_string[midpoint<span class="op">+</span><span class="fl">1</span><span class="op">:</span><span class="kw">end</span>]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> pattern_length <span class="op">∈</span> <span class="fl">1</span><span class="op">:</span>(n_digits <span class="op">÷</span> <span class="fl">2</span>) <span class="co"># a pattern more than half the length can't repeat</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> id_string <span class="op">==</span> id_string[<span class="fl">1</span><span class="op">:</span>pattern_length] <span class="op">^</span> (<span class="fu">length</span>(id_string) <span class="op">÷</span> pattern_length)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># is the id made *only* of this repeated pattern?</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="cn">true</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="cn">false</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>is_invalid (generic function with 1 method)</code></pre>
+</div>
+</div>
+<p>The puzzle itself felt simpler than yesterday, but only after I read the description a few times. I initially thought that we were going to be asking to find IDs that contained <em>some</em> (any) repeated sequence, but knowing that the entire ID had to be a repetition simplified things.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>invalid_ids <span class="op">=</span> <span class="dt">Int</span>[]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> id <span class="op">∈</span> product_ids</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    parts <span class="op">=</span> <span class="fu">split</span>(id, <span class="st">"-"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    id_start <span class="op">=</span> <span class="fu">parse</span>(<span class="dt">Int</span>, parts[<span class="fl">1</span>]); id_end <span class="op">=</span> <span class="fu">parse</span>(<span class="dt">Int</span>, parts[<span class="fl">2</span>])</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> id <span class="op">∈</span> id_start<span class="op">:</span>id_end</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="fu">is_invalid</span>(id)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            <span class="fu">push!</span>(invalid_ids, id)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span> </span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>invalid_ids <span class="op">|&gt;</span> sum</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>4174379265</code></pre>
+</div>
+</div>
+<p>My young children happened to wake me up super early today, so I will have scored highly on the leaderboard, but I’m in it for the puzzles, not the glory.</p>
+</section>
+<section id="day-3" class="level4">
+<h4 class="anchored" data-anchor-id="day-3">Day 3: ⏳</h4>
+<p>…</p>
 
 
 </section>
@@ -472,13 +531,13 @@ cookieconsent.run({
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2025,
   author = {Di Francesco, Domenic},
   title = {Advent of Code 2025},
-  date = {2025-12-01},
-  url = {https://allyourbayes.com/posts/AoC/},
+  date = {2025-12-02},
+  url = {https://www.allyourbayes.com/posts/AoC/},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas" role="listitem">
 Di Francesco, Domenic. 2025. <span>“Advent of Code 2025.”</span>
-December 1, 2025. <a href="https://allyourbayes.com/posts/AoC/">https://allyourbayes.com/posts/AoC/</a>.
+December 2, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.allyourbayes.com/posts/AoC/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -565,7 +624,7 @@ December 1, 2025. <a href="https://allyourbayes.com/posts/AoC/">https://allyourb
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/allyourbayes\.com");
+        var filterRegex = new RegExp("https:\/\/www\.allyourbayes\.com\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

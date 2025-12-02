@@ -14,8 +14,8 @@ listing:
     categories: true
     filter-ui: true
     sort-ui: true
-    paginate: true
-feed: true
+    feed:
+      categories: [Julia, all]
 page-layout: full
 title-block-banner: true
 ---
