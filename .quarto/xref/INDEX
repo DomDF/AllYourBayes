@@ -67,5 +67,8 @@
   },
   "posts/AoC/index.qmd": {
     "index.html": "d6ca5d24"
+  },
+  "posts/AoC/index.knit.md": {
+    "index.knit.html": "0cb112e4"
   }
 }

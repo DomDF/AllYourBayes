@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Domenic Di Francesco">
-<meta name="dcterms.date" content="2025-12-03">
+<meta name="dcterms.date" content="2020-03-24">
 
-<title>advent of code 2025 – All Your Bayes</title>
+<title>Why be Bayesian? – All Your Bayes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,41 +21,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -139,13 +104,13 @@ cookieconsent.run({
   
 
 
-<meta name="twitter:title" content="advent of code 2025 – All Your Bayes">
-<meta name="twitter:description" content="how far can I get in Julia?">
-<meta name="twitter:image" content="https://allyourbayes.com/posts/AoC/santa.png">
+<meta name="twitter:title" content="Why be Bayesian? – All Your Bayes">
+<meta name="twitter:description" content="thoughts on risk and uncertainty in decision support">
+<meta name="twitter:image" content="https://allyourbayes.com/posts/Why_Bayes/gp.png">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image-height" content="1376">
-<meta name="twitter:image-width" content="1586">
+<meta name="twitter:image-height" content="913">
+<meta name="twitter:image-width" content="1571">
 </head>
 
 <body class="nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -358,11 +323,11 @@ cookieconsent.run({
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">advent of code 2025</h1>
-            <p class="subtitle lead">how far can I get in Julia?</p>
+      <h1 class="title">Why be Bayesian?</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">Julia</div>
-                <div class="quarto-category">puzzles</div>
+                <div class="quarto-category">Bayes</div>
+                <div class="quarto-category">uncertainty</div>
+                <div class="quarto-category">decisions</div>
               </div>
                   </div>
   </div>
@@ -380,7 +345,7 @@ cookieconsent.run({
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">December 3, 2025</p>
+        <p class="date">March 24, 2020</p>
       </div>
     </div>
     
@@ -402,208 +367,101 @@ cookieconsent.run({
 
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>Advent of code is a website created by Eric Wastl, releasing a (increasingly challenging) programming puzzle each day. This year we will not be receiving the usual 25 days worth (I have never made it that far anyway), but it will instead be finishing on 12th December <a href="https://www.reddit.com/r/adventofcode/comments/1ocwh04/changes_to_advent_of_code_starting_this_december/">(see announcement on Reddit)</a>. This is a welcome change of pace for me.</p>
-<p>Spoiler alert: super un-optimised, but hopefully readable Julia solutions ahead, so you may only want to look after you have had a go yourself. Let’s see how we go…</p>
-<p>Play along: <a href="https://adventofcode.com">https://adventofcode.com</a></p>
+<p>This post is intended to be a high-level discussion of the merits and challenges of applied Bayesian statistics. It is intended to help the reader answer: <em>Is it worth me learning Bayesian statistics?</em> or <em>Should I look into using Bayesian statistics in my project?</em> No maths or code in this post.</p>
 <hr>
-<section id="day-1-a-password-from-a-decoy-safe" class="level4">
-<h4 class="anchored" data-anchor-id="day-1-a-password-from-a-decoy-safe">Day 1: a password from a decoy safe 🔓</h4>
-<p>So we have this safe, with a dial set to <code>50</code>, and a sequence of turns to make, see below:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>seq <span class="op">=</span> [<span class="st">"L68"</span>, <span class="st">"L30"</span>, <span class="st">"R48"</span>, <span class="st">"L5"</span>, <span class="st">"R60"</span>, <span class="st">"L55"</span>, <span class="st">"L1"</span>, <span class="st">"L99"</span>, <span class="st">"R14"</span>, <span class="st">"L82"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="bayes" class="level4">
+<h4 class="anchored" data-anchor-id="bayes">Bayes</h4>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/TJBbXQooivUNq/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption>Bayes</figcaption>
+</figure>
 </div>
-<p>Here an “R” means we are turning the dial to the right, and an “L” means we are turning it to the left, followed by the number indicating how many turns. “L68” means turn the dial left 68 times. The dial wraps around, so if we turn left from 0, we go to 99, 98, and so on.</p>
-<p>We are asked:</p>
+</section>
+</section>
+<section id="introduction" class="level3">
+<h3 class="anchored" data-anchor-id="introduction">Introduction</h3>
+<p>Firstly, Bayesian…</p>
 <ul>
-<li>part 1: how many times do we end up on zero after a turn?</li>
-<li>part 2: how many times do we turn through zero in total?</li>
+<li>Statistics</li>
+<li>Inference</li>
+<li>Modelling</li>
+<li>Updating</li>
+<li>Data Analysis</li>
 </ul>
-<p>Floor division <code>fld()</code> will count how many times we lap around zero (and in which direction).</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">get_passwords</span>(seq<span class="op">::</span><span class="dt">Vector{String}</span>, dial_start<span class="op">::</span><span class="dt">Int </span><span class="op">=</span> <span class="fl">50</span>, dial_mod<span class="op">::</span><span class="dt">Int </span><span class="op">=</span> <span class="fl">100</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    dial <span class="op">=</span> dial_start; pass_zeros <span class="op">=</span> <span class="fl">0</span>; end_zeros <span class="op">=</span> <span class="fl">0</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> turn <span class="op">∈</span> seq</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        direction <span class="op">=</span> turn[begin]; turns <span class="op">=</span> <span class="fu">parse</span>(<span class="dt">Int</span>, turn[<span class="fl">2</span><span class="op">:</span><span class="kw">end</span>])</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> direction <span class="op">==</span> <span class="ch">'R'</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            pass_zeros <span class="op">+=</span> <span class="fu">fld</span>(dial <span class="op">+</span> turns, dial_mod)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>            dial <span class="op">+=</span> turns</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elseif</span> direction <span class="op">==</span> <span class="ch">'L'</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="co"># we need to catch the case where the dial starts at 0 and not count that first turn</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            pass_zeros <span class="op">-=</span> <span class="fu">fld</span>(dial <span class="op">-</span> turns <span class="op">-</span> <span class="fl">1</span>, dial_mod) <span class="op">-</span> <span class="fu">fld</span>(dial <span class="op">-</span> <span class="fl">1</span>, dial_mod)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            dial <span class="op">-=</span> turns</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        dial <span class="op">=</span> <span class="fu">mod</span>(dial, dial_mod)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> dial <span class="op">==</span> <span class="fl">0</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            end_zeros <span class="op">+=</span> <span class="fl">1</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (end_zeros<span class="op">=</span>end_zeros, pass_zeros<span class="op">=</span>pass_zeros)</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>get_passwords (generic function with 3 methods)</code></pre>
-</div>
-</div>
-<p>A nice opener, and I did make a mistake in my first guess for part 2, forgetting the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
-<p>It appears I wasn’t the only one…</p>
-<blockquote class="reddit-embed-bq blockquote" style="height:500px" data-embed-height="546">
-<a href="https://www.reddit.com/r/adventofcode/comments/1pc0yfg/2025_day_1_part_2_public_service_announcement/">[2025 Day 1 Part 2] Public Service Announcement</a><br> by<a href="https://www.reddit.com/user/StaticMoose/">u/StaticMoose</a> in<a href="https://www.reddit.com/r/adventofcode/">adventofcode</a>
-</blockquote>
-<script async="" src="https://embed.reddit.com/widgets.js" charset="UTF-8"></script>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>seq <span class="op">|&gt;</span> get_passwords</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>(end_zeros = 3, pass_zeros = 6)</code></pre>
-</div>
-</div>
-<p>⭐⭐</p>
+<p>…can boradly be considered the same thing (certainly for the purposes of this post): <strong>the application of Bayes theorem to quantify uncertainty</strong>.</p>
+<p>Depending on your background, you may have preconceptions about Bayesian methods being specialist or complicated. However, analysts and researchers in many domains are increasingly experimenting with the growing catalogue of open source software and resources that is making probabilistic programming more accessible.</p>
 </section>
-<section id="day-2-fake-ids-at-the-gift-shop" class="level4">
-<h4 class="anchored" data-anchor-id="day-2-fake-ids-at-the-gift-shop">Day 2: fake IDs at the gift shop 🎁</h4>
-<p>We’re given these ‘product IDs’ from the gift shop, and we need to sort through them to find which ones are invalid. Problematic IDs that we are looking for are made up <em>exclusively</em> of repeating sequences of numbers.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>product_ids <span class="op">=</span> [<span class="st">"11-22"</span>, <span class="st">"95-115"</span>, <span class="st">"998-1012"</span>, <span class="st">"1188511880-1188511890"</span>, <span class="st">"222220-222224"</span>,</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">"1698522-1698528"</span>,<span class="st">"446443-446449"</span>,<span class="st">"38593856-38593862"</span>,<span class="st">"565653-565659"</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"824824821-824824827"</span>,<span class="st">"2121212118-2121212124"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>In part 1, we were looking for a single repeated sequence, so the first half of the ID is the same as the second half. Then in part 2, the length of that sequence could change. Here’s my solution:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">is_invalid</span>(id<span class="op">::</span><span class="dt">Int</span>; part_1<span class="op">::</span><span class="dt">Bool </span><span class="op">=</span> <span class="cn">false</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    id_string <span class="op">=</span> <span class="fu">string</span>(id); midpoint <span class="op">=</span> <span class="fu">length</span>(id_string) <span class="op">÷</span> <span class="fl">2</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> part_1</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> id_string[begin<span class="op">:</span>midpoint] <span class="op">==</span> id_string[midpoint<span class="op">+</span><span class="fl">1</span><span class="op">:</span><span class="kw">end</span>]</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> pattern_length <span class="op">∈</span> <span class="fl">1</span><span class="op">:</span>midpoint </span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># a pattern more than half the length can't repeat</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> id_string <span class="op">==</span> id_string[begin<span class="op">:</span>pattern_length] <span class="op">^</span> (<span class="fu">length</span>(id_string) <span class="op">÷</span> pattern_length)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># is the id made *only* of this repeated pattern?</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="cn">true</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="cn">false</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>is_invalid (generic function with 1 method)</code></pre>
-</div>
-</div>
-<p>The puzzle itself felt simpler than yesterday, but only after I read the description a few times. I initially thought that we were going to be asking to find IDs that contained <em>some</em> (any) repeated sequence, but knowing that the entire ID had to be a repetition simplified things.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>invalid_ids <span class="op">=</span> <span class="dt">Int</span>[]</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> id <span class="op">∈</span> product_ids</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    parts <span class="op">=</span> <span class="fu">split</span>(id, <span class="st">"-"</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    id_start <span class="op">=</span> <span class="fu">parse</span>(<span class="dt">Int</span>, parts[begin]); id_end <span class="op">=</span> <span class="fu">parse</span>(<span class="dt">Int</span>, parts[<span class="kw">end</span>])</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> id <span class="op">∈</span> id_start<span class="op">:</span>id_end</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="fu">is_invalid</span>(id)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            <span class="fu">push!</span>(invalid_ids, id)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span> </span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>invalid_ids <span class="op">|&gt;</span> sum</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>4174379265</code></pre>
-</div>
-</div>
-<p><code>BenchmarkTools.jl</code> tells me this runs in <code>459.768 ms</code>, with lots of allocations <code>606.35 MiB</code>, presumably due to all of the string splitting, concatenation, and going back and forth to integers. I don’t think I’ll have time to think about smarter ways to do this, but I’m sure I’ll be forced to in the coming days. Happy to be brute-forcing for now.</p>
-<p>My young children happened to wake me up super early today, so I will have scored highly on the leaderboard, but I’m in it for the puzzles, not the glory.</p>
-<p>⭐⭐</p>
+<section id="what-does-a-bayesian-approach-provide" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-a-bayesian-approach-provide">What does a Bayesian approach provide?</h3>
+<p>Bayesian statistics is not the only way to account for uncertainty in calculations. The below points describe what a Bayesian approach offers, that others don’t. Note that I am only really discussing methods involving probability here, though <a href="https://www.springer.com/gp/book/9783540402947">alternative approaches are available</a>.</p>
+<section id="intuitive-interpretation-of-results" class="level4">
+<h4 class="anchored" data-anchor-id="intuitive-interpretation-of-results">Intuitive Interpretation of Results</h4>
+<p>Bayesian methods give you distributions. Your parameters (and so also your predictions) are all described as distributions. A single, joint distribution in fact, which is aligned with the evidence that you provide your model. This allows you to propagate all the uncertainties and inter-dependencies when making predictions for some new input data. By comparison, alternative (frequentist) methods typically describes uncertainty in predictions using confidence intervals, which are widely used but easy to misinterpret.</p>
+<p>Confidence intervals are calculated so that they will contain the <em>true</em> value of whatever you are trying to predict with some desired frequency. They provide no information (in the absence of additional assumptions) on how credible various possible results are. The Bayesian equivalent (sometimes called credible intervals) can be drawn anywhere on a predictive distribution. In <a href="https://mitpress.mit.edu/books/introduction-statistical-decision-theory">Pratt, Raiffa and Schlaiffer’s textbook</a> an example is used to highlight this difference:</p>
+<p><em>Imagine the plight of the manager who exclaims, ‘I understand [does he?] the meaning that the demand for XYZ will lie in the interval 973 to 1374 with confidence .90. However, I am particularly interested in the interval 1300 to 1500. What confidence can I place on that interval?’</em> <em>Unfortunately, this question cannot be answered. Of course, however, it is possible to give a posterior probability to that particular interval - or any other - based on the sample data and on a codification of the manager’s prior judgements.</em></p>
+<p>This is a nice example (aside from assuming the manager is a male) of a simple question that we need a Bayesian posterior distribution to answer. A more succinct description of the same view from <a href="https://www.weirdfishes.blog/">Dan Ovando’s fishery statistics blog</a>:</p>
+<p><em>Bayesian credible intervals mean what we’d like Frequentist confidence intervals to mean.</em></p>
 </section>
-<section id="day-3-maximum-joltage" class="level4">
-<h4 class="anchored" data-anchor-id="day-3-maximum-joltage">Day 3: maximum joltage ⚡</h4>
-<p>We find batteries, each with their own joltage rating, arranged in banks (rows).</p>
-<p>Going from left to right, which batteries should we connect up to get the maximum joltage possible from each row?</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>joltages <span class="op">=</span> [</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"987654321111111"</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"811111111111119"</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"234234234234278"</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"818181911112111"</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>For instance, if we were asked to connect 4 batteries in the third row, we can’t make a 4 digit number higher than <code>4478</code> (selecting batteries <code>3</code> (joltage = <code>4</code>), <code>6</code> (joltage = <code>4</code>), <code>14</code> (joltage = <code>7</code>), and <code>15</code> (joltage = <code>8</code>)).</p>
-<p>In part 1 we were asked to select <code>2</code> batteries from each bank, and in part 2 we were to select <code>12</code>. Here’s a solution:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">max_joltage_for_bank</span>(bank<span class="op">::</span><span class="dt">String</span>; n_batteries<span class="op">::</span><span class="dt">Int </span><span class="op">=</span> <span class="fl">2</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    digits <span class="op">=</span> <span class="fu">parse</span>.(<span class="dt">Int</span>, <span class="fu">collect</span>(bank)) </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    max_joltage <span class="op">=</span> []; index <span class="op">=</span> <span class="fl">1</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="op">∈</span> <span class="fl">1</span><span class="op">:</span>n_batteries</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        digits_needed <span class="op">=</span> n_batteries <span class="op">-</span> k</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        search_end <span class="op">=</span> <span class="fu">length</span>(digits) <span class="op">-</span> digits_needed</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        max_val <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>; max_idx <span class="op">=</span> <span class="op">-</span><span class="fl">1</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="op">∈</span> index<span class="op">:</span>search_end</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> digits[i] <span class="op">&gt;</span> max_val</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                <span class="co"># keep track of the biggest digit in this range and it's index...</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>                max_val <span class="op">=</span> digits[i]; max_idx <span class="op">=</span> i</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">end</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...so we can update the new starting point</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        index <span class="op">=</span> max_idx <span class="op">+</span> <span class="fl">1</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">push!</span>(max_joltage, max_val)</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> max_joltage <span class="op">|&gt;</span> join <span class="op">|&gt;</span> x <span class="op">-&gt;</span> <span class="fu">parse</span>(<span class="dt">Int</span>, x)</span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>max_joltage_for_bank (generic function with 1 method)</code></pre>
-</div>
-</div>
-<p>This is based on selecting the maximum digit we can, whilst still leaving space for however many remaining batteries we need to select.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>joltages <span class="op">|&gt;</span> x <span class="op">-&gt;</span> <span class="fu">max_joltage_for_bank</span>.(x, n_batteries <span class="op">=</span> <span class="fl">12</span>) <span class="op">|&gt;</span> sum</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>3121910778619</code></pre>
-</div>
-</div>
-<blockquote class="reddit-embed-bq blockquote" style="height:500px" data-embed-height="740">
-<a href="https://www.reddit.com/r/adventofcode/comments/1pd0e3s/day_3_part_2_realization/">Day 3 Part 2 realization</a><br> by<a href="https://www.reddit.com/user/GuiltyTemperature188/">u/GuiltyTemperature188</a> in<a href="https://www.reddit.com/r/adventofcode/">adventofcode</a>
-</blockquote>
-<script async="" src="https://embed.reddit.com/widgets.js" charset="UTF-8"></script>
-<p>Don’t forget to then update your starting index accordingly, rather than just adding 1, otherwise you’ll keep selecting the same battery over and over - although seeing this helpded me fix it.</p>
-<p>⭐⭐</p>
+<section id="seamless-integration-with-decision-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="seamless-integration-with-decision-analysis">Seamless Integration with Decision Analysis</h4>
+<p>Following on from the previous point, an analysis that directly describes the probability of any outcome is fully compatible with a decision analysis. After completing a Bayesian analysis, identifying the optimal strategy implied by your model becomes simpler and more understandable.</p>
+<p>As stated in <a href="https://www.springer.com/gp/book/9780387960982">James Berger’s (quite theoretical) book on Bayesian statistics</a>:</p>
+<p><em>Bayesian analysis and decision theory go rather naturally together, partly because of their common goal of utilizing non-experimental sources of information, and partly because of deep theoretical ties.</em></p>
 </section>
-<section id="day-4" class="level4">
-<h4 class="anchored" data-anchor-id="day-4">Day 4: ⏳</h4>
-<p>…</p>
+<section id="flexible-modelling" class="level4">
+<h4 class="anchored" data-anchor-id="flexible-modelling">Flexible Modelling</h4>
+<p>So this one is based on a point made in <a href="https://uk.sagepub.com/en-gb/eur/a-student%E2%80%99s-guide-to-bayesian-statistics/book245409">Ben Lambert’s book on Bayesian statistics</a>. It is regarding how modern Bayesian statistics is achieved in practice. The computational methods may require some effort to pick up, especially if you do not have experience with programming (though Ben’s book gives a nice introduction to <a href="https://mc-stan.org/">Stan</a>). However, they can be readily extended to larger and more complex models.</p>
+<p>Essentially, we can propose weird and bespoke model structures, and then use the same approach to fit them.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/WiyczarN2XMm4/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption>Some Compelling Arguments</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="challenges-difficulties" class="level3">
+<h3 class="anchored" data-anchor-id="challenges-difficulties">Challenges &amp; Difficulties</h3>
+<p>So why would anyone ever <em>not</em> use Bayesian models when making predictions?</p>
+<section id="subjectivity" class="level4">
+<h4 class="anchored" data-anchor-id="subjectivity">Subjectivity</h4>
+<p>Perhaps the most common criticism of Bayesian statistics is the requirement for priors - i.e.&nbsp;a starting point for your model. This initial estimate of uncertainty is a term in Bayes’ theorem - but how can you estimate the extent of variability before you see it in your data? This will surely be completely subjective, so the results will vary depending on who is doing the analysis. This, understandably, doesn’t seem right with a lot of casual enquirers.</p>
+<p>A common response to this accusation is that subjectivity is not an exclusive feature of Bayesian analysis (how about the whole approach you are taking to solving your problem !) <em>…but</em> at least Bayesians are required to be explicit about it. Priors mean that any subjective inputs have no-where to hide (in the code or the reporting) and so they are open to criticism. This point is discussed in <strong>much</strong> more detail in this paper from <a href="http://www.stat.columbia.edu/~gelman/research/published/gelman_hennig_full_discussion.pdf">Colombia University</a>.</p>
+<p>Priors can contain, as much or as little, information as desired. However, even in instances where you may feel you don’t have any upfront knowledge of a problem, they represent a valuable opportunity for introducing regularisation (which protects against bad predictions due to overfitting). This idea is discussed in detail in <a href="https://www.crcpress.com/Statistical-Rethinking-A-Bayesian-Course-with-Examples-in-R-and-STAN/McElreath/p/book/9780367139919">Richard McElreath’s textbook</a>. I would suggest that in plenty of cases, we often have a fair idea of what is happening even before we collect and analyse data, and starting from zero everytime is just not sensible. Will a doctor who has just evaluated you base their diagnosis entirely on a test outcome, or will they incorporate that eveidence into their existing understanding of your circumstances and symptoms? Bayesian statistics is the means by which this can be done mathematically.</p>
+</section>
+<section id="computational-requirements" class="level4">
+<h4 class="anchored" data-anchor-id="computational-requirements">Computational Requirements</h4>
+<p>In practice, statisticians estimate Bayesian posterior distributions using very clever Markov Chain Monte Carlo (MCMC) sampling algorithms, that are run by their favourite probabilistic programming software. The models that I have worked with during my PhD have taken several hours to finish sampling from, but I have met statisticians whose models run for days or even weeks. Following this, there are checks that need to be completed as there are plenty of things that can go wrong with MCMC. There is a nice discussion of a recommended Bayesian workflow to make sure you are checking what you need to <a href="https://arxiv.org/abs/2011.01808">here</a>.</p>
+<p>My background is in mechanical and civil engineering. In discussions with engineering researchers at conferences I have often been told that the errors and complications they encountered when playing around with Bayesian software caused them to abandon the approach in favour of more established, less informative analysis. These are challenges that I imagine everyone who has attempted modern Bayesian statistics will have encountered and resolving them can require a deep understanding of your model, and perhaps some formal training. In addition some programming <em>tricks</em> like reparameterisation (describing your model in a seemingly equivalent way, but one that is much friendlier to your software) can also help.</p>
+</section>
+</section>
+<section id="conclusions" class="level3">
+<h3 class="anchored" data-anchor-id="conclusions">Conclusions</h3>
+<p>Regardless of whether you believe we exist in a deterministic universe or not, you will never have perfect state of knowledge describing your problem: uncertainty exists, so we need a sensible and safe way of accounting for it. It’s difficult to escape the implications of the Maths - for instance, in avoiding quantifying uncertainty, we are often making some implicit assumptions (the implications of which can be difficult to justify) that we may not want to propagate into our decision-making. There is generally a trade-off for apparent conveniences.</p>
+<p>I believe that Bayesian statistics is actually well suited to traditional engineering problems, which are concerned with managing risk when confronted with small, messy datasets and models with plenty of uncertainty. As suggested in the earlier description of confidence intervals, frequentist statistics defines probability based on occurrences of events following a large number of trials or samples. When trying to understand the behaviour of small datasets (or even unique structural systems), Bayesian statistics can shine by comparison.</p>
+<p>Very large datasets may contain enough information to precisely estimate parameters in a model using conventional machine learning methods, and so it becomes less worthwhile running simulations to characterise variability. But how common are these big data problems in science and engineering? Sometimes large populations of data are better described as multiple smaller constituent groups, after accounting for key differences between them. Bayesian statistics has a very useful way of managing such problems by structuring models hierarchically. This method allows for <strong>partial pooling of information</strong> between groups, so that predictions account for the variability and commonality between groups. I will provide a detailed example of this in a future post.</p>
+<p>Bayesian inference requires (computational and personal) effort to apply. But it provides results that are generally more interpretable and closely related to the actual questions we want to answer. Whether or not these methods are worth learning will of course depend on personal circumstances. I encountered this field during my PhD, and so had plenty of time to read and play with them, which I appreicate is a privelidged position to be in.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.giphy.com/media/WPLPEu0GUp41W/giphy.gif" class="img-fluid figure-img"></p>
+<figcaption>Boring, isn’t it? Writing, Fitting and Evaluating Bayesian Models All Day….</figcaption>
+</figure>
+</div>
 
 
 </section>
-</section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2025,
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2020,
   author = {Di Francesco, Domenic},
-  title = {Advent of Code 2025},
-  date = {2025-12-03},
-  url = {https://allyourbayes.com/posts/AoC/},
+  title = {Why Be {Bayesian?}},
+  date = {2020-03-24},
+  url = {https://allyourbayes.com/posts/Why_Bayes/},
   langid = {en}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas" role="listitem">
-Di Francesco, Domenic. 2025. <span>“Advent of Code 2025.”</span>
-December 3, 2025. <a href="https://allyourbayes.com/posts/AoC/">https://allyourbayes.com/posts/AoC/</a>.
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2020" class="csl-entry quarto-appendix-citeas" role="listitem">
+Di Francesco, Domenic. 2020. <span>“Why Be Bayesian?”</span> March 24,
+2020. <a href="https://allyourbayes.com/posts/Why_Bayes/">https://allyourbayes.com/posts/Why_Bayes/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {

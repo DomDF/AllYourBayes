@@ -10,7 +10,7 @@
 <atom:link href="https://www.allyourbayes.com/index.xml" rel="self" type="application/rss+xml"/>
 <description>thoughts on risk and uncertainty in decision support</description>
 <generator>quarto-1.7.30</generator>
-<lastBuildDate>Tue, 02 Dec 2025 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 03 Dec 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>advent of code 2025</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
@@ -24,7 +24,7 @@
 
 <section id="tldr" class="level3">
 <h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>Advent of code is a website created by Eric Wastl, releasing a (increasingly challenging) programming puzzle each day. This year we will not be receiving the usual 25 days worth (I have never made it that far anyway), but it will instead be finishing on 12th December <a href="https://www.reddit.com/r/adventofcode/comments/1ocwh04/changes_to_advent_of_code_starting_this_december/">(see announcement on Reddit)</a>. This is welcome change of pace for me.</p>
+<p>Advent of code is a website created by Eric Wastl, releasing a (increasingly challenging) programming puzzle each day. This year we will not be receiving the usual 25 days worth (I have never made it that far anyway), but it will instead be finishing on 12th December <a href="https://www.reddit.com/r/adventofcode/comments/1ocwh04/changes_to_advent_of_code_starting_this_december/">(see announcement on Reddit)</a>. This is a welcome change of pace for me.</p>
 <p>Spoiler alert: super un-optimised, but hopefully readable Julia solutions ahead, so you may only want to look after you have had a go yourself. Let’s see how we go…</p>
 <p>Play along: <a href="https://adventofcode.com">https://adventofcode.com</a></p>
 <hr>
@@ -111,9 +111,7 @@ background-color: null;
 font-style: inherit;">∈</span> seq</span>
 <span id="cb2-6">        direction <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> turn[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>]; turns <span class="op" style="color: #5E5E5E;
+font-style: inherit;">=</span> turn[begin]; turns <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -233,6 +231,11 @@ font-style: inherit;">end</span></span></code></pre></div>
 </div>
 </div>
 <p>A nice opener, and I did make a mistake in my first guess for part 2, forgetting the case where the dial starts on zero and we turn left. We shouldn’t count that first turn as going through zero, and so I had to add the start and end points, with that -1 offset.</p>
+<p>It appears I wasn’t the only one…</p>
+<blockquote class="reddit-embed-bq blockquote" style="height:500px" data-embed-height="546">
+<a href="https://www.reddit.com/r/adventofcode/comments/1pc0yfg/2025_day_1_part_2_public_service_announcement/">[2025 Day 1 Part 2] Public Service Announcement</a><br> by<a href="https://www.reddit.com/user/StaticMoose/">u/StaticMoose</a> in<a href="https://www.reddit.com/r/adventofcode/">adventofcode</a>
+</blockquote>
+<script async="" src="https://embed.reddit.com/widgets.js" charset="UTF-8"></script>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1">seq <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -241,10 +244,11 @@ font-style: inherit;">|&gt;</span> get_passwords</span></code></pre></div>
 <pre><code>(end_zeros = 3, pass_zeros = 6)</code></pre>
 </div>
 </div>
+<p>⭐⭐</p>
 </section>
 <section id="day-2-fake-ids-at-the-gift-shop" class="level4">
 <h4 class="anchored" data-anchor-id="day-2-fake-ids-at-the-gift-shop">Day 2: fake IDs at the gift shop 🎁</h4>
-<p>We’re given these sequences of ‘product IDs’ from the gift shop, and we need to sort through them to find which ones are invalid. Problematic IDs that we are looking for are made up <em>exclusively</em> of repeating sequences of numbers.</p>
+<p>We’re given these ‘product IDs’ from the gift shop, and we need to sort through them to find which ones are invalid. Problematic IDs that we are looking for are made up <em>exclusively</em> of repeating sequences of numbers.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1">product_ids <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -299,17 +303,7 @@ font-style: inherit;">false</span>)</span>
 background-color: null;
 font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">string</span>(id); n_digits <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">length</span>(id_string)</span>
-<span id="cb7-4"></span>
-<span id="cb7-5">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">if</span> part_1</span>
-<span id="cb7-6">        midpoint <span class="op" style="color: #5E5E5E;
+font-style: inherit;">string</span>(id); midpoint <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -318,7 +312,12 @@ background-color: null;
 font-style: inherit;">÷</span> <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span></span>
-<span id="cb7-7">        <span class="cf" style="color: #003B4F;
+<span id="cb7-4"></span>
+<span id="cb7-5">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> part_1</span>
+<span id="cb7-6">        <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> id_string[begin<span class="op" style="color: #5E5E5E;
@@ -335,12 +334,12 @@ font-style: inherit;">:</span><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">end</span>]</span>
-<span id="cb7-8">    <span class="cf" style="color: #003B4F;
+<span id="cb7-7">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">end</span></span>
-<span id="cb7-9"></span>
-<span id="cb7-10">    <span class="cf" style="color: #003B4F;
+<span id="cb7-8"></span>
+<span id="cb7-9">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> pattern_length <span class="op" style="color: #5E5E5E;
@@ -349,22 +348,16 @@ font-style: inherit;">∈</span> <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">:</span>(n_digits <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">÷</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>) <span class="co" style="color: #5E5E5E;
+font-style: inherit;">:</span>midpoint </span>
+<span id="cb7-10">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># a pattern more than half the length can't repeat</span></span>
-<span id="cb7-11"></span>
-<span id="cb7-12">        <span class="cf" style="color: #003B4F;
+<span id="cb7-11">        <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">if</span> id_string <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">==</span> id_string[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+font-style: inherit;">==</span> id_string[begin<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span>pattern_length] <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -373,16 +366,20 @@ background-color: null;
 font-style: inherit;">length</span>(id_string) <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">÷</span> pattern_length)</span>
-<span id="cb7-13">        <span class="co" style="color: #5E5E5E;
+<span id="cb7-12">        <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># is the id made *only* of this repeated pattern?</span></span>
-<span id="cb7-14">            <span class="cf" style="color: #003B4F;
+<span id="cb7-13">            <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">true</span></span>
-<span id="cb7-15">        <span class="cf" style="color: #003B4F;
+<span id="cb7-14">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb7-15">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">end</span></span>
@@ -390,15 +387,10 @@ font-style: inherit;">end</span></span>
 <span id="cb7-17">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
-font-style: inherit;">end</span></span>
-<span id="cb7-18"></span>
-<span id="cb7-19">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
 font-style: inherit;">return</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">false</span></span>
-<span id="cb7-20"><span class="kw" style="color: #003B4F;
+<span id="cb7-18"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">end</span></span></code></pre></div>
@@ -433,17 +425,16 @@ font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">parse</span>(<span class="dt" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">Int</span>, parts[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>]); id_end <span class="op" style="color: #5E5E5E;
+font-style: inherit;">Int</span>, parts[begin]); id_end <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">parse</span>(<span class="dt" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">Int</span>, parts[<span class="fl" style="color: #AD0000;
+font-style: inherit;">Int</span>, parts[<span class="kw" style="color: #003B4F;
 background-color: null;
-font-style: inherit;">2</span>])</span>
+font-weight: bold;
+font-style: inherit;">end</span>])</span>
 <span id="cb9-6"></span>
 <span id="cb9-7">    <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -485,10 +476,209 @@ font-style: inherit;">|&gt;</span> sum</span></code></pre></div>
 <pre><code>4174379265</code></pre>
 </div>
 </div>
+<p><code>BenchmarkTools.jl</code> tells me this runs in <code>459.768 ms</code>, with lots of allocations <code>606.35 MiB</code>, presumably due to all of the string splitting, concatenation, and going back and forth to integers. I don’t think I’ll have time to think about smarter ways to do this, but I’m sure I’ll be forced to in the coming days. Happy to be brute-forcing for now.</p>
 <p>My young children happened to wake me up super early today, so I will have scored highly on the leaderboard, but I’m in it for the puzzles, not the glory.</p>
+<p>⭐⭐</p>
 </section>
-<section id="day-3" class="level4">
-<h4 class="anchored" data-anchor-id="day-3">Day 3: ⏳</h4>
+<section id="day-3-maximum-joltage" class="level4">
+<h4 class="anchored" data-anchor-id="day-3-maximum-joltage">Day 3: maximum joltage ⚡</h4>
+<p>We find batteries, each with their own joltage rating, arranged in banks (rows).</p>
+<p>Going from left to right, which batteries should we connect up to get the maximum joltage possible from each row?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1">joltages <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb11-2">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"987654321111111"</span></span>
+<span id="cb11-3">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"811111111111119"</span></span>
+<span id="cb11-4">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"234234234234278"</span></span>
+<span id="cb11-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"818181911112111"</span></span>
+<span id="cb11-6">    ]</span></code></pre></div>
+</div>
+<p>For instance, if we were asked to connect 4 batteries in the third row, we can’t make a 4 digit number higher than <code>4478</code> (selecting batteries <code>3</code> (joltage = <code>4</code>), <code>6</code> (joltage = <code>4</code>), <code>14</code> (joltage = <code>7</code>), and <code>15</code> (joltage = <code>8</code>)).</p>
+<p>In part 1 we were asked to select <code>2</code> batteries from each bank, and in part 2 we were to select <code>12</code>. Here’s a solution:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max_joltage_for_bank</span>(bank<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">String</span>; n_batteries<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Int </span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb12-2"></span>
+<span id="cb12-3">    digits <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">parse</span>.(<span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Int</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">collect</span>(bank)) </span>
+<span id="cb12-4"></span>
+<span id="cb12-5">    max_joltage <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []; index <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb12-6"></span>
+<span id="cb12-7">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">∈</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>n_batteries</span>
+<span id="cb12-8"></span>
+<span id="cb12-9">        digits_needed <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> n_batteries <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> k</span>
+<span id="cb12-10">        search_end <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(digits) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> digits_needed</span>
+<span id="cb12-11"></span>
+<span id="cb12-12">        max_val <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>; max_idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb12-13">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">∈</span> index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>search_end</span>
+<span id="cb12-14">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> digits[i] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> max_val</span>
+<span id="cb12-15">                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># keep track of the biggest digit in this range and it's index...</span></span>
+<span id="cb12-16">                max_val <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> digits[i]; max_idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> i</span>
+<span id="cb12-17">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb12-18">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb12-19"></span>
+<span id="cb12-20">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ...so we can update the new starting point</span></span>
+<span id="cb12-21">        index <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> max_idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb12-22">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">push!</span>(max_joltage, max_val)</span>
+<span id="cb12-23">    </span>
+<span id="cb12-24">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb12-25"></span>
+<span id="cb12-26">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> max_joltage <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> join <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">parse</span>(<span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Int</span>, x)</span>
+<span id="cb12-27"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>max_joltage_for_bank (generic function with 1 method)</code></pre>
+</div>
+</div>
+<p>This is based on selecting the maximum digit we can, whilst still leaving space for however many remaining batteries we need to select.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1">joltages <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max_joltage_for_bank</span>.(x, n_batteries <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> sum</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>3121910778619</code></pre>
+</div>
+</div>
+<blockquote class="reddit-embed-bq blockquote" style="height:500px" data-embed-height="740">
+<a href="https://www.reddit.com/r/adventofcode/comments/1pd0e3s/day_3_part_2_realization/">Day 3 Part 2 realization</a><br> by<a href="https://www.reddit.com/user/GuiltyTemperature188/">u/GuiltyTemperature188</a> in<a href="https://www.reddit.com/r/adventofcode/">adventofcode</a>
+</blockquote>
+<script async="" src="https://embed.reddit.com/widgets.js" charset="UTF-8"></script>
+<p>Don’t forget to then update your starting index accordingly, rather than just adding 1, otherwise you’ll keep selecting the same battery over and over - although seeing this helpded me fix it.</p>
+<p>⭐⭐</p>
+</section>
+<section id="day-4" class="level4">
+<h4 class="anchored" data-anchor-id="day-4">Day 4: ⏳</h4>
 <p>…</p>
 
 
@@ -498,18 +688,18 @@ font-style: inherit;">|&gt;</span> sum</span></code></pre></div>
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2025,
   author = {Di Francesco, Domenic},
   title = {Advent of Code 2025},
-  date = {2025-12-02},
+  date = {2025-12-03},
   url = {https://www.allyourbayes.com/posts/AoC/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2025. <span>“Advent of Code 2025.”</span>
-December 2, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.allyourbayes.com/posts/AoC/</a>.
+December 3, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.allyourbayes.com/posts/AoC/</a>.
 </div></div></section></div> ]]></description>
   <category>Julia</category>
   <category>puzzles</category>
   <guid>https://www.allyourbayes.com/posts/AoC/</guid>
-  <pubDate>Tue, 02 Dec 2025 00:00:00 GMT</pubDate>
+  <pubDate>Wed, 03 Dec 2025 00:00:00 GMT</pubDate>
   <media:content url="https://www.allyourbayes.com/posts/AoC/santa.png" medium="image" type="image/png" height="125" width="144"/>
 </item>
 <item>
