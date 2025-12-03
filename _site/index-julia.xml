@@ -6,15 +6,15 @@
       version="2.0">
 <channel>
 <title>All Your Bayes</title>
-<link>https://www.allyourbayes.com/#category=Julia</link>
-<atom:link href="https://www.allyourbayes.com/index-julia.xml" rel="self" type="application/rss+xml"/>
+<link>https://allyourbayes.com/#category=Julia</link>
+<atom:link href="https://allyourbayes.com/index-julia.xml" rel="self" type="application/rss+xml"/>
 <description>thoughts on risk and uncertainty in decision support</description>
 <generator>quarto-1.7.30</generator>
 <lastBuildDate>Wed, 03 Dec 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>advent of code 2025</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://www.allyourbayes.com/posts/AoC/</link>
+  <link>https://allyourbayes.com/posts/AoC/</link>
   <description><![CDATA[ 
 
 
@@ -689,23 +689,23 @@ font-style: inherit;">|&gt;</span> sum</span></code></pre></div>
   author = {Di Francesco, Domenic},
   title = {Advent of Code 2025},
   date = {2025-12-03},
-  url = {https://www.allyourbayes.com/posts/AoC/},
+  url = {https://allyourbayes.com/posts/AoC/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2025. <span>“Advent of Code 2025.”</span>
-December 3, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.allyourbayes.com/posts/AoC/</a>.
+December 3, 2025. <a href="https://allyourbayes.com/posts/AoC/">https://allyourbayes.com/posts/AoC/</a>.
 </div></div></section></div> ]]></description>
   <category>Julia</category>
   <category>puzzles</category>
-  <guid>https://www.allyourbayes.com/posts/AoC/</guid>
+  <guid>https://allyourbayes.com/posts/AoC/</guid>
   <pubDate>Wed, 03 Dec 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://www.allyourbayes.com/posts/AoC/santa.png" medium="image" type="image/png" height="125" width="144"/>
+  <media:content url="https://allyourbayes.com/posts/AoC/santa.png" medium="image" type="image/png" height="125" width="144"/>
 </item>
 <item>
   <title>diff all the things</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://www.allyourbayes.com/posts/gradients/</link>
+  <link>https://allyourbayes.com/posts/gradients/</link>
   <description><![CDATA[ 
 
 
@@ -726,7 +726,7 @@ December 3, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.
 <section id="inter-operability-and-julia" class="level4">
 <h4 class="anchored" data-anchor-id="inter-operability-and-julia">inter-operability and <code>Julia</code> ♥️💚💜</h4>
 <p>Perhaps my favourite feature of <code>Julia</code> is it’s inter-operability. Look at a GitHub repo for a <code>Julia</code> package and you will generally find the following:</p>
-<p><img src="https://www.allyourbayes.com/posts/gradients/julia_repo.png" class="img-fluid"></p>
+<p><img src="https://allyourbayes.com/posts/gradients/julia_repo.png" class="img-fluid"></p>
 <p><code>Julia</code> is so performant, that it’s libraries for scientific computing will work with normal variables - without needing to package up their own types. So solvers from <code>DifferentialEquations</code>, or neural networks defined in <code>Flux</code> can be immediately combined with the <code>Julia</code> probabilistic programming language, <code>Turing</code>.</p>
 <p>If a new framework emerges in <code>Python</code>, an entirely new ecosystem may need to be developed to prop it up. This may involve duplicating existing but now incompatible functionality - think of <code>JAX</code> needing to implement it’s own <code>NumPy</code> module. …whereas if you write a new <code>Julia</code> library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.</p>
 <p>Here I am, impressed that the interoperability of the <code>Copulas</code> package:</p>
@@ -744,7 +744,7 @@ December 3, 2025. <a href="https://www.allyourbayes.com/posts/AoC/">https://www.
 <p>Conversely, <code>Julia</code> works the other way around. You write your code, using whichever libraries, functions and types you want, <em>and then</em> you choose an AD library to get you the gradients you need.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://www.allyourbayes.com/posts/gradients/autodiff_joy.png" class="img-fluid figure-img"></p>
+<p><img src="https://allyourbayes.com/posts/gradients/autodiff_joy.png" class="img-fluid figure-img"></p>
 <figcaption>the joy of gradients - image courtesy of Google Gemini</figcaption>
 </figure>
 </div>
@@ -1267,7 +1267,7 @@ font-style: inherit;">end</span></span></code></pre></div>
 </div>
 <p><code>Enzyme.make_zero(nn)</code> creates a structural copy of <code>nn</code> with the same type (neural_network), field names (Ws, bs), and dimensions …but with all numerical values set to zero. This memory-saving trick is important for large vectors of parameters, as we will generally have in deep learning.</p>
 <p>The example applications that I selected are already very well equipped with sophisticated <code>Julia</code> libraries. If you are interested in probabilistic modelling in <code>Julia</code>, use <code>Turing</code>, if you are interested in deep learning, use <code>Flux</code>. Both are Enzyme compatible, but the later has specific guidance on how to set this up, using the <code>Duplicated</code> method that we used above:</p>
-<p><img src="https://www.allyourbayes.com/posts/gradients/Flux_Enzyme.png" class="img-fluid"></p>
+<p><img src="https://allyourbayes.com/posts/gradients/Flux_Enzyme.png" class="img-fluid"></p>
 </section>
 <section id="some-references" class="level4">
 <h4 class="anchored" data-anchor-id="some-references">some references</h4>
@@ -1275,7 +1275,7 @@ font-style: inherit;">end</span></span></code></pre></div>
 <p>A summary of the key trade-offs accross various autodiff methods, <a href="https://www.stochasticlifestyle.com/engineering-trade-offs-in-automatic-differentiation-from-tensorflow-and-pytorch-to-jax-and-julia/">link</a></p>
 <p>Professor Simone Scardapone’s book, “Alice’s adventures in a differential wonderland” <a href="https://www.sscardapane.it/assets/alice/Alice_book_volume_1.pdf">link</a>.</p>
 <p><em>“As the name differentiable implies, gradients play a pivotal role”</em></p>
-<p><img src="https://www.allyourbayes.com/posts/gradients/alice.png" class="img-fluid"></p>
+<p><img src="https://allyourbayes.com/posts/gradients/alice.png" class="img-fluid"></p>
 <p>JuliaCon talk on <code>Julia</code>’s unique approach to autodiff: </p><div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/ww3ntpyxNtI" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div><p></p>
 
 
@@ -1286,26 +1286,26 @@ font-style: inherit;">end</span></span></code></pre></div>
   author = {Di Francesco, Domenic},
   title = {Diff All the Things},
   date = {2025-09-09},
-  url = {https://www.allyourbayes.com/posts/gradients/},
+  url = {https://allyourbayes.com/posts/gradients/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2025. <span>“Diff All the Things.”</span>
-September 9, 2025. <a href="https://www.allyourbayes.com/posts/gradients/">https://www.allyourbayes.com/posts/gradients/</a>.
+September 9, 2025. <a href="https://allyourbayes.com/posts/gradients/">https://allyourbayes.com/posts/gradients/</a>.
 </div></div></section></div> ]]></description>
   <category>automatic differentiation</category>
   <category>deep learning</category>
   <category>Bayesian inference</category>
   <category>Julia</category>
   <category>Enzyme</category>
-  <guid>https://www.allyourbayes.com/posts/gradients/</guid>
+  <guid>https://allyourbayes.com/posts/gradients/</guid>
   <pubDate>Mon, 08 Sep 2025 23:00:00 GMT</pubDate>
-  <media:content url="https://www.allyourbayes.com/posts/gradients/meme.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://allyourbayes.com/posts/gradients/meme.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
   <title>Bayes@Lund2023</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://www.allyourbayes.com/posts/Bayes@Lund/</link>
+  <link>https://allyourbayes.com/posts/Bayes@Lund/</link>
   <description><![CDATA[ 
 
 
@@ -1333,21 +1333,21 @@ September 9, 2025. <a href="https://www.allyourbayes.com/posts/gradients/">https
   author = {Di Francesco, Domenic},
   title = {Bayes@Lund2023},
   date = {2023-01-23},
-  url = {https://www.allyourbayes.com/posts/Bayes@Lund/},
+  url = {https://allyourbayes.com/posts/Bayes@Lund/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2023" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
-2023. <a href="https://www.allyourbayes.com/posts/Bayes@Lund/">https://www.allyourbayes.com/posts/Bayes@Lund/</a>.
+2023. <a href="https://allyourbayes.com/posts/Bayes@Lund/">https://allyourbayes.com/posts/Bayes@Lund/</a>.
 </div></div></section></div> ]]></description>
   <category>Bayes</category>
   <category>Stan</category>
   <category>Julia</category>
   <category>decisions</category>
   <category>value of information</category>
-  <guid>https://www.allyourbayes.com/posts/Bayes@Lund/</guid>
+  <guid>https://allyourbayes.com/posts/Bayes@Lund/</guid>
   <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
-  <media:content url="https://www.allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
+  <media:content url="https://allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 </channel>
 </rss>
