@@ -3065,7 +3065,7 @@ February 20, 2026. <a href="https://allyourbayes.com/posts/AoC/">https://allyour
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ290cWtoaGE3aTJqeTZtYzI4b2t0cHp6dXpscmxld3psOTEzcWR6ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6AnUuBECREYeTr5n0t/giphy.gif" class="img-fluid figure-img"></p>
-<figcaption>Mooncake</figcaption>
+<figcaption>Oh, Mooncake</figcaption>
 </figure>
 </div>
 <p>Cover the three things it shares with Enzyme (mutation, control flow, correctness) and the key difference (no LLVM dependency).</p>
