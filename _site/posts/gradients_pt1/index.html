@@ -170,7 +170,7 @@ window.Quarto = {
 
 <meta name="twitter:title" content="diff all the things! Part 1 – All Your Bayes">
 <meta name="twitter:description" content="performant gradients on demand, courtesy of Julia">
-<meta name="twitter:image" content="https://allyourbayes.com/posts/gradients/meme.jpg">
+<meta name="twitter:image" content="https://www.allyourbayes.com/posts/gradients_pt1/meme.jpg">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -471,7 +471,8 @@ window.Quarto = {
 <p>Why does this feel so powerful? its the promise of gradient-based methods for your scientific problem, rather than a walled-off machine learning model. You can point an AD engine at the aspect of your analysis that you are interested in for more bespoke interrogation or optimisation.</p>
 <p>I recently completed a project, which had an element of adversarial AI (counterfactual analysis and saliency maps), which I wrote in <code>JAX</code>, mainly as an excuse to learn <code>JAX</code>. I used their <code>NNX</code> module for neural networks, and found this to be unexpectedly restrictive. I wasn’t able to run analysis that required gradients of outputs w.r.t. inputs, as I hit <code>NNX</code> errors/limitations that I wasn’t able to resolve. I ended up re-writing everything in <code>Julia</code>.</p>
 <p>Once upon a time there was <code>Zygote</code>: an AD library that powered ML in <code>Julia</code>. A great achievement, but limitations began to emerge. Because of how it operates on your code, it can struggle with certain features. This is similar to the so-called “sharp bits” of <code>JAX</code> …though those limitations emerge for very different reasons.</p>
-<p><code>Zygote</code> is also sometimes described as “<em>too permissive</em>”. This is because it intercepts your code at some <em>intermediate representation</em> level (see note below), performs AD and then reassembles. <code>Julia</code>’s IR was designed for performance, not AD and so doesn’t reliably detect and report errors in <code>Zygote</code>’s process.</p>
+<p><code>Zygote</code> is also sometimes described as “<em>too permissive</em>”. This is because it intercepts your code at some <em>intermediate representation</em> level (see note below), performs AD and then reassembles. <code>Julia</code>’s IR levels were designed for performance, not AD and so doesn’t reliably detect and report errors in <code>Zygote</code>’s process.</p>
+<p>It is possible for AD solutions to work with the compiler, rather than against it — more on this in Part 2! But for now…</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -562,7 +563,7 @@ _julia_nice_function_7864:              ; @julia_nice_function_7864
 "l_+Core.Float64#7866":
     .quad   "l_+Core.Float64#7866.jit"
 
-.set "l_+Core.Float64#7866.jit", 5859321072
+.set "l_+Core.Float64#7866.jit", 5725103344
 .subsections_via_symbols</code></pre>
 </div>
 </div>
@@ -771,12 +772,12 @@ quick note on forward vs.&nbsp;reverse mode AD
   author = {Di Francesco, Domenic},
   title = {Diff All the Things! {Part} 1},
   date = {2025-09-09},
-  url = {https://allyourbayes.com/posts/gradients/},
+  url = {https://www.allyourbayes.com/posts/gradients_pt1/},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2025" class="csl-entry quarto-appendix-citeas" role="listitem">
 Di Francesco, Domenic. 2025. <span>“Diff All the Things! Part 1.”</span>
-September 9, 2025. <a href="https://allyourbayes.com/posts/gradients/">https://allyourbayes.com/posts/gradients/</a>.
+September 9, 2025. <a href="https://www.allyourbayes.com/posts/gradients_pt1/">https://www.allyourbayes.com/posts/gradients_pt1/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -863,7 +864,7 @@ September 9, 2025. <a href="https://allyourbayes.com/posts/gradients/">https://a
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/allyourbayes\.com");
+        var filterRegex = new RegExp("https:\/\/www\.allyourbayes\.com\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

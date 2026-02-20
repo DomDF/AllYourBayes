@@ -218,13 +218,645 @@ This is based on selecting the maximum digit we can, whilst still leaving space 
 joltages |> x -> max_joltage_for_bank.(x, n_batteries = 12) |> sum
 ```
 
-<blockquote class="reddit-embed-bq" style="height:500px" data-embed-height="740"><a href="https://www.reddit.com/r/adventofcode/comments/1pd0e3s/day_3_part_2_realization/">Day 3 Part 2 realization</a><br> by<a href="https://www.reddit.com/user/GuiltyTemperature188/">u/GuiltyTemperature188</a> in<a href="https://www.reddit.com/r/adventofcode/">adventofcode</a></blockquote><script async="" src="https://embed.reddit.com/widgets.js" charset="UTF-8"></script>
-
 Don't forget to then update your starting index accordingly, rather than just adding 1, otherwise you'll keep selecting the same battery over and over - although seeing this helpded me fix it.
+
+Check out some smarter solutions than mine:
+
+<blockquote class="reddit-embed-bq" style="height:316px" data-embed-height="316"><a href="https://www.reddit.com/r/adventofcode/comments/1pcvaj4/2025_day_3_solutions/">-❄️- 2025 Day 3 Solutions -❄️-</a><br> by<a href="https://www.reddit.com/user/daggerdragon/">u/daggerdragon</a> in<a href="https://www.reddit.com/r/adventofcode/">adventofcode</a></blockquote><script async="" src="https://embed.reddit.com/widgets.js" charset="UTF-8"></script>
 
 ⭐⭐
 
-#### Day 4: ⏳
+#### Day 4: Dunder Mifflin warehouse 📄
+
+There are only so many types of AoC puzzles, and today I recognised bts of code I write every year. Namely, checking where I can safely move in in a grid while staying within bounds.
+
+We're given the layout of warehouse floor - specifically, where a reams of paper are located `@`, and where there is an empty space `.`. 
+
+```{julia}
+#| output: false
+
+grid = [
+    "..@@.@@@@."
+    "@@@.@.@.@@"
+    "@@@@@.@.@@"
+    "@.@@@@..@."
+    "@@.@@@@.@@"
+    ".@@@@@@@.@"
+    ".@.@.@.@@@"
+    "@.@@@.@@@@"
+    ".@@@@@@@@."
+    "@.@.@@@.@."
+    ]
+```
+
+We are asked:
+
+ * part 1: If we can only move reams with less than 4 neighbouring reams - how many can we move?
+ * part 2: Once we've removed them, we might be able to move more. How many are left that can never be moved?
+
+Here's a solution:
+
+```{julia}
+function find_accessible(warehouse::Matrix{Char}; n_aux::Int = 4)
+
+    n_rows, n_cols = size(warehouse); labelled_warehouse = copy(warehouse)
+    
+    # all 8 directions: (row_offset, col_offset)
+    directions = [
+        (-1, -1), (-1, 0), (-1, 1),
+        ( 0, -1),          ( 0, 1),
+        ( 1, -1), ( 1, 0), ( 1, 1)
+    ]
+    
+    for row ∈ 1:n_rows
+        for col ∈ 1:n_cols
+            
+            warehouse[row, col] != '@' && continue # we're only checking the papers
+            
+            neighbouring_papers = 0
+            for (Δr, Δc) ∈ directions
+                check_row, check_col = row + Δr, col + Δc
+                
+                if 1 ≤ check_row ≤ n_rows && 1 ≤ check_col ≤ n_cols # stay in the grid!
+                    if warehouse[check_row, check_col] == '@'
+                        neighbouring_papers += 1
+                    end
+                end
+            end
+            
+            if neighbouring_papers < n_aux
+                labelled_warehouse[row, col] = 'x'
+            end
+        end
+    end
+    
+    return labelled_warehouse
+end
+
+grid |> 
+    lines ->  [lines[r][c] for r ∈ eachindex(lines), c ∈ 1:length(lines[1])] |>
+    warehouse -> count(==('x'), find_accessible(warehouse))
+
+```
+
+Not super elegeant. I replace the reams that can be moved with an `x` and then count them. It was important to make this change to a copy of the warehouse grid, otherwise we would be changing the grid as we go, and thinking there are less neighbouring reams than there actually are.
+
+...and for part 2, we can just keep calling this function until there are no more reams that can be moved:
+
+```{julia}
+#| output: false
+function remove_all_reams(grid::Matrix{Char})
+    labelled_warehouse = copy(grid)
+    while true
+        new_labelled_warehouse = find_accessible(labelled_warehouse)
+        new_labelled_warehouse == labelled_warehouse && break
+        labelled_warehouse = new_labelled_warehouse
+    end
+    return count(==('x'), labelled_warehouse)
+end
+```
+
+loevely visualisation on the reddit of clearing out the warehouse:
+
+<blockquote class="reddit-embed-bq" style="height:500px" data-embed-height="740"><a href="https://www.reddit.com/r/adventofcode/comments/1pdrfl0/2025_day_4_part_2/">[2025 Day 4 Part 2]</a><br> by<a href="https://www.reddit.com/user/EverybodyCodes/">u/EverybodyCodes</a> in<a href="https://www.reddit.com/r/adventofcode/">adventofcode</a></blockquote><script async="" src="https://embed.reddit.com/widgets.js" charset="UTF-8"></script>
+
+⭐⭐
+
+#### Day 5: fresh ingredients 🥗
+
+Part 2 got me today.
+
+Our inputs are a list of ranges, followed by ingredient id's.
+
+```{julia}
+#| output: false
+ingredients_db = [
+    "3-5"
+    "10-14"
+    "16-20"
+    "12-18"
+
+    "1"
+    "5"
+    "8"
+    "11"
+    "17"
+    "32"
+]
+```
+
+An ingredient is fresh if its id falls within any of the ranges given. After a little pre-processing, we can collect all of the ranges that fresh ingredient fall into 
+
+...because we suspect we will need that for part 2, even though they end up going in a different, more complicated direction.
+
+```{julia}
+#| echo: false
+#| output: false
+range_strings = filter(s -> contains(s, "-"), ingredients_db)
+id_strings = filter(s -> !contains(s, "-"), ingredients_db)
+
+# Then parse them:
+ranges = map(range_strings) do s
+    parts = split(s, "-")
+    parse(Int, parts[1]):parse(Int, parts[2])
+end
+
+ingredients = parse.(Int, id_strings)
+
+```
+
+```{julia}
+#| output: false
+fresh_ingredients = Dict{Int, Vector{UnitRange{Int}}}()
+for i ∈ ingredients
+    for r ∈ ranges
+        if i ∈ r
+            push!(get!(fresh_ingredients, i, UnitRange{Int}[]), r)
+        end
+    end
+end
+```
+
+and then returning the number of fresh ingredients.
+
+```{julia}
+fresh_ingredients |> length
+```
+
+Part 2 instead asks to find the number of possible fresh ingredients i.e. how many unique ingredient IDs fall within any of the given ranges.
+
+...and in the real input data, the ranges were large, and overlapped. *So*, in cases where there was overlap, I combined them into a single new range (with the smaller of the start values, and larger of the end values).
+
+```{julia}
+#| output: false
+sorted_ranges = sort(ranges, by = first)
+
+fresh_ingredients_merged = [sorted_ranges[begin]]
+for range ∈ sorted_ranges[2:end]
+    # start a new range when the lower value is outside the largest value of the merge
+    if last(fresh_ingredients_merged[end]) < first(range)
+        push!(fresh_ingredients_merged, range)
+    else
+    # the start of the new range stays the same, but the end needs to be extended if it's bigger for the new range
+    new_max_range = [last(fresh_ingredients_merged[end]), last(range)] |> maximum
+    fresh_ingredients_merged[end] = first(fresh_ingredients_merged[end]):new_max_range
+    end    
+end
+```
+
+...and then summed the lengths of the now non-overlapping ranges (without duplicate ingredient IDs):
+
+```{julia}
+[length(x) for x ∈ fresh_ingredients_merged] |> sum
+```
+
+⭐⭐
+
+#### Day 6: Cephalopod Maths 🐙 
+
+I googled *cephalopod* - it means a creature with a head and tentacles.
+
+In the advent of code universe, they get maths homework, and this is what it looks like:
+
+```{julia}
+#| output: false
+sums = [
+    "123 328  51 64 ",
+    " 45 64  387 23 ",
+    "  6 98  215 314",
+    "*   +   *   +  "
+]
+```
+
+This is asking us to apply the operator in the last row, to the numbers above it. In part 1, the numbers above the first (leftmost) `*` are `123`, `45`, `6`. In part 2 we are told the numbers are written in coluns (not rows) so we instead have to multiply `356`, `24`, and `1`.
+
+So the difference is in fiddling the parsing of the numbers. Here's a solution:
+
+```{julia}
+function solve_sums(lines::Vector{String}; part_2::Bool = false)
+    
+    n_cols = lines[end] |> length
+    # need to break until the next sum when there is a column of spaces
+    no_sum = [all(line[c] == ' ' for line ∈ lines) for c ∈ 1:n_cols]
+
+    results = Int[]; col = 1
+    while col <= n_cols
+        # skip the separator columns that split the sums
+        while col <= n_cols && no_sum[col]
+            col += 1
+        end
+        col > n_cols && break
+        
+        # otherwise we start a new sum
+        start_sum = col
+        
+        # and keep going until the next separator
+        while col <= n_cols && !no_sum[col]
+            col += 1
+        end
+
+        # the operator is always in the first col of each sum, in the last row
+        op = lines[end][start_sum]
+        
+        if part_2
+            # pt.2: each column is a number (read top-down)
+            numbers = Int[]
+            for nums_col ∈ start_sum:col-1
+                digits = [line[nums_col] for line ∈ lines[1:end-1] if line[nums_col] != ' ']
+                if !isempty(digits)
+                    push!(numbers, parse(Int, String(digits)))
+                end 
+            end
+        else
+            # pt.1: each row is a number, but they can have leading spaces
+            numbers = [parse(Int, strip(line[start_sum:col-1])) for line ∈ lines[1:end-1]]
+        end
+        
+        # an excuse to use Julia metaprogramming :)
+        push!(results, op |> Symbol |> eval |> x -> reduce(x, numbers))
+    end
+        
+    return results
+end
+```
+
+Not completed on the day for the first time, but life is very hectic.
+
+Oh, and an excuse to use `Julia` metaprogramming! We could have put in some conditional logic to take products when the operator is `*` and sums when it's `+`, but instead we can directly convert to a symbol and evaluate it. Not at all required for this problem, but hey...
+
+And then add up the results:
+```{julia}
+sums |> solve_sums |> sum
+```
+
+I'm inferring from the below meme, but I guess some people created matrices for all the numbers in each sum, rather than just strip the whitespace 🤔
+
+Neat - wish I did it that way 🤷🏻
+
+<blockquote class="reddit-embed-bq" style="height:316px" data-embed-height="316"><a href="https://www.reddit.com/r/adventofcode/comments/1pflq1c/2025_day_6_part_2_the_solution_be_like/">[2025 Day 6 (Part 2)] The solution be like...</a><br> by<a href="https://www.reddit.com/user/HotTop7260/">u/HotTop7260</a> in<a href="https://www.reddit.com/r/adventofcode/">adventofcode</a></blockquote><script async="" src="https://embed.reddit.com/widgets.js" charset="UTF-8"></script>
+
+⭐⭐
+
+#### Day 7: Tachyon beam splitting ⚛️
+
+After yesterday, we've got 12 ⭐'s on the board 
+
+*we're 1/2 way there* [Jon Bon Jovi voice]
+
+A beam of tachyons, `|` flows from a starting point, `S` down a grid. When it hits a splitter, `^`, two beams emerge (one either side).
+
+```{julia}
+#| output: false
+tachyon_manifold = [
+    ".......S.......",
+    "...............",
+    ".......^.......",
+    "...............",
+    "......^.^......",
+    "...............",
+    ".....^.^.^.....",
+    "...............",
+    "....^.^...^....",
+    "...............",
+    "...^.^...^.^...",
+    "...............",
+    "..^...^.....^..",
+    "...............",
+    ".^.^.^.^.^...^.",
+    "..............."
+]
+```
+
+In part 1, we are asked how many times the beam is split, and in part 2 we are asked how many parallel timelines (possible paths) exist for the beam.
+
+Here's my solution:
+
+```{julia}
+function analyse_beams(beam_rows::Vector{String})
+
+    n_rows = beam_rows |> length
+    n_cols = beam_rows[end] |> length
+    grid = [beam_rows[row][col] for row ∈ 1:n_rows, col ∈ 1:n_cols]
+
+    # find starting position
+    start_pos = findfirst(==('S'), grid)
+    start_row, start_col = start_pos[1], start_pos[2]
+
+    # initialise beams and timelines...
+    splits = 0; timelines = Dict(start_col => 1)
+    
+    for row ∈ (start_row + 1):n_rows
+        # ...and then keep track of new ones
+        new_timelines = Dict{Int, Int}()
+        
+        for (col, count) ∈ timelines
+            if grid[row, col] == '^'
+                # for part 1, we count the splits
+                splits += 1 
+                # for part 2, we "do" the split and count the timelines (add beams to the left and right - after an in-bounds check)
+                col - 1 >= 1 && (new_timelines[col - 1] = get(new_timelines, col - 1, 0) + count)
+                col + 1 <= n_cols && (new_timelines[col + 1] = get(new_timelines, col + 1, 0) + count)
+            else
+                new_timelines[col] = get(new_timelines, col, 0) + count
+            end
+        end
+
+        timelines = new_timelines
+
+    end
+
+    return ("splits" => splits, "timelines" => timelines)
+end
+```
+
+This is a tidied up version, because I was initially separately tracking a variable `beams`, which I ended up separately recording in my part 2 dictionary. Also, I've got no idea if I needed the in-bounds checks (where I discount any beams that stray off the edges of the tachyon manifold).
+
+```{julia}
+tachyon_manifold |> analyse_beams
+```
+
+#### Day 8: Connecting junction boxes 🔌
+
+We are given 3-d (x, y, z) coordinates of electrical junction boxes and ask to connect the closest ones (shortest Euclidean distance) together to form circuits.
+
+```{julia}
+#| output: false
+junction_boxes = [
+    "162,817,812",
+    "57,618,57",
+    "906,360,560",
+    "592,479,940",
+    "352,342,300",
+    "466,668,158",
+    "542,29,236",
+    "431,825,988",
+    "739,650,466",
+    "52,470,668",
+    "216,146,977",
+    "819,987,18",
+    "117,168,530",
+    "805,96,715",
+    "346,949,466",
+    "970,615,88",
+    "941,993,340",
+    "862,61,35",
+    "984,92,344",
+    "425,690,689"
+]
+```
+
+**The key insight**: We don't need to track every box in each circuit, just whether two boxes share a common "root". This is a **Union-Find** (∪ + 🔎) problem.
+
+Each box starts as it's own standalone circuit. When we connect two boxes, one joins the other's (the root's) circuit. To check if two boxes are in the same circuit, we can then follow the chain and check if they share the same root.
+
+```{julia}
+#| output: false
+
+coords = junction_boxes |>
+    boxes -> split.(boxes, ",") |>
+    boxes -> [parse.(Int, b) for b ∈ boxes]
+
+# each box starts as its own root
+n_boxes = length(coords); parent = collect(1:n_boxes)
+
+# follow the chain upward to find the root
+function find_circuit_root(box_index)
+    while parent[box_index] != box_index
+        box_index = parent[box_index]
+    end
+    return box_index
+end
+
+# connect two circuits by making one root point to the other
+function connect_boxes!(box_from, box_to)
+    root_from = find_circuit_root(box_from)
+    root_to = find_circuit_root(box_to)
+    
+    # already in same circuit?
+    root_from == root_to && return false
+    
+    # otherwise => merge
+    parent[root_from] = root_to
+    return true
+end
+```
+
+Here I check the distance between every pair of boxes, and arrange shortest to longest:
+
+```{julia}
+#| output: false
+
+distances = []
+for box ∈ 1:n_boxes
+    for alt ∈ (box+1):n_boxes  # avoid double-counting pairs
+        dist = (coords[box] .- coords[alt]).^2 |> sum |> sqrt
+        push!(distances, (dist = dist, from = box, to = alt))
+    end
+end
+sort!(distances, by = first)
+```
+
+Part 1 asks us to attempt to connect the `1000` shortest connections and part 2 asks wants us to keep going until we end up with 1 big circuit and a final connection. Here's my solution:
+
+```{julia}
+function size_circuits(distances; n_attempts::Union{Int, Nothing} = nothing)
+    
+    # each box starts as is its own circuit
+    parent = collect(1:n_boxes)
+    last_connection = nothing
+
+    for (attempt, d) ∈ enumerate(distances)
+        
+        if connect_boxes!(d.from, d.to)
+            last_connection = d
+        end
+
+        # part 1: stop after N attempts
+        if !isnothing(n_attempts) && attempt >= n_attempts
+            break
+        end
+        
+        # part 2: stop when everything is connected
+        roots = [find_circuit_root(i) for i ∈ 1:n_boxes]
+        length(unique(roots)) == 1 && break
+    end
+
+    roots = [find_circuit_root(i) for i ∈ 1:n_boxes]
+    circuit_sizes = [count(==(r), roots) for r ∈ unique(roots)]
+    sort!(circuit_sizes, rev=true)
+
+    return Dict("circuit_sizes" => circuit_sizes, 
+                "last_connection" => last_connection)
+end
+```
+
+There are some lovely visualisations of the growing mega-circuit of part 2:
+
+<blockquote class="reddit-embed-bq" style="height:500px" data-embed-height="688"><a href="https://www.reddit.com/r/adventofcode/comments/1phelxp/2025_day_8_part_2_visualisation/">[2025 Day 8 (Part 2)] Visualisation</a><br> by<a href="https://www.reddit.com/user/Derailed_Dash/">u/Derailed_Dash</a> in<a href="https://www.reddit.com/r/adventofcode/">adventofcode</a></blockquote><script async="" src="https://embed.reddit.com/widgets.js" charset="UTF-8"></script>
+
+```{julia}
+size_circuits(distances)["last_connection"] |>
+    last -> coords[last.from][1] * coords[last.to][1]
+```
+
+The puzzles are getting tricky. This is possibly the first one that can't be brute-forced? My naive approach of adding new boxes to sets of circuits was pretty slow (O(n)). This is also the first puzzle I was unable to solve them on the day of release due to other commitments, but I'm not fussed about that.
+
+⭐⭐
+
+#### Day 9: Red and Green tiles 🟥 🟩
+
+We are provided with coordinates (in 2-d today) of red tiles:
+
+```{julia}
+#| output: false
+red_tiles = [
+    "7,1",
+    "11,1",
+    "11,7",
+    "9,7",
+    "9,5",
+    "2,5",
+    "2,3",
+    "7,3"
+]
+
+```
+We are asked to find the largest (by area) rectangle that can be made, if we took two red tiles as opposite corners. Part 1 didn't have any further restrictions and so was one of the simplest stars to get so far this year. Part 2 was not...
+
+In part 2, we connect sequential red tiles using green tiles. We then have a border of green tiles since, *adjacent tiles are always in the same row or column* (thankfully!) and we also fill in the inside of this shape with green tiles. The large rectangles we are trying to form cannot include any coordinates that are not either red or green tiles.
+
+How do we know which tiles are "inside" the loop? 
+
+I think there are some clever ways to do this by flooding the outer grid with empty tiles or the inner grid with green tiles, until we hit the border. 
+
+I used a simpler approach. For each empty tile, walk left and count how many times you cross vertical boundaries. After an odd number of crossings, you must be inside (green tile). 🪄 Trick: be carefull to ignore horizontal boundaries, as they will just run parallel to our walk (we won't cross them). This is why I added the `above` check.
+
+```{julia}
+# connect sequential red tiles with green tiles
+function draw_green_line!(grid, from, to)
+    x_min, x_max = minmax(from[1], to[1])
+    y_min, y_max = minmax(from[2], to[2])
+    
+    for x ∈ x_min:x_max
+        for y ∈ y_min:y_max
+            grid[x, y] == 0 && (grid[x, y] = 2)  # only fill empties
+        end
+    end
+end
+
+# are we inside the shape?
+function is_inside(grid, x, y)
+    grid[x, y] != 0 && return false  # already filled
+    
+    crossings = 0
+    for check_x ∈ 1:(x-1)
+        # counting vertical boundaries
+        at_y = grid[check_x, y] ∈ (1, 2)
+        above = y > 1 && grid[check_x, y-1] ∈ (1, 2)
+        at_y && above && (crossings += 1)
+    end
+    
+    return isodd(crossings)
+end
+```
+
+Turns out the grid is enormous - `9655610113` tiles.
+
+Since we only care about red tiles, we can index their sparse coordinates. I eventually remembered to use the original (enormous) grid coordinates to calculate how big the rectangle areas are. Here's my solution:
+
+```{julia}
+# check rectangle contains only red/green tiles
+function is_valid_rectangle(grid, c1, c2)
+    x_min, x_max = minmax(c1[1], c2[1])
+    y_min, y_max = minmax(c1[2], c2[2])
+    
+    for x ∈ x_min:x_max
+        for y ∈ y_min:y_max
+            grid[x, y] == 0 && return false
+        end
+    end
+    return true
+end
+
+function max_area(red_tiles_coords::Vector{Vector{Int}}; part_2::Bool = false)
+    
+    n_tiles = length(red_tiles_coords)
+    max_area = 0
+    best_pair = nothing
+
+    if part_2
+    # coordinate compression
+        all_x = sort(unique(c[1] for c ∈ red_tiles_coords))
+        all_y = sort(unique(c[2] for c ∈ red_tiles_coords))
+        
+        # big grid => compressed index
+        x_to_idx = Dict(x => i for (i, x) ∈ enumerate(all_x))
+        y_to_idx = Dict(y => i for (i, y) ∈ enumerate(all_y))
+        
+        # Compress all red tile coordinates
+        compressed_coords = [[x_to_idx[c[1]], y_to_idx[c[2]]] for c ∈ red_tiles_coords]
+        
+        # using reduced grid dims...
+        max_x = length(all_x)
+        max_y = length(all_y)
+        grid = zeros(Int, max_x, max_y)
+        
+        # ...mark red tiles and connect with greens
+        for c ∈ compressed_coords
+            grid[c[1], c[2]] = 1
+        end
+        
+        for i ∈ 1:n_tiles
+            next_i = i == n_tiles ? 1 : i + 1
+            draw_green_line!(grid, compressed_coords[i], compressed_coords[next_i])
+        end
+        
+        # and paint the interior green too
+        for x ∈ 1:max_x
+            for y ∈ 1:max_y
+                is_inside(grid, x, y) && (grid[x, y] = 2)
+            end
+        end
+    end
+
+    for i ∈ 1:n_tiles
+        for j ∈ (i+1):n_tiles
+            
+            # part 2: check validity using compressed coords
+            if part_2 && !is_valid_rectangle(grid, compressed_coords[i], compressed_coords[j])
+                continue
+            end
+
+            # ...but then calculate the area on the big grid
+            width = abs(red_tiles_coords[i][1] - red_tiles_coords[j][1]) + 1
+            height = abs(red_tiles_coords[i][2] - red_tiles_coords[j][2]) + 1
+                        
+            if width * height > max_area
+                max_area = width * height
+                best_pair = (i, j)
+            end
+        end
+    end
+
+    return max_area
+end
+```
+
+which matches the example answer:
+
+```{julia}
+red_tiles |>
+    tiles -> split.(tiles, ",") |>
+    tiles -> [parse.(Int, t) for t ∈ tiles] |> 
+    coords -> max_area(coords, part_2 = true)
+
+```
+
+A hodgepodge of a solution, which may have some breaking edge cases, but got me there. This is the first time I have been 3 puzzles away from completing advent of code...
+
+⭐⭐
+
+#### Day 10: ⏳
 
 ...
 

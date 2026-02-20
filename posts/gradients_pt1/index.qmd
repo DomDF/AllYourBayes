@@ -1,5 +1,5 @@
 ---
-title: "diff all the things"
+title: "diff all the things! Part 1"
 subtitle: "performant gradients on demand, courtesy of Julia"
 author: "Domenic Di Francesco"
 date: "2025-09-09"
@@ -22,15 +22,17 @@ library(JuliaCall); JuliaCall::julia_setup()
 
 ### TLDR
 
-Gradients guide us through high-dimensional parameter space to draw samples from posterior distributions, take steps towards loss minimising parameter values, identify model vulnerabilities using adversarial methods, and more. One (of many) fun features about the `Julia` programming language is it's unique approach to autodiff. However, I personally found some documentation a little difficult to follow, so this is intended to be a practical guide, with a couple of example use cases.
+Gradients guide us through daunting and unwieldy, high-dimensional models to draw samples from posterior distributions, take steps towards loss minimising parameter values, identify model vulnerabilities using adversarial methods, and more. One (of many) fun features about the `Julia` programming language is its unique approach to autodiff. 
+
+In Part 1, I provide an intro to autodiff workflow in `Julia` and the emergence of the `Enzyme` library.I personally found some documentation a little difficult to follow, so this is intended to be a practical guide, with a couple of example use cases.
 
 ---
 
 #### autodiff (AD)
 
-Soooo much of computational statistics and machine learning is built on automatic (algorithmic) differentiation (AD). Dig into literature on Bayesian inference, or deep learning, and you will find parameters being nudged in a direction informed by a gradient. I'm sometimes suprised at the extent of the 'gradient-based' monopoly in scientific computing, but I don't mean to trivialise! ...getting gradients of complex functions, very quickly and without error, is a powerful tool and it's great that people are able to leverage this.
+So much of computational statistics and machine learning is built on automatic (algorithmic) differentiation - AD, "autodiff", or "autograd". Dig into literature on Bayesian inference, or deep learning, and you will find parameters being nudged in a direction informed by a gradient. I'm sometimes surprised at the extent of the 'gradient-based' monopoly in scientific computing, but I don't mean to trivialise! ...getting gradients of complex functions, very quickly and without error, is a powerful tool and its great that we are able to leverage this.
 
-AD achieves this by *"the relentless application of the chain rule"*, as I vaguely recall one of the `Stan` developers saying. Large functions are differentiated piece by piece (for which look-up rules can be applied), and the results are stitched together.
+AD works by *"the relentless application of the chain rule"*, as I vaguely recall one of the `Stan` developers saying. Large functions are differentiated piece by piece (for which look-up rules can be applied), and the results are stitched together.
 
 $$
 \frac{\partial \mathcal{L}}{\partial x_i} = \frac{\partial \mathcal{L}}{\partial x_n} \times \frac{\partial x_n}{\partial x_{n-1}} \times \cdots \times \frac{\partial x_{i+1}}{\partial x_i}
@@ -38,13 +40,13 @@ $$
 
 #### inter-operability and `Julia` ♥️💚💜
 
-Perhaps my favourite feature of `Julia` is it's inter-operability. Look at a GitHub repo for a `Julia` package and you will generally find the following:
+Perhaps my favourite feature of `Julia` is its inter-operability. Look at a GitHub repo for a `Julia` package and you will generally find the following:
 
 ![](julia_repo.png)
 
-`Julia` is so performant, that it's libraries for scientific computing will work with normal variables - without needing to package up their own types. So solvers from `DifferentialEquations`, or neural networks defined in `Flux` can be immediately combined with the `Julia` probabilistic programming language, `Turing`.
+`Julia` is so performant, that its libraries for scientific computing will work with normal variables - without needing to package up their own types. So solvers from `DifferentialEquations`, or neural networks defined in `Flux` can be immediately combined with the `Julia` probabilistic programming language, `Turing`.
 
-If a new framework emerges in `Python`, an entirely new ecosystem may need to be developed to prop it up. This may involve duplicating existing but now incompatible functionality - think of `JAX` needing to implement it's own `NumPy` module. ...whereas if you write a new `Julia` library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.
+If a new framework emerges in `Python`, an entirely new ecosystem may need to be developed to prop it up. This may involve duplicating existing but now incompatible functionality - think of `JAX` needing to implement its own `NumPy` module. ...whereas if you write a new `Julia` library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.
 
 Here I am, impressed that the interoperability of the `Copulas` package:
 
@@ -58,17 +60,52 @@ Here I am, impressed that the interoperability of the `Copulas` package:
 
 #### AD in `Julia`
 
-ML frameworks in `Python` require you to work in their own syntax, with theit specific types, and use their own in-built AD methods. Locking into a framework is not ideal, as you are limited to the methods they support and you need to juggle types of inputs and outputs.
+ML frameworks in `Python` require you to work in their own syntax, with their specific types, and use their own in-built AD methods. Locking into a framework is not ideal, as you are limited to the methods they support and you need to juggle types of inputs and outputs.
 
 Conversely, `Julia` works the other way around. You write your code, using whichever libraries, functions and types you want, *and then* you choose an AD library to get you the gradients you need.
 
 ![the joy of gradients - image courtesy of Google Gemini](autodiff_joy.png)
 
-Why does this feel so powerful? It's the promise of gradient-based methods for your scientific problem, rather than a walled-off machine learning model. You can point an AD engine at the aspect of your analysis that you are interested in for more bespoke interrogation or optimisation.
+Why does this feel so powerful? its the promise of gradient-based methods for your scientific problem, rather than a walled-off machine learning model. You can point an AD engine at the aspect of your analysis that you are interested in for more bespoke interrogation or optimisation.
 
 I recently completed a project, which had an element of adversarial AI (counterfactual analysis and saliency maps), which I wrote in `JAX`, mainly as an excuse to learn `JAX`. I used their `NNX` module for neural networks, and found this to be unexpectedly restrictive. I wasn't able to run analysis that required gradients of outputs w.r.t. inputs, as I hit `NNX` errors/limitations that I wasn't able to resolve. I ended up re-writing everything in `Julia`.
 
-Once upon a time there was `Zygote`: an AD library that powered ML in `Julia`. A great achievement, but limitations began to emerge. Because it operates on your high-level `Julia` code, it can struggle with certain features, similar to the so-called "sharp bits" of `JAX` ...though I believe those limitations emerge for different reasons. I have also heard `Zygote` being described as "*too permissive*"": it's attempts to differentiate anything you throw at it can open the door to unidentified errors.
+Once upon a time there was `Zygote`: an AD library that powered ML in `Julia`. A great achievement, but limitations began to emerge. Because of how it operates on your code, it can struggle with certain features. This is similar to the so-called "sharp bits" of `JAX` ...though those limitations emerge for very different reasons. 
+
+`Zygote` is also sometimes described as "*too permissive*". This is because it intercepts your code at some *intermediate representation* level (see note below), performs AD and then reassembles. `Julia`'s IR levels were designed for performance, not AD and so doesn't reliably detect and report errors in `Zygote`'s process. 
+
+It is possible for AD solutions to work with the compiler, rather than against it — more on 
+this in Part 2! But for now...
+
+:::{.callout-note collapse="true"}
+## IR in `Julia`
+The `Julia` compiler doesn't go straight from your source text to machine code. It passes through several intermediate representations (progressively lower-level versions that are easier for the compiler to analyse and optimise).
+
+What's cool is that we can actually view these with the below macros:
+
+```{julia}
+#| echo: false
+using InteractiveUtils
+```
+
+```{julia}
+# some nice high-level code
+nice_function(x) = 2x + 1
+
+# the "lowered" IR
+@code_lowered nice_function(1.0)
+
+# the "typed" IR
+@code_typed nice_function(1.0)
+
+# the LLVM level
+@code_llvm nice_function(1.0)
+
+# finally, actual machine code
+@code_native nice_function(1.0)
+```
+
+:::
 
 And then came `Enzyme`: an AD library that works at the LLVM level (your code is compiled first, and then the gradients are computed). This led to improvements in both performance and flexibility - we can now differentiate through mutation and control flow. This more resilient library has a steeper learning curve (imo), but (also imo) requiring more explicit instructions ends up making things clearer. 
 
@@ -163,10 +200,37 @@ params_init = (
 )
 ```
 
+:::{.callout-note collapse="true"}
+## quick note on forward vs. reverse mode AD
+
+Imagine a function with $n$ inputs and $m$ outputs.
+
+**Forward mode** answers: "if I nudge **one input**, how do **all outputs** 
+change?" — so you need $n$ passes to cover every input.
+
+**Reverse mode** answers: "for **one output**, how did **all inputs** 
+contribute?" — so you need $m$ passes to cover every output.
+
+Often, ML and Bayesian inference problems have many parameters (large $n$) but 
+a single scalar output i.e. a loss, or a log probability density (small $m$). Reverse mode 
+gets us gradients w.r.t. **all** parameters in one backward pass. That's 
+why backpropagation and HMC tend to use it.
+
+That said, the threshold isn't always obvious and I've had cases 
+where switching modes gave a noticeable speedup, so it's worth experimenting!
+
+`Julia` has dedicated packages for each: `ForwardDiff.jl` and `ReverseDiff.jl` as part of its AD ecosystem. 
+These are solid and well-established, but aren't the focus of this post.
+:::
+
 I am giving the `gradient()` function three arguments:
 
 * **the mode/direction to apply AD**, `Reverse`.
-  Each pass of a reverse-mode AD computes gradients of all inputs w.r.t. a single output (as a vector-Jacobian product). In Forward mode, each pass computes gradients of a single input w.r.t. all outputs (as a Jacobian-vector product). Consequently, there are efficiency trade-offs associated with this selection, depending on the number of inputs and outputs of...
+  Each pass of a reverse-mode AD computes gradients of all inputs w.r.t. a single output (as a vector-Jacobian product). In Forward mode, each pass computes gradients of a single input w.r.t. all outputs (as a Jacobian-vector product). 
+  
+  See above callout note for more on this.
+  
+  Consequently, there are efficiency trade-offs associated with this selection, depending on the number of inputs and outputs of...
 
 * **...the function we are differentiating**, `params -> neg_log_posterior(params, priors, x, y)`.
   Here, an anonymous function that takes `params` as input and returns the negative log posterior, using `neg_log_posterior()`, which we defined above.
@@ -177,7 +241,7 @@ I am giving the `gradient()` function three arguments:
 ```{julia}
 using Enzyme
 # computing the gradients
-grads = Enzyme.gradient(
+∇θ = Enzyme.gradient(
     Reverse, 
     params -> neg_log_posterior(params, priors, x, y), 
     params_init

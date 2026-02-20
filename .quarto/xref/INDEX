@@ -70,5 +70,11 @@
   },
   "posts/AoC/index.knit.md": {
     "index.knit.html": "0cb112e4"
+  },
+  "posts/gradients_pt2/index.qmd": {
+    "index.html": "f673dc8c"
+  },
+  "posts/gradients_pt1/index.qmd": {
+    "index.html": "a2fc0678"
   }
 }
