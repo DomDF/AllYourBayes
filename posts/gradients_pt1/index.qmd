@@ -178,14 +178,19 @@ To use this function, we need to define some inputs. Here, I'm just simulating s
 
 ```{julia}
 #| output: false
-# 20 data points because, why not?
+# 20 data points, why not...
 n_samples = 20
+
 # define a PRNG for reproducibility
 prng = MersenneTwister(231123)
+
 # inputs from a standard Gaussian
 x = randn(prng, n_samples)
+
 # outputs by sending inputs through a "true" model
-y = 1/2 .+ x * (-1/2) .+ 2 * randn(prng, n_samples)
+α_true = 1/2; β_true = -1/2; σ_true = 2
+
+y = α_true .+ x * β_true .+ σ_true * randn(prng, n_samples)
 
 ```
 
@@ -203,24 +208,21 @@ params_init = (
 :::{.callout-note collapse="true"}
 ## quick note on forward vs. reverse mode AD
 
-Imagine a function with $n$ inputs and $m$ outputs.
+Imagine a function with $n_{in}$ inputs and $n_{out}$ outputs.
 
 **Forward mode** answers: "if I nudge **one input**, how do **all outputs** 
-change?" — so you need $n$ passes to cover every input.
+change?" — so you need $n_{in}$ passes to cover every input.
 
 **Reverse mode** answers: "for **one output**, how did **all inputs** 
-contribute?" — so you need $m$ passes to cover every output.
+contribute?" — so you need $n_{out}$ passes to cover every output.
 
-Often, ML and Bayesian inference problems have many parameters (large $n$) but 
-a single scalar output i.e. a loss, or a log probability density (small $m$). Reverse mode 
-gets us gradients w.r.t. **all** parameters in one backward pass. That's 
-why backpropagation and HMC tend to use it.
+Often, ML and Bayesian inference problems have many parameters (large $n_{in}$) but 
+a single scalar output i.e. a loss, or a log probability density (small $n_{out}$). Reverse mode 
+gets us gradients w.r.t. **all** parameters in one backward pass.
 
-That said, the threshold isn't always obvious and I've had cases 
-where switching modes gave a noticeable speedup, so it's worth experimenting!
+That said, the threshold isn't always obvious and I've had cases where switching modes gave a noticeable speedup, so it's worth experimenting!
 
-`Julia` has dedicated packages for each: `ForwardDiff.jl` and `ReverseDiff.jl` as part of its AD ecosystem. 
-These are solid and well-established, but aren't the focus of this post.
+`Julia` has dedicated packages for each: `ForwardDiff.jl` and `ReverseDiff.jl` as part of its AD ecosystem. These are solid and well-established, but aren't the focus of this post.
 :::
 
 I am giving the `gradient()` function three arguments:
@@ -228,7 +230,7 @@ I am giving the `gradient()` function three arguments:
 * **the mode/direction to apply AD**, `Reverse`.
   Each pass of a reverse-mode AD computes gradients of all inputs w.r.t. a single output (as a vector-Jacobian product). In Forward mode, each pass computes gradients of a single input w.r.t. all outputs (as a Jacobian-vector product). 
   
-  See above callout note for more on this.
+  See above callout note for more on this and why reverse mode is likely not an optimal choice for so few parameters.
   
   Consequently, there are efficiency trade-offs associated with this selection, depending on the number of inputs and outputs of...
 

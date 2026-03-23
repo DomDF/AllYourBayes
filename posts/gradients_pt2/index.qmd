@@ -1,0 +1,258 @@
+---
+title: "diff all the things! Part 2"
+subtitle: "performant gradients on demand, courtesy of Julia"
+author: "Domenic Di Francesco"
+date: "2026-03-01"
+categories: [automatic differentiation, deep learning, Bayesian inference, Julia, Enzyme, Mooncake]
+fields: [date, title, reading-time, description]
+citation: true
+image: "mooncake.png"
+from: markdown+emoji
+---
+
+```{r}
+#| setup: true
+#| echo: false
+#| warning: false
+#| message: false
+
+library(JuliaCall); JuliaCall::julia_setup()
+
+```
+
+### TLDR
+
+After reading [Part 1](https://allyourbayes.com/posts/gradients/), we know how great autodiff is, and how `Julia` lets us use it freely. We introduced the `Enzyme` library and showed some example applications. 
+
+Here in Part 2, we look at an emerging competing library, `Mooncake`, and why it's worth keeping an eye on 👀 
+
+---
+
+#### recap: `Enzyme` is great 🧪
+
+As we saw in [Part 1](https://allyourbayes.com/posts/gradients/), `Enzyme` solves the reliability problems that `Zygote` can (occasionally) exhibit. It differentiates our code at the LLVM level and is mega performant.
+
+We also discussed in [Part 1](https://allyourbayes.com/posts/gradients/), how nice it is that `Julia` projects use only `Julia` code and the benefits of this for interoperability. This isn't strictly true for `Enzyme`. Since it operates at the LLVM level, it can differentiate code in any language that compiles to the LLVM IR (including `C++`, and `Rust`!). We call a `Julia` API, but the differentiation is actually happening in the `Enzyme` software, outside of `Julia`.
+
+:::{.callout-note collapse="true"}
+## What is LLVM?
+
+We've mentioned it a few times as if it's basic knowledge - wasn't for me! [LLVM](https://en.wikipedia.org/wiki/LLVM) is a compiler framework used by many languages (including `Julia`) as a shared backend for generating machine code. 
+
+When you write `Julia`, your code eventually gets lowered to the LLVM level (we even saw how you can display this, using `@code_llvm` in [Part 1](https://allyourbayes.com/posts/gradients/)).
+
+`Enzyme` operates at this level. This means your high-level code has already been simplified and optimised a fair bit before any autodiff is attempted. This is a big reason why `Enzyme` is so performant.
+
+The downside is that at the LLVM level, there is no concept of `Julia` types, dispatch, or packages. There are challenges (read on for details) associated with needing to cross this boundary.
+:::
+
+So how good can autodiff be, if we learn lessons from `Zygote` and `Enzyme`, but stay entirely in `Julia`....
+
+#### enter `Mooncake` 🥮
+
+The pitch is as follows: an AD library, written entirely in `Julia` and competitive with `Enzyme`.
+
+![Oh, Mooncake](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ290cWtoaGE3aTJqeTZtYzI4b2t0cHp6dXpscmxld3psOTEzcWR6ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6AnUuBECREYeTr5n0t/giphy.gif)
+
+Like `Enzyme`, `Mooncake` handles mutation, control flow, and provides reliable correctness - stuff that `Zygote` can struggle with.
+
+...but unlike `Enzyme`, it does all of this without leaving `Julia`. It is a [self-described](https://github.com/chalk-lab/Mooncake.jl) *language-level autograd compiler*.
+
+:::{.callout-note collapse="true"}
+## How does `Mooncake` work?
+
+`Zygote` (and `ReverseDiff`) are *tracing* AD libraries. They execute the function and record all operations on a *tape*. The tape can then be replayed in reverse to compute the gradients neatly - especially for the simple test function.
+
+The tape is data, not code, so `Julia` can't optimise it.
+
+A tape records a path (as your code runs), but `Enzyme` and `Mooncake` can apply the chain rule to the code before it runs, and then produce new code that: (a) preserves mutation and control flow, and (b) returns gradients with very little overhead, and (c) can be optimised by the compiler. This is only possible because (as we saw in [Part 1](https://allyourbayes.com/posts/gradients/)), `Julia`'s compiler produces an IR that retains the loops, branches, types, and all, of your code. `Python` doesn't have this and so it has to trace.
+
+| autodiff library | reads | generates | consequence |
+|---|---|---|---|
+| **Zygote** | `Julia` IR | tape (via fragile IR transforms) | slow on control flow, can silently mishandle edge cases |
+| **ReverseDiff** | runtime trace | tape | can't be compiler-optimised |
+| **Enzyme** | LLVM IR | new LLVM code | fast, but outside `Julia` |
+| **Mooncake** | `Julia` IR | new `Julia` functions | fast, and stays in `Julia` |
+
+All of the major `Python` AD libraries (`PyTorch`, `TensorFlow`, `JAX`) implement some kind of tape or tracing. AFAIK, the only one that doesn't re-trace every operation is `JAX`, which uses a method that imposes a fixed control flow - hence the self-described "sharp bits" :knife:.
+:::
+
+Why does staying in `Julia` matter?
+
+* **debugging**: we get `Julia` errors - not messages from LLVM-land, which I certainly can't follow.
+* **new custom rules**: adding new derivatives just requires a `Julia` function. `Mooncake` provides helpful macros for this too!
+* **stability**: we won't get breaking changes on new `Julia` releases if something changes with the LLVM. I have read that `Enzyme` has previously had to make fixes for this.
+
+If you still aren't sure whether to take notice, then listen to the man himself, [Chris Rackauckas](https://www.stochasticlifestyle.com), "*Mooncake is Zygote, but done good, with mutation support*" (see clip below)
+
+{{< video https://www.youtube.com/watch?v=dD07UC3cW94 >}}
+
+#### lets be honest about current trade-offs
+
+It's tricky trying to find definitive benchmarks for the `Julia` AD ecosystem. The discourse pages will provide one-off examples of older libraries occasionally outperforming newer ones in terms of speed and reliability. However, the general consensus seems to be that `Enzyme` is currently the most performant, with `Mooncake` not far behind. 
+
+Let's do our own....
+
+```{julia}
+#| output: false
+# loading our autodiff libraries
+using ReverseDiff, Zygote, Enzyme, Mooncake
+
+# and to test
+using BenchmarkTools, Random
+
+# a simple function
+test_function(x) = sum(sin.(x) .+ cos.(x.^2))
+
+# and an example with some control flow (the *if*'s can be a problem for some AD libraries)
+function control_flow_function(x)
+    s = 0.0
+    for i in eachindex(x)
+        if x[i] > 0.0
+            s += sin(x[i])
+        else
+            s += cos(x[i])
+        end
+    end
+    return s
+end
+
+# simulate some reproducible inputs
+x = rand(MersenneTwister(2311), 1000)
+```
+
+:::{.callout-note collapse="true"}
+## Why do we care about control flow?
+
+Loops, if/else branches, and recursion are how we naturally write scientific code. In this example, the control flow example has a for loop (with $1000$ iterations) and a branching if/else statement. A tape-based AD (see callout above, "*How does `Mooncake` work*") needs to trace every iteration and record whichever branch was taken, each with its own allocation! 
+
+The tape-free approach taken by `Enzyme` and `Mooncake` avoids this overhead entirely, producing derivative code where the loop is still a loop. They are especially powerful when differentiating through code with lots of control flow.
+:::
+
+```{julia}
+#| output: false
+@btime ReverseDiff.gradient(test_function, $x)[begin]
+@btime ReverseDiff.gradient(control_flow_function, $x)[begin]
+
+@btime Zygote.gradient(test_function, $x)
+@btime Zygote.gradient(control_flow_function, $x)
+
+@btime Enzyme.gradient(Reverse, test_function, $x)
+@btime Enzyme.gradient(Reverse, control_flow_function, $x)
+
+```
+
+Unlike `Enzyme`, which has both `gradient()` (convenience) and `autodiff()` (more explicit specification), `Mooncake`'s `value_and_gradient!!` is the main API. There isn't a separate "advanced" form.
+
+:::{.callout-note collapse="true"}
+## `!!` mutate, or obliterate? 
+
+In `Julia`, the familiar single `!` denotes a function that may mutate its arguments (but leaving them in a valid state), like how `sort!(x)` redefines `x` as a sorted array.
+
+The double `!!` is new to me, and is apparently a convention from the AD ecosystem, and not base `Julia`. It signifies that arguments may be mutated, with no guarantees about how meaningful/useful they are afterwards. Presumably in the below example, it is the aggressive recycling of memory that is being signposted i.e. previous contents of the cache are being overwritten and shouldn't be referenced? But maybe there is more to it.
+
+:::
+
+```{julia}
+#| output: false
+# Mooncake needs a prepared cache
+cache = Mooncake.prepare_gradient_cache(test_function, x);
+@btime Mooncake.value_and_gradient!!(cache, test_function, $x)
+
+cache = Mooncake.prepare_gradient_cache(control_flow_function, x);
+@btime Mooncake.value_and_gradient!!(cache, control_flow_function, $x)
+```
+
+The results...
+🥇 🥈 🥉
+
+#### `test_function()`
+ 
+| library | time (μs) | allocations | memory |
+|---|--:|--:|--:|
+| **Enzyme** | 15.4 | 8 | 24.16 KiB |
+| **Zygote** | 16.5 | 49 | 97.14 KiB |
+| **ReverseDiff** | 23.7 | 105 | 67.78 KiB |
+| **Mooncake** | 24.8 | 11 | 16.48 KiB |
+ 
+#### `control_flow_function()`
+ 
+| library | time | allocations | memory |
+|---|--:|--:|--:|
+| **Enzyme** | 3.2 μs | 3 | 8.06 KiB |
+| **Mooncake** | 14.5 μs | 3 | 352 B |
+| **ReverseDiff** | 257.0 μs | 8,023 | 375.70 KiB |
+| **Zygote** | 3,481 μs | 42,118 | 9.51 MiB |
+ 
+
+As expected, `Enzyme` is fast. It sees this already-optimised LLVM code and differentiates that.
+
+Although `Mooncake` was the slowest on the simple test function, it was only $1.6$ times slower than `Enzyme` - same order of magnitude, still competitive. The newer libraries really shone on the control flow function, hundreds (`Mooncake`) to thousands (`Enzyme`) times faster than `Zygote`.
+
+And look at the memory! :eyes:
+
+`Mooncake` allocates so little! After the initial cache preparation, the gradients calculated in training or inference loops will be almost zero-allocation, which is fantastic for performance or memory bottlenecks.
+
+
+#### reviewing the Bayesian model from [Part 1](https://allyourbayes.com/posts/gradients/)
+
+Using the same simulated data and priors, let's run the linear regression using `Turing` (look how much neater it is) and swap AD backends with a single argument. 
+
+```{julia}
+#| echo: false
+#| output: false
+
+using Distributions
+using ADTypes: AutoEnzyme, AutoMooncake, AutoMooncakeForward
+
+n_samples = 20
+
+prng = MersenneTwister(231123)
+
+α_true = 1/2; β_true = -1/2; σ_true = 2
+
+x = randn(prng, n_samples)
+y = α_true .+ x * β_true .+ σ_true * randn(prng, n_samples)
+
+α_prior = Normal(0, 3)
+β_prior = Normal(0, 3) 
+σ_prior = Exponential(1)
+```
+
+```{julia}
+#| output: false
+using Turing, Distributions
+
+@model function linear_regression(x, y)
+    # priors
+    α ~ α_prior; β ~ β_prior; σ ~ σ_prior
+    
+    # there are ofc lots of ways to vector/optim-ise the likelihood, but...
+    for i in eachindex(y)
+        y[i] ~ Normal(α + β * x[i], σ)
+    end
+end
+
+linear_model = linear_regression(x, y); n_draws = 1_000
+```
+
+just running a single chain for $1,000$ post-warmup samples for the purposes of this example:
+
+```{julia}
+#| eval: false
+mooncake_draws =  sample(linear_model, NUTS(; adtype=AutoMooncake(; config=nothing)), n_draws)
+
+enzyme_draws = sample(linear_model, NUTS(; adtype=AutoEnzyme(; mode=Enzyme.set_runtime_activity(Enzyme.Reverse))), n_draws)
+```
+
+not ideal syntax, but within each sample you can specify an AD backend. Actually in the above example, I wouldn't expect any benefit from using `Mooncake` or `Enzyme` - it's a tiny model ($3$ parameters, $20$ data points) and, as discussed in [Part 1](https://allyourbayes.com/posts/gradients/), a Forward Mode AD library like `ForwardDiff` would likely be the best bet. As I mentioned in [Part 1](https://allyourbayes.com/posts/gradients/), there have been cases where I benefitted enormously from simply switching the AD backend to `AutoMooncake()`.
+
+#### my current thoughts
+
+Please keep in mind, I don't feel best placed to comment on direction of travel. I am a user (and fan) of the `Julia` scientific computing ecosystem, but I am not an open source developer.
+
+`Mooncake` is still being developed by that community, with the stated goal to: *"improve on ForwardDiff.jl, ReverseDiff.jl, and Zygote.jl in several ways."* It encourages us to use it, in a seemingly arduous way. Either by adding an extra step (`prepare_gradient()`), or by using `DifferentiationInterface` - a common interface for multiple `Julia` AD libraries.
+
+As with most statistical software, I expect the future success of these libraries will be tied to how well they integrate with the rest of the ecosystem. If `Mooncake` can be subbed in for `Enzyme` in libraries like `Turing` and `Flux`, then it will be easy to switch and benefit from its features.
+
+Or will the `Julia` AD ecosystem fail to converge and I'll end up writing a Part 3 in this series? 🤔

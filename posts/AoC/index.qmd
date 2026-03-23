@@ -2,7 +2,7 @@
 title: "advent of code 2025"
 subtitle: "how far can I get in Julia?"
 author: "Domenic Di Francesco"
-date: today
+date: "2026-01-07"
 categories: [Julia, puzzles]
 fields: [date, title, reading-time, description]
 citation: true
