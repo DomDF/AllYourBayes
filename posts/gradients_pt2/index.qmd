@@ -3,7 +3,7 @@ title: "diff all the things! Part 2"
 subtitle: "performant gradients on demand, courtesy of Julia"
 author: "Domenic Di Francesco"
 date: "2026-03-01"
-categories: [automatic differentiation, deep learning, Bayesian inference, Julia, Enzyme, Mooncake]
+categories: [automatic differentiation, deep learning, Bayes, Julia, Enzyme, Mooncake]
 fields: [date, title, reading-time, description]
 citation: true
 image: "mooncake.png"
@@ -61,7 +61,7 @@ Like `Enzyme`, `Mooncake` handles mutation, control flow, and provides reliable 
 :::{.callout-note collapse="true"}
 ## How does `Mooncake` work?
 
-`Zygote` (and `ReverseDiff`) are *tracing* AD libraries. They execute the function and record all operations on a *tape*. The tape can then be replayed in reverse to compute the gradients neatly - especially for the simple test function.
+`Zygote` (and `ReverseDiff`) are *tracing* AD libraries. They execute the function and record all operations on a *tape*. The tape can then be replayed in reverse to compute the gradients neatly - especially for simple functions.
 
 The tape is data, not code, so `Julia` can't optimise it.
 
@@ -245,7 +245,7 @@ mooncake_draws =  sample(linear_model, NUTS(; adtype=AutoMooncake(; config=nothi
 enzyme_draws = sample(linear_model, NUTS(; adtype=AutoEnzyme(; mode=Enzyme.set_runtime_activity(Enzyme.Reverse))), n_draws)
 ```
 
-not ideal syntax, but within each sample you can specify an AD backend. Actually in the above example, I wouldn't expect any benefit from using `Mooncake` or `Enzyme` - it's a tiny model ($3$ parameters, $20$ data points) and, as discussed in [Part 1](https://allyourbayes.com/posts/gradients/), a Forward Mode AD library like `ForwardDiff` would likely be the best bet. As I mentioned in [Part 1](https://allyourbayes.com/posts/gradients/), there have been cases where I benefitted enormously from simply switching the AD backend to `AutoMooncake()`.
+not ideal syntax, but within each sampler you can specify an AD backend. Actually in the above example, I wouldn't expect any benefit from using `Mooncake` or `Enzyme` - it's a tiny model ($3$ parameters, $20$ data points) and, as discussed in [Part 1](https://allyourbayes.com/posts/gradients/), a Forward Mode AD library like `ForwardDiff` would likely be the best bet. As I mentioned in [Part 1](https://allyourbayes.com/posts/gradients/), there have been cases where I benefitted enormously from simply switching the AD backend to `AutoMooncake()`.
 
 #### my current thoughts
 

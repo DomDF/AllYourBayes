@@ -6,513 +6,15 @@
       version="2.0">
 <channel>
 <title>All Your Bayes</title>
-<link>https://allyourbayes.com/#category=Julia</link>
-<atom:link href="https://allyourbayes.com/index-julia.xml" rel="self" type="application/rss+xml"/>
+<link>https://www.allyourbayes.com/#category=Julia</link>
+<atom:link href="https://www.allyourbayes.com/index-julia.xml" rel="self" type="application/rss+xml"/>
 <description>thoughts on risk and uncertainty in decision support</description>
 <generator>quarto-1.7.30</generator>
-<lastBuildDate>Sat, 25 Apr 2026 23:00:00 GMT</lastBuildDate>
-<item>
-  <title>diffusions and flows</title>
-  <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/flows/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-
-<section id="tldr" class="level3">
-<h3 class="anchored" data-anchor-id="tldr">TLDR</h3>
-<p>In the last 5-10 years, computational statistics and machine learning has felt like an endless stream of new algorithms and methods, which it is not possible to keep up with. On top of this, methods come in and out of fashion when they are implemented in a new way or find a new application. I certainly missed the first wave of diffusion models, but I am picking them up now.</p>
-<p>Diffusion models are closely related to normalising flows and flow-matching, and all have applications in generative AI and probabilistic modeling.</p>
-<hr>
-<section id="transporting-probability-from-a-b" class="level4">
-<h4 class="anchored" data-anchor-id="transporting-probability-from-a-b">transporting probability from A =&gt; B</h4>
-<p>Why would anyone want to do this?</p>
-<p>[FIGURE PLACEHOLDER - a transport map, or a GIF]</p>
-<p>Primarily, in a generative modelling context. Learning a mapping from a simple distribution (e.g.&nbsp;Gaussian noise) to a complex one (e.g.&nbsp;images) is the basis of much of “generative AI”. It is how DALL·E and other image generation models work, and is being explored in the context of language models too.</p>
-<p>They are based around the idea of <strong>optimal transport</strong> - what is the cheapest/easiest way to move probability mass from one distribution to another? We will see ways to achieve this, and what they look like in <code>Julia</code>, starting with loading some of our favourite libraries:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">using</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Flux</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Distributions</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">LinearAlgebra</span></span></code></pre></div>
-</div>
-</section>
-<section id="normalising-flows" class="level4">
-<h4 class="anchored" data-anchor-id="normalising-flows">normalising flows</h4>
-<p>Instead of learning a single (big!) transport map, we can instead build this up from lots of small, simple (invertible) transformations:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AT%20=%20f_%7BN%7D%20%5Ccirc%20f_%7BN-1%7D%20%5Ccirc%20...%20%5Ccirc%20f_1%0A"></p>
-<p>Each operation is just a simple “push and stretch” - individually boring, but capable of building complexity when chained together.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">struct</span> AffineFlow</span>
-<span id="cb2-2">    s<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Vector{Float64}</span></span>
-<span id="cb2-3">    t<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Vector{Float64}</span></span>
-<span id="cb2-4"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span></span>
-<span id="cb2-5"></span>
-<span id="cb2-6"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">AffineFlow</span>() <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">AffineFlow</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">randn</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>), <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">randn</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>))</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>AffineFlow</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"></span>
-<span id="cb4-2">Flux.<span class="pp" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">@functor</span> AffineFlow</span>
-<span id="cb4-3"></span>
-<span id="cb4-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Forward: z → x, returns (samples, log_det_jacobian)</span></span>
-<span id="cb4-5"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">forward</span>(f<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">AffineFlow</span>, z)</span>
-<span id="cb4-6">    x <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> z <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.*</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">exp</span>.(f.s[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>]) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.+</span> f.t[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>]</span>
-<span id="cb4-7">    log_det <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> f.s[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>]  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># d(x)/d(z) = exp(s), so log|det| = s</span></span>
-<span id="cb4-8">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># equivalently: jacobian(f, z) |&gt; det |&gt; abs |&gt; log</span></span>
-<span id="cb4-9">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># but the analytical form is much faster and more stable...</span></span>
-<span id="cb4-10">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># ...it is actually a trick of normalising flows </span></span>
-<span id="cb4-11">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># that we can compute this log-det cheaply, </span></span>
-<span id="cb4-12">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># which is why we choose these simple transformations! </span></span>
-<span id="cb4-13">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> x, log_det</span>
-<span id="cb4-14"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>forward (generic function with 1 method)</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"></span>
-<span id="cb6-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Inverse: x → z, returns (latent, log_det_jacobian)</span></span>
-<span id="cb6-3"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Note: log_det of the *inverse* is -s (we're undoing the scaling)</span></span>
-<span id="cb6-4"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">inverse</span>(f<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">AffineFlow</span>, x)</span>
-<span id="cb6-5">    z <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> (x <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.-</span> f.t[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>]) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.*</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">exp</span>.(<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span>f.s[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>])</span>
-<span id="cb6-6">    log_det <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span>f.s[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>]</span>
-<span id="cb6-7">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> z, log_det</span>
-<span id="cb6-8"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>inverse (generic function with 1 method)</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"></span>
-<span id="cb8-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># --- This is where the log-det actually gets used ---</span></span>
-<span id="cb8-3"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Compute log-likelihood of observed data x under the flow</span></span>
-<span id="cb8-4"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">log_likelihood</span>(f<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">AffineFlow</span>, x)</span>
-<span id="cb8-5">    z, log_det <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">inverse</span>(f, x)           <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># map data back to base space</span></span>
-<span id="cb8-6">    log_pz <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">logpdf</span>.(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">Normal</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0f0</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1f0</span>), z) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># evaluate base density</span></span>
-<span id="cb8-7">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> log_pz <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.+</span> log_det              <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># change of variables formula!</span></span>
-<span id="cb8-8"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>log_likelihood (generic function with 1 method)</code></pre>
-</div>
-</div>
-<p>More clever, pragmatic engineering from the world of CSML. So what are the trade-offs?</p>
-<p>The requirement that every layer be invertible with a cheap Jacobian determinant severely constrains the architecture. You can’t just use any neural network, you need specially designed layers. This creates a tension of <em>expressiveness</em> vs.&nbsp;<em>tractability</em>.</p>
-<p>So what if, instead of requiring invertibility at every layer, we imagined a single smooth path from A to B and tried to learn that? We get a <em>continuous normalising flow</em>:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cdfrac%7Bdx%7D%7Bdt%7D%20=%20f(x,%20t)%0A"></p>
-<p>…where <img src="https://latex.codecogs.com/png.latex?f"> is just a neural network that takes in the current position and time, and returns a velocity. This is the idea that is going to connect us to diffusion models (and flow matching).</p>
-</section>
-</section>
-<section id="diffusion" class="level2">
-<h2 class="anchored" data-anchor-id="diffusion">diffusion</h2>
-<p>We have been considering learning a map from source to data, but if we flip this the problem becomes adding noise until data approaches a simple distribution (e.g.&nbsp;a standard Gaussian).</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ax_%7Bt%7D%20=%20%5Calpha_%7Bt%7D%20x_%7B0%7D%20+%20%5Csigma_%7Bt%7D%20%5Ccdot%20%5Cepsilon%0A"></p>
-<p>Now we have different forward and reverse functions.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># --- Noise schedule: linear interpolation for simplicity ---</span></span>
-<span id="cb10-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">alpha</span>(t) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1.0f0</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> t          <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># signal: 1 at t=0, 0 at t=1</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>alpha (generic function with 1 method)</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sigma</span>(t) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> t                    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># noise:  0 at t=0, 1 at t=1</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>sigma (generic function with 1 method)</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"></span>
-<span id="cb14-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># --- Forward process: corrupt data x0 at time t ---</span></span>
-<span id="cb14-3"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">noisify</span>(x0, t, ε)</span>
-<span id="cb14-4">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">alpha</span>(t) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.*</span> x0 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.+</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sigma</span>(t) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.*</span> ε</span>
-<span id="cb14-5"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>noisify (generic function with 1 method)</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1"></span>
-<span id="cb16-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># --- Score network: MLP that takes (x_t, t) → predicted score ---</span></span>
-<span id="cb16-3">score_net <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">Chain</span>(</span>
-<span id="cb16-4">    <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">Dense</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">64</span>, relu),   <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># input: [x_t; t] concatenated</span></span>
-<span id="cb16-5">    <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">Dense</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">64</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">64</span>, relu),</span>
-<span id="cb16-6">    <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">Dense</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">64</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)           <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># output: score (1D for 1D data)</span></span>
-<span id="cb16-7">)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Chain(
-  Dense(2 =&gt; 64, relu),                 # 192 parameters
-  Dense(64 =&gt; 64, relu),                # 4_160 parameters
-  Dense(64 =&gt; 1),                       # 65 parameters
-)                   # Total: 6 arrays, 4_417 parameters, 17.559 KiB.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"></span>
-<span id="cb18-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># --- Denoising score matching loss for one sample ---</span></span>
-<span id="cb18-3"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">dsm_loss</span>(score_net, x0)</span>
-<span id="cb18-4">    t <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rand</span>(<span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Float32</span>)                         <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># random time</span></span>
-<span id="cb18-5">    ε <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">randn</span>(<span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Float32</span>)                        <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># random noise</span></span>
-<span id="cb18-6">    xt <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">noisify</span>(x0, t, ε)                    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># noisy sample</span></span>
-<span id="cb18-7">    input <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Float32</span>[xt; t]                    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># concat for network</span></span>
-<span id="cb18-8">    target <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span>ε <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sigma</span>(t)                    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># closed-form score</span></span>
-<span id="cb18-9">    pred <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">score_net</span>(input)[<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>]</span>
-<span id="cb18-10">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> (pred <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> target)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">^</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span></span>
-<span id="cb18-11"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>dsm_loss (generic function with 1 method)</code></pre>
-</div>
-</div>
-<section id="flow-matching" class="level4">
-<h4 class="anchored" data-anchor-id="flow-matching">flow matching</h4>
-<p>Training losses for diffusion models are based on the score function, and this is challenging in practice because the score is unbounded and can be very large when the noise level is low. Flow matching, another related idea, learns the velocity of particles moving from A to B. This is much more stable to train.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Diffusion (score matching):</span></span>
-<span id="cb20-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#   target = -ε / sigma(t)        (the score)</span></span>
-<span id="cb20-3"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#   network predicts: score s_θ(xt, t)</span></span>
-<span id="cb20-4"></span>
-<span id="cb20-5"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Flow matching:</span></span>
-<span id="cb20-6"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#   target = x0 - z               (the velocity)</span></span>
-<span id="cb20-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#   network predicts: velocity v_θ(xt, t)</span></span></code></pre></div>
-</div>
-<p>The interpolations are closely related:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Diffusion:   xt = alpha(t) * x0 + sigma(t) * ε</span></span>
-<span id="cb21-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Flow match:  xt = (1 - t) * z  + t * x0</span></span></code></pre></div>
-</div>
-<p>In fact, with the linear noise schedule we have been using, the flow matching velocity is just a scaled version of the score function.</p>
-<p>The only difference is the parameterisation of what the network is learning - with flow atching finding a conceptually simpler</p>
-</section>
-</section>
-<section id="flowing-towards-bayes" class="level2">
-<h2 class="anchored" data-anchor-id="flowing-towards-bayes">flowing towards Bayes</h2>
-
-
-</section>
-
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{di_francesco2026,
-  author = {Di Francesco, Domenic},
-  title = {Diffusions and Flows},
-  date = {2026-04-26},
-  url = {https://allyourbayes.com/posts/flows/},
-  langid = {en}
-}
-</code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2026" class="csl-entry quarto-appendix-citeas">
-Di Francesco, Domenic. 2026. <span>“Diffusions and Flows.”</span> April
-26, 2026. <a href="https://allyourbayes.com/posts/flows/">https://allyourbayes.com/posts/flows/</a>.
-</div></div></section></div> ]]></description>
-  <category>diffusion models</category>
-  <category>normalising flows</category>
-  <category>generative models</category>
-  <category>Julia</category>
-  <category>Flux</category>
-  <guid>https://allyourbayes.com/posts/flows/</guid>
-  <pubDate>Sat, 25 Apr 2026 23:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/flows/meme.jpg" medium="image" type="image/jpeg"/>
-</item>
+<lastBuildDate>Sun, 01 Mar 2026 00:00:00 GMT</lastBuildDate>
 <item>
   <title>diff all the things! Part 2</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/gradients_pt2/</link>
+  <link>https://www.allyourbayes.com/posts/gradients_pt2/</link>
   <description><![CDATA[ 
 
 
@@ -573,7 +75,7 @@ How does <code>Mooncake</code> work?
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p><code>Zygote</code> (and <code>ReverseDiff</code>) are <em>tracing</em> AD libraries. They execute the function and record all operations on a <em>tape</em>. The tape can then be replayed in reverse to compute the gradients neatly - especially for the simple test function.</p>
+<p><code>Zygote</code> (and <code>ReverseDiff</code>) are <em>tracing</em> AD libraries. They execute the function and record all operations on a <em>tape</em>. The tape can then be replayed in reverse to compute the gradients neatly - especially for simple functions.</p>
 <p>The tape is data, not code, so <code>Julia</code> can’t optimise it.</p>
 <p>A tape records a path (as your code runs), but <code>Enzyme</code> and <code>Mooncake</code> can apply the chain rule to the code before it runs, and then produce new code that: (a) preserves mutation and control flow, and (b) returns gradients with very little overhead, and (c) can be optimised by the compiler. This is only possible because (as we saw in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>), <code>Julia</code>’s compiler produces an IR that retains the loops, branches, types, and all, of your code. <code>Python</code> doesn’t have this and so it has to trace.</p>
 <table class="caption-top table">
@@ -1060,7 +562,7 @@ font-style: inherit;">=</span>Enzyme.<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">set_runtime_activity</span>(Enzyme.Reverse))), n_draws)</span></code></pre></div>
 </div>
-<p>not ideal syntax, but within each sample you can specify an AD backend. Actually in the above example, I wouldn’t expect any benefit from using <code>Mooncake</code> or <code>Enzyme</code> - it’s a tiny model (<img src="https://latex.codecogs.com/png.latex?3"> parameters, <img src="https://latex.codecogs.com/png.latex?20"> data points) and, as discussed in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>, a Forward Mode AD library like <code>ForwardDiff</code> would likely be the best bet. As I mentioned in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>, there have been cases where I benefitted enormously from simply switching the AD backend to <code>AutoMooncake()</code>.</p>
+<p>not ideal syntax, but within each sampler you can specify an AD backend. Actually in the above example, I wouldn’t expect any benefit from using <code>Mooncake</code> or <code>Enzyme</code> - it’s a tiny model (<img src="https://latex.codecogs.com/png.latex?3"> parameters, <img src="https://latex.codecogs.com/png.latex?20"> data points) and, as discussed in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>, a Forward Mode AD library like <code>ForwardDiff</code> would likely be the best bet. As I mentioned in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>, there have been cases where I benefitted enormously from simply switching the AD backend to <code>AutoMooncake()</code>.</p>
 </section>
 <section id="my-current-thoughts" class="level4">
 <h4 class="anchored" data-anchor-id="my-current-thoughts">my current thoughts</h4>
@@ -1077,27 +579,27 @@ font-style: inherit;">set_runtime_activity</span>(Enzyme.Reverse))), n_draws)</s
   author = {Di Francesco, Domenic},
   title = {Diff All the Things! {Part} 2},
   date = {2026-03-01},
-  url = {https://allyourbayes.com/posts/gradients_pt2/},
+  url = {https://www.allyourbayes.com/posts/gradients_pt2/},
   langid = {en}
 }
 </code></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2026" class="csl-entry quarto-appendix-citeas">
 Di Francesco, Domenic. 2026. <span>“Diff All the Things! Part 2.”</span>
-March 1, 2026. <a href="https://allyourbayes.com/posts/gradients_pt2/">https://allyourbayes.com/posts/gradients_pt2/</a>.
+March 1, 2026. <a href="https://www.allyourbayes.com/posts/gradients_pt2/">https://www.allyourbayes.com/posts/gradients_pt2/</a>.
 </div></div></section></div> ]]></description>
   <category>automatic differentiation</category>
   <category>deep learning</category>
-  <category>Bayesian inference</category>
+  <category>Bayes</category>
   <category>Julia</category>
   <category>Enzyme</category>
   <category>Mooncake</category>
-  <guid>https://allyourbayes.com/posts/gradients_pt2/</guid>
+  <guid>https://www.allyourbayes.com/posts/gradients_pt2/</guid>
   <pubDate>Sun, 01 Mar 2026 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/gradients_pt2/mooncake.png" medium="image" type="image/png" height="124" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/gradients_pt2/mooncake.png" medium="image" type="image/png" height="124" width="144"/>
 </item>
 <item>
   <title>advent of code 2025</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/AoC/</link>
+  <link>https://www.allyourbayes.com/posts/AoC/</link>
   <description><![CDATA[ 
 
 
@@ -4116,14 +3618,14 @@ Di Francesco, Domenic. 2026. <span>“Advent of Code 2025.”</span> January
 </div></div></section></div> ]]></description>
   <category>Julia</category>
   <category>puzzles</category>
-  <guid>https://allyourbayes.com/posts/AoC/</guid>
+  <guid>https://www.allyourbayes.com/posts/AoC/</guid>
   <pubDate>Wed, 07 Jan 2026 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/AoC/santa.png" medium="image" type="image/png" height="125" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/AoC/santa.png" medium="image" type="image/png" height="125" width="144"/>
 </item>
 <item>
   <title>diff all the things! Part 1</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/gradients_pt1/</link>
+  <link>https://www.allyourbayes.com/posts/gradients_pt1/</link>
   <description><![CDATA[ 
 
 
@@ -4145,7 +3647,7 @@ Di Francesco, Domenic. 2026. <span>“Advent of Code 2025.”</span> January
 <section id="inter-operability-and-julia" class="level4">
 <h4 class="anchored" data-anchor-id="inter-operability-and-julia">inter-operability and <code>Julia</code> ♥️💚💜</h4>
 <p>Perhaps my favourite feature of <code>Julia</code> is its inter-operability. Look at a GitHub repo for a <code>Julia</code> package and you will generally find the following:</p>
-<p><img src="https://allyourbayes.com/posts/gradients_pt1/julia_repo.png" class="img-fluid"></p>
+<p><img src="https://www.allyourbayes.com/posts/gradients_pt1/julia_repo.png" class="img-fluid"></p>
 <p><code>Julia</code> is so performant, that its libraries for scientific computing will work with normal variables - without needing to package up their own types. So solvers from <code>DifferentialEquations</code>, or neural networks defined in <code>Flux</code> can be immediately combined with the <code>Julia</code> probabilistic programming language, <code>Turing</code>.</p>
 <p>If a new framework emerges in <code>Python</code>, an entirely new ecosystem may need to be developed to prop it up. This may involve duplicating existing but now incompatible functionality - think of <code>JAX</code> needing to implement its own <code>NumPy</code> module. …whereas if you write a new <code>Julia</code> library, it could offer a vast range of applications as it is combined with other packages, which feels like potential for a multiplicative, rather than additive, impact.</p>
 <p>Here I am, impressed that the interoperability of the <code>Copulas</code> package:</p>
@@ -4163,7 +3665,7 @@ Di Francesco, Domenic. 2026. <span>“Advent of Code 2025.”</span> January
 <p>Conversely, <code>Julia</code> works the other way around. You write your code, using whichever libraries, functions and types you want, <em>and then</em> you choose an AD library to get you the gradients you need.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://allyourbayes.com/posts/gradients_pt1/autodiff_joy.png" class="img-fluid figure-img"></p>
+<p><img src="https://www.allyourbayes.com/posts/gradients_pt1/autodiff_joy.png" class="img-fluid figure-img"></p>
 <figcaption>the joy of gradients - image courtesy of Google Gemini</figcaption>
 </figure>
 </div>
@@ -4306,7 +3808,7 @@ _julia_nice_function_7864:              ; @julia_nice_function_7864
 "l_+Core.Float64#7866":
     .quad   "l_+Core.Float64#7866.jit"
 
-.set "l_+Core.Float64#7866.jit", 6235317488
+.set "l_+Core.Float64#7866.jit", 6237349104
 .subsections_via_symbols</code></pre>
 </div>
 </div>
@@ -4863,7 +4365,7 @@ font-style: inherit;">end</span></span></code></pre></div>
 </div>
 <p><code>Enzyme.make_zero(nn)</code> creates a structural copy of <code>nn</code> with the same type (neural_network), field names (Ws, bs), and dimensions …but with all numerical values set to zero. This memory-saving trick is important for large vectors of parameters, as we will generally have in deep learning.</p>
 <p>The example applications that I selected are already very well equipped with sophisticated <code>Julia</code> libraries. If you are interested in probabilistic modelling in <code>Julia</code>, use <code>Turing</code>, if you are interested in deep learning, use <code>Flux</code>. Both are Enzyme compatible, but the later has specific guidance on how to set this up, using the <code>Duplicated</code> method that we used above:</p>
-<p><img src="https://allyourbayes.com/posts/gradients_pt1/Flux_Enzyme.png" class="img-fluid"></p>
+<p><img src="https://www.allyourbayes.com/posts/gradients_pt1/Flux_Enzyme.png" class="img-fluid"></p>
 </section>
 <section id="some-references" class="level4">
 <h4 class="anchored" data-anchor-id="some-references">some references</h4>
@@ -4871,7 +4373,7 @@ font-style: inherit;">end</span></span></code></pre></div>
 <p>A summary of the key trade-offs accross various autodiff methods, <a href="https://www.stochasticlifestyle.com/engineering-trade-offs-in-automatic-differentiation-from-tensorflow-and-pytorch-to-jax-and-julia/">link</a></p>
 <p>Professor Simone Scardapone’s book, “Alice’s adventures in a differential wonderland” <a href="https://www.sscardapane.it/assets/alice/Alice_book_volume_1.pdf">link</a>.</p>
 <p><em>“As the name differentiable implies, gradients play a pivotal role”</em></p>
-<p><img src="https://allyourbayes.com/posts/gradients_pt1/alice.png" class="img-fluid"></p>
+<p><img src="https://www.allyourbayes.com/posts/gradients_pt1/alice.png" class="img-fluid"></p>
 <p>JuliaCon talk on <code>Julia</code>’s unique approach to autodiff: </p><div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/ww3ntpyxNtI" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div><p></p>
 
 
@@ -4891,17 +4393,17 @@ September 9, 2025. <a href="https://allyourbayes.com/posts/gradients_pt1/">https
 </div></div></section></div> ]]></description>
   <category>automatic differentiation</category>
   <category>deep learning</category>
-  <category>Bayesian inference</category>
+  <category>Bayes</category>
   <category>Julia</category>
   <category>Enzyme</category>
-  <guid>https://allyourbayes.com/posts/gradients_pt1/</guid>
+  <guid>https://www.allyourbayes.com/posts/gradients_pt1/</guid>
   <pubDate>Mon, 08 Sep 2025 23:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/gradients_pt1/meme.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://www.allyourbayes.com/posts/gradients_pt1/meme.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
   <title>Bayes@Lund2023</title>
   <dc:creator>Domenic Di Francesco</dc:creator>
-  <link>https://allyourbayes.com/posts/Bayes@Lund/</link>
+  <link>https://www.allyourbayes.com/posts/Bayes@Lund/</link>
   <description><![CDATA[ 
 
 
@@ -4941,9 +4443,9 @@ Di Francesco, Domenic. 2023. <span>“Bayes@Lund2023.”</span> January 23,
   <category>Julia</category>
   <category>decisions</category>
   <category>value of information</category>
-  <guid>https://allyourbayes.com/posts/Bayes@Lund/</guid>
+  <guid>https://www.allyourbayes.com/posts/Bayes@Lund/</guid>
   <pubDate>Mon, 23 Jan 2023 00:00:00 GMT</pubDate>
-  <media:content url="https://allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
+  <media:content url="https://www.allyourbayes.com/posts/Bayes@Lund/VoPI.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 </channel>
 </rss>

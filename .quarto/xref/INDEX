@@ -79,5 +79,8 @@
   },
   "posts/flows/index.qmd": {
     "index.html": "e11185e0"
+  },
+  "posts/gradients_pt1/index.rmarkdown": {
+    "index.html": "6b936d70"
   }
 }

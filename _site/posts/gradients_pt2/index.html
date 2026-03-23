@@ -170,7 +170,7 @@ window.Quarto = {
 
 <meta name="twitter:title" content="diff all the things! Part 2 – All Your Bayes">
 <meta name="twitter:description" content="performant gradients on demand, courtesy of Julia">
-<meta name="twitter:image" content="https://allyourbayes.com/posts/gradients_pt2/mooncake.png">
+<meta name="twitter:image" content="https://www.allyourbayes.com/posts/gradients_pt2/mooncake.png">
 <meta name="twitter:creator" content="@Domenic_DF">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image-height" content="208">
@@ -392,7 +392,7 @@ window.Quarto = {
                                 <div class="quarto-categories">
                 <div class="quarto-category">automatic differentiation</div>
                 <div class="quarto-category">deep learning</div>
-                <div class="quarto-category">Bayesian inference</div>
+                <div class="quarto-category">Bayes</div>
                 <div class="quarto-category">Julia</div>
                 <div class="quarto-category">Enzyme</div>
                 <div class="quarto-category">Mooncake</div>
@@ -486,7 +486,7 @@ How does <code>Mooncake</code> work?
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p><code>Zygote</code> (and <code>ReverseDiff</code>) are <em>tracing</em> AD libraries. They execute the function and record all operations on a <em>tape</em>. The tape can then be replayed in reverse to compute the gradients neatly - especially for the simple test function.</p>
+<p><code>Zygote</code> (and <code>ReverseDiff</code>) are <em>tracing</em> AD libraries. They execute the function and record all operations on a <em>tape</em>. The tape can then be replayed in reverse to compute the gradients neatly - especially for simple functions.</p>
 <p>The tape is data, not code, so <code>Julia</code> can’t optimise it.</p>
 <p>A tape records a path (as your code runs), but <code>Enzyme</code> and <code>Mooncake</code> can apply the chain rule to the code before it runs, and then produce new code that: (a) preserves mutation and control flow, and (b) returns gradients with very little overhead, and (c) can be optimised by the compiler. This is only possible because (as we saw in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>), <code>Julia</code>’s compiler produces an IR that retains the loops, branches, types, and all, of your code. <code>Python</code> doesn’t have this and so it has to trace.</p>
 <table class="caption-top table">
@@ -735,7 +735,7 @@ Why do we care about control flow?
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>enzyme_draws <span class="op">=</span> <span class="fu">sample</span>(linear_model, <span class="fu">NUTS</span>(; adtype<span class="op">=</span><span class="fu">AutoEnzyme</span>(; mode<span class="op">=</span>Enzyme.<span class="fu">set_runtime_activity</span>(Enzyme.Reverse))), n_draws)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>not ideal syntax, but within each sample you can specify an AD backend. Actually in the above example, I wouldn’t expect any benefit from using <code>Mooncake</code> or <code>Enzyme</code> - it’s a tiny model (<span class="math inline">\(3\)</span> parameters, <span class="math inline">\(20\)</span> data points) and, as discussed in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>, a Forward Mode AD library like <code>ForwardDiff</code> would likely be the best bet. As I mentioned in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>, there have been cases where I benefitted enormously from simply switching the AD backend to <code>AutoMooncake()</code>.</p>
+<p>not ideal syntax, but within each sampler you can specify an AD backend. Actually in the above example, I wouldn’t expect any benefit from using <code>Mooncake</code> or <code>Enzyme</code> - it’s a tiny model (<span class="math inline">\(3\)</span> parameters, <span class="math inline">\(20\)</span> data points) and, as discussed in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>, a Forward Mode AD library like <code>ForwardDiff</code> would likely be the best bet. As I mentioned in <a href="https://allyourbayes.com/posts/gradients/">Part 1</a>, there have been cases where I benefitted enormously from simply switching the AD backend to <code>AutoMooncake()</code>.</p>
 </section>
 <section id="my-current-thoughts" class="level4">
 <h4 class="anchored" data-anchor-id="my-current-thoughts">my current thoughts</h4>
@@ -752,12 +752,12 @@ Why do we care about control flow?
   author = {Di Francesco, Domenic},
   title = {Diff All the Things! {Part} 2},
   date = {2026-03-01},
-  url = {https://allyourbayes.com/posts/gradients_pt2/},
+  url = {https://www.allyourbayes.com/posts/gradients_pt2/},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-di_francesco2026" class="csl-entry quarto-appendix-citeas" role="listitem">
 Di Francesco, Domenic. 2026. <span>“Diff All the Things! Part 2.”</span>
-March 1, 2026. <a href="https://allyourbayes.com/posts/gradients_pt2/">https://allyourbayes.com/posts/gradients_pt2/</a>.
+March 1, 2026. <a href="https://www.allyourbayes.com/posts/gradients_pt2/">https://www.allyourbayes.com/posts/gradients_pt2/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -844,7 +844,7 @@ March 1, 2026. <a href="https://allyourbayes.com/posts/gradients_pt2/">https://a
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/allyourbayes\.com");
+        var filterRegex = new RegExp("https:\/\/www\.allyourbayes\.com\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
